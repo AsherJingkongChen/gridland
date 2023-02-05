@@ -171,8 +171,7 @@ export class Camera extends Container {
     return {
       camera: {
         pivot: { x: this.x, y: this.y, z: this.z },
-        scale: `${Math.round(this.scale.x * 100)}%`,
-        window: { x: this.windowX, y: this.windowY },
+        scale: `${Math.round(this.scale.x * 100)}%`
       },
       canvas: {
         size: { w: this.canvas.width, h: this.canvas.height }
