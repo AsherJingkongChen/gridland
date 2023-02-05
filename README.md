@@ -10,6 +10,7 @@
 
 - PIXI.js
 - Webpack
+- NPM
 
 ## [Version](doc/version.md)
 
