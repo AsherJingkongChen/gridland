@@ -3,7 +3,7 @@
 
 ## Build
 
-- For development and debugging: `npm run dev`
+- For development: `npm run dev`
 - For releasing: `npm run release`
 
 ## Techstack
@@ -11,8 +11,6 @@
 - PIXI.js
 - Webpack
 
-## Version
+## [Version](doc/version.md)
 
-- 0.0.1: Under development
-  - ![demo](demo/v0.0.1.gif)
-  - camera (almost)
+- current is 0.0.1
