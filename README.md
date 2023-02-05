@@ -13,4 +13,4 @@
 
 ## Version
 
-- 0x0001: Under development
+- 0.0.1: Under development
