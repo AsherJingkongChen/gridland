@@ -61,7 +61,7 @@ app.stage.addChild(statsPanel);
 
 const versionPanel =
   new BitmapText(
-    'version 0x0001',
+    'version 0.0.1',
     {
       fontName: 'Stats',
       align: 'right'
