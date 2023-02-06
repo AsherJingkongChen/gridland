@@ -1,9 +1,9 @@
 import {
   Application,
-  BitmapText
+  BitmapText,
 } from 'pixi.js';
-import { Camera, statsPanel } from './camera/camera';
-import { TileScene } from './scene/tile_scene';
+import { Camera, statsPanel } from './camera/Camera';
+import { TileScene } from './scene/TileScene';
 
 const app = new Application({
   view: document.getElementById('canvas_1') as HTMLCanvasElement,
@@ -25,16 +25,18 @@ function colorMap() {
   return result;
 };
 
-const camera = new Camera(new TileScene(0, 0, 2048, 2048, colorMap()));
+const camera = new Camera(new TileScene(0, 0, 4096, 4096, colorMap()));
+
 app.stage.addChild(camera);
 camera.globalX = window.innerWidth / 2;
 camera.globalY = window.innerHeight / 2;
 
 app.stage.addChild(statsPanel);
 
+// [TODO]
 const versionPanel =
   new BitmapText(
-    'version 0.0.1',
+    'version 0.0.2',
     {
       fontName: 'Stats',
       align: 'right'
@@ -47,4 +49,3 @@ versionPanel.position.x = window.innerWidth - versionPanel.textWidth;
 window.addEventListener('resize', () => {
   versionPanel.position.x = window.innerWidth - versionPanel.textWidth;
 });
-

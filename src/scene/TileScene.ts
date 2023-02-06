@@ -1,5 +1,5 @@
 import { Container } from 'pixi.js';
-import { MonoScene } from './mono_scene';
+import { MonoScene } from './MonoScene';
 
 export class TileScene extends Container {
   private scenes: MonoScene[][];

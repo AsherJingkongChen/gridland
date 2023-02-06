@@ -43,8 +43,11 @@ export const statsPanel =
     }
   );
 
-
+/**
+ * Camera is controlled with x, y and z
+ */
 export class Camera extends Container {
+  public canvas: Container;
   private _moving: boolean;
   private _z: number;
 
@@ -65,19 +68,19 @@ export class Camera extends Container {
   }
 
   get globalX(): number {
-    return this.x * this.scale.x;
+    return this.localX * this.worldTransform.a;
   }
 
   set globalX(globalX: number) {
-    this.x = globalX / this.scale.x;
+    this.localX = globalX / this.worldTransform.a;
   }
 
   get globalY(): number {
-    return this.y * this.scale.y;
+    return this.localY * this.worldTransform.d;
   }
 
   set globalY(globalY: number) {
-    this.y = globalY / this.scale.y;
+    this.localY = globalY / this.worldTransform.d;
   }
 
   override get x(): number {
@@ -112,8 +115,9 @@ export class Camera extends Container {
     super();
     this.interactive = true;
     this.addChild(canvas);
-
+    
     // this.canvas.getBounds(); // [TODO]
+    this.canvas = canvas;
     this._moving = false;
     this._z = 0;
 
@@ -126,65 +130,67 @@ export class Camera extends Container {
     });
   }
 
-  private _attach(): void {
+  private _attach() {
+    this._recursivePostUpdateTransform();
     this._z = window.innerWidth / 2;
-    
+
     this._centerPosition();
     window.addEventListener(
       'resize',
       this._centerPosition.bind(this)
     );
 
-    this.on('pointerdown', this._onpointerdown);
-    this.on('pointermove', this._onpointermove);
-    this.on('pointerup', this._onpointerup);
-    this.on('pointerupoutside', this._onpointerupoutside);
-    this.on('wheel', this._onwheel);
+    this.on('pointerdown', this._pointerdown);
+    this.on('pointermove', this._pointermove);
+    this.on('pointerup', this._pointerup);
+    this.on('pointerupoutside', this._pointerupoutside);
+    this.on('wheel', this._wheel);
   }
 
-  _detach(): void {
+  private _detach() {
     window.removeEventListener(
       'resize', 
       this._centerPosition.bind(this)
     );
-    this.off('pointerdown', this._onpointerdown);
-    this.off('pointermove', this._onpointermove);
-    this.off('pointerup', this._onpointerup);
-    this.off('pointerupoutside', this._onpointerupoutside);
-    this.off('wheel', this._onwheel);
+
+    this.off('pointerdown', this._pointerdown);
+    this.off('pointermove', this._pointermove);
+    this.off('pointerup', this._pointerup);
+    this.off('pointerupoutside', this._pointerupoutside);
+    this.off('wheel', this._wheel);
   }
 
-  private _onpointerdown(e: FederatedPointerEvent) {
+  private _pointerdown(e: FederatedPointerEvent) {
     if (e.button == 0) {
-      this._onpointerdownAtLeft();
+      this._leftpointerdown();
     }
   }
 
-  private _onpointerdownAtLeft() {
+  private _leftpointerdown() {
     this._moving = true;
   }
 
-  private _onpointermove(e: FederatedPointerEvent) {
+  private _pointermove(e: FederatedPointerEvent) {
     if (! this._moving) { return; }
 
     this._pointermoveHelper(e);
   }
 
-  private _onpointerup(e: FederatedPointerEvent) {
-    if (! this._moving) { return; }
-
-    this._pointermoveHelper(e);
-    this._moving = false;
-  }
-
-  private _onpointerupoutside(e: FederatedPointerEvent) {
+  private _pointerup(e: FederatedPointerEvent) {
     if (! this._moving) { return; }
 
     this._pointermoveHelper(e);
     this._moving = false;
   }
 
-  private _onwheel(e: FederatedWheelEvent) {
+  private _pointerupoutside(e: FederatedPointerEvent) {
+    if (! this._moving) { return; }
+
+    this._pointermoveHelper(e);
+    this._moving = false;
+  }
+
+  private _wheel(e: FederatedWheelEvent) {
     if (!e.metaKey && !e.ctrlKey) { return; }
 
     this.z += 2 * e.deltaY;
@@ -197,16 +203,22 @@ export class Camera extends Container {
 
   private _centerPosition() {
     this.position.set(
-      window.innerWidth / 2, 
-      window.innerHeight / 2
+      window.innerWidth / 2 / this.parent.worldTransform.a,
+      window.innerHeight / 2 / this.parent.worldTransform.d
     );
   }
 
   get stats() {
     return {
-      pivot: { x: this.x, y: this.y, z: this.z },
-      scale: `${Math.round(this.scale.x * 100)}%`
-    }
+      x: this.x,
+      y: this.y,
+      z: this.z,
+      scale: `${Math.round(this.scale.x * 100)}%`,
+      canvas: {
+        w: this.canvas.width,
+        h: this.canvas.height
+      }
+    };
   }
 
   // checkBounds() {
