@@ -4,6 +4,7 @@ import {
   BitmapFont,
   FederatedPointerEvent,
   Ticker,
+  FederatedWheelEvent,
 } from 'pixi.js';
 
 window.addEventListener(
@@ -42,30 +43,57 @@ export const statsPanel =
     }
   );
 
-/**
- * Camera is controlled with x, y and z
- */
+
 export class Camera extends Container {
-  private movement: Movement;
-  private _z: number = 512;
+  private _moving: boolean;
+  private _z: number;
 
-  locked: boolean = false;
-  canvas: Container;
-
-  override get x(): number {
+  get localX(): number {
     return this.pivot.x;
   }
   
+  set localX(localX: number) {
+    this.pivot.x = localX;
+  }
+
+  get localY(): number {
+    return this.pivot.y;
+  }
+  
+  set localY(localY: number) {
+    this.pivot.y = localY;
+  }
+
+  get globalX(): number {
+    return this.x * this.scale.x;
+  }
+
+  set globalX(globalX: number) {
+    this.x = globalX / this.scale.x;
+  }
+
+  get globalY(): number {
+    return this.y * this.scale.y;
+  }
+
+  set globalY(globalY: number) {
+    this.y = globalY / this.scale.y;
+  }
+
+  override get x(): number {
+    return this.localX;
+  }
+
   override set x(x: number) {
-    this.pivot.x = x;
+    this.localX = x;
   }
 
   override get y(): number {
-    return this.pivot.y;
+    return this.localY;
   }
 
   override set y(y: number) {
-    this.pivot.y = y;
+    this.localY = y;
   }
 
   get z(): number {
@@ -80,102 +108,104 @@ export class Camera extends Container {
     this._z = z;
   }
 
-  get windowX(): number {
-    return this.x * this.scale.x;
-  }
-
-  set windowX(windowX: number) {
-    this.x = windowX / this.scale.x;
-  }
-
-  get windowY(): number {
-    return this.y * this.scale.y;
-  }
-
-  set windowY(windowY: number) {
-    this.y = windowY / this.scale.y;
-  }
-
   constructor(canvas: Container) {
     super();
-
-    this.canvas = canvas;
-    this.addChild(this.canvas);
-    // this.canvas.getBounds(); // [TODO]
-
-    const centerPosition = () => {
-      this.position.set(
-        window.innerWidth / 2, 
-        window.innerHeight / 2
-      );
-    };
-
-    centerPosition();
-    window.addEventListener('resize', centerPosition);
-
-    this.windowX = window.innerWidth / 2;
-    this.windowY = window.innerHeight / 2;
-
     this.interactive = true;
-    this.movement = new Movement();
+    this.addChild(canvas);
 
+    // this.canvas.getBounds(); // [TODO]
+    this._moving = false;
+    this._z = 0;
+
+    this.on('added', this._attach);
+    this.on('removed', this._detach);
+
+    // [TODO]
     Ticker.shared.add(() => {
-      statsPanel.text = JSON.stringify(this.stats, null, 2); // [TODO]
+      statsPanel.text = JSON.stringify({ camera: this.stats }, null, 2);
     });
+  }
 
-    this.on('pointerdown', (e) => {
-      if (this.locked) { return; }
+  private _attach(): void {
+    this._z = window.innerWidth / 2;
+    
+    this._centerPosition();
+    window.addEventListener(
+      'resize',
+      this._centerPosition.bind(this)
+    );
 
-      this.movement.moving = true;
-      this.movement.origin.x = e.clientX;
-      this.movement.origin.y = e.clientY;
-    });
+    this.on('pointerdown', this._onpointerdown);
+    this.on('pointermove', this._onpointermove);
+    this.on('pointerup', this._onpointerup);
+    this.on('pointerupoutside', this._onpointerupoutside);
+    this.on('wheel', this._onwheel);
+  }
 
-    this.on('pointermove', (e) => {
-      if (this.locked) { return; }
-      if (! this.movement.moving) { return; }
+  _detach(): void {
+    window.removeEventListener(
+      'resize', 
+      this._centerPosition.bind(this)
+    );
+    this.off('pointerdown', this._onpointerdown);
+    this.off('pointermove', this._onpointermove);
+    this.off('pointerup', this._onpointerup);
+    this.off('pointerupoutside', this._onpointerupoutside);
+    this.off('wheel', this._onwheel);
+  }
 
-      moveEvent(e);
-      this.movement.origin.x = e.clientX;
-      this.movement.origin.y = e.clientY;
-    });
+  private _onpointerdown(e: FederatedPointerEvent) {
+    if (e.button == 0) {
+      this._onpointerdownAtLeft();
+    }
+  }
 
-    this.on('pointerup', (e) => {
-      if (this.locked) { return; }
+  private _onpointerdownAtLeft() {
+    this._moving = true;
+  }
 
-      moveEvent(e);
-      this.movement.moving = false;
-    });
+  private _onpointermove(e: FederatedPointerEvent) {
+    if (! this._moving) { return; }
 
-    this.on('pointerupoutside', (e) => {
-      if (this.locked) { return; }
+    this._pointermoveHelper(e);
+  }
 
-      moveEvent(e);
-      this.movement.moving = false;
-    });
+  private _onpointerup(e: FederatedPointerEvent) {
+    if (! this._moving) { return; }
 
-    this.on('wheel', (e) => {
-      if (this.locked) { return; }
-      if (!e.metaKey && !e.ctrlKey) { return; }
+    this._pointermoveHelper(e);
+    this._moving = false;
+  }
 
-      this.z += e.deltaY;
-    });
+  private _onpointerupoutside(e: FederatedPointerEvent) {
+    if (! this._moving) { return; }
 
-    const moveEvent = (e: FederatedPointerEvent) => {
-      this.windowX += -(e.x - this.movement.origin.x);
-      this.windowY += -(e.y - this.movement.origin.y);
-    };
+    this._pointermoveHelper(e);
+    this._moving = false;
+  }
+
+  private _onwheel(e: FederatedWheelEvent) {
+    if (!e.metaKey && !e.ctrlKey) { return; }
+
+    this.z += 2 * e.deltaY;
+  }
+
+  private _pointermoveHelper(e: FederatedPointerEvent) {
+    this.globalX += -e.movementX;
+    this.globalY += -e.movementY;
+  }
+
+  private _centerPosition() {
+    this.position.set(
+      window.innerWidth / 2, 
+      window.innerHeight / 2
+    );
   }
 
   get stats() {
     return {
-      camera: {
-        pivot: { x: this.x, y: this.y, z: this.z },
-        scale: `${Math.round(this.scale.x * 100)}%`
-      },
-      canvas: {
-        size: { w: this.canvas.width, h: this.canvas.height }
-      }
+      pivot: { x: this.x, y: this.y, z: this.z },
+      scale: `${Math.round(this.scale.x * 100)}%`
     }
   }
 
@@ -201,22 +231,4 @@ export class Camera extends Container {
   //     this.viewY = this._bounds.maxY - this.viewHeight;
   //   }
   // }
-};
-
-// helper class for moving object
-//
-interface Movement {
-  moving: boolean;
-  origin: {
-    x: number;
-    y: number;
-  }
-};
-
-class Movement implements Movement {
-  moving = false;
-  origin = {
-    x: 0,
-    y: 0
-  }
 };

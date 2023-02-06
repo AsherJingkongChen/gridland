@@ -27,35 +27,8 @@ function colorMap() {
 
 const camera = new Camera(new TileScene(0, 0, 2048, 2048, colorMap()));
 app.stage.addChild(camera);
-
-// const texts: Text[] = [];
-
-// mainScene.forEach((scene) => {
-//   const text =
-//     new Text(
-//       Math.random().toString(36).substring(5),
-//       {
-//         fontFamily: 'Monospace',
-//         fontSize: 6,
-//         fill: '#ffffff',
-//         fontWeight: 'lighter',
-//         align: 'center'
-//       }
-//     );
-
-//   text.anchor.set(0.5);
-//   text.x = scene.width / 2;
-//   text.y = scene.height / 2;
-//   scene.addChild(text);
-//   texts.push(text);
-// });
-
-// window.onresize = () => {
-//   texts.forEach((text) => {
-//     text.x = text.parent.width / 2;
-//     text.y = text.parent.height / 2;
-//   });
-// };
+camera.globalX = window.innerWidth / 2;
+camera.globalY = window.innerHeight / 2;
 
 app.stage.addChild(statsPanel);
 
