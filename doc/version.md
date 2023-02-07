@@ -2,7 +2,7 @@
 
 ## 0.0.1
   - Under development
-  - camera (almost)
+  - Camera (almost)
   - GIF ![demo](../demo/v0.0.1.gif)
 
 ## 0.0.2
