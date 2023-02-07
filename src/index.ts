@@ -31,8 +31,7 @@ function colorMap() {
 const t = new Container();
 const camera = new Camera(new TileScene(0, 0, 4096, 4096, colorMap()));
 
-t.pivot.x = 100;
-t.scale.set(6, 6);
+camera.localX = 234;
 
 app.stage.addChild(t).addChild(camera);
 app.stage.addChild(statsPanel);
