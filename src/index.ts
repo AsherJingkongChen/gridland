@@ -1,6 +1,7 @@
 import {
   Application,
   BitmapText,
+  Container,
 } from 'pixi.js';
 import { Camera, statsPanel } from './camera/Camera';
 import { TileScene } from './scene/TileScene';
@@ -10,7 +11,9 @@ const app = new Application({
   resolution: 1,
   autoDensity: true,
   backgroundColor: 0x000000,
-  resizeTo: window
+  resizeTo: window,
+  width: 300,
+  height: 400
 });
 
 function colorMap() {
@@ -25,12 +28,13 @@ function colorMap() {
   return result;
 };
 
+const t = new Container();
 const camera = new Camera(new TileScene(0, 0, 4096, 4096, colorMap()));
 
-app.stage.addChild(camera);
-camera.globalX = window.innerWidth / 2;
-camera.globalY = window.innerHeight / 2;
+t.pivot.x = 100;
+t.scale.set(6, 6);
 
+app.stage.addChild(t).addChild(camera);
 app.stage.addChild(statsPanel);
 
 // [TODO]

@@ -7,4 +7,4 @@
 
 ## 0.0.2
   - Refactor and fix bugs on Camera
-
+  - Reduce the usability of Camera but increase its accuracy
