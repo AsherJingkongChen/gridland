@@ -100,18 +100,18 @@ export class Camera extends Container {
 
   /**
    * @param canvas The Container under camera
-   * @param maxZoom Maximum of scale
+   * @param maxZoom Maximum of scale, default is 100 (10000%)
    */
-  constructor(canvas: Container, maxZoom: number = 500) {
+  constructor(canvas?: Container, maxZoom?: number) {
     super();
     this.interactive = true;
     
     // this.canvas.getBounds(); // [TODO]
-    this.canvas = canvas;
+    this.canvas = canvas || new Container();
     this._viewport = new Container();
     this._moving = false;
     this._last = new Point();
-    this._z = maxZoom;
+    this._z = maxZoom || 100;
 
     (this)
       .addChild(this._viewport)
@@ -218,6 +218,7 @@ export class Camera extends Container {
         w: this.canvas.width.toFixed(2),
         h: this.canvas.height.toFixed(2)
       },
+      border: undefined
     };
   }
 
