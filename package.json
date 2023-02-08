@@ -1,5 +1,25 @@
 {
-  "license": "",
+  "name": "gridland",
+  "description": "> PIXI.js (WebGL) render engine game",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "directories": {
+    "doc": "doc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AsherJingkongChen/gridland.git"
+  },
+  "keywords": [
+    "Pixi.js",
+    "WebGL"
+  ],
+  "author": "AsherJingkongChen",
+  "bugs": {
+    "url": "https://github.com/AsherJingkongChen/gridland/issues"
+  },
+  "homepage": "https://github.com/AsherJingkongChen/gridland#readme",
+  "license": "MIT",
   "scripts": {
     "dev": "webpack serve --mode=development",
     "build": "webpack --mode=production",
