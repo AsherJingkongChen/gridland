@@ -4,7 +4,7 @@
 ## Build
 
 - For development: `npm run dev`
-- For releasing: `npm run release`
+- For production: `npm run build`
 
 ## Techstack
 
@@ -14,4 +14,6 @@
 
 ## [Version](doc/version.md)
 
-- current is [0.0.1](doc/version.md#001)
+- current is [0.0.2](doc/version.md#002)
+
+## [API](doc/api.md)
