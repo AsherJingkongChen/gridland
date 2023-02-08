@@ -45,14 +45,15 @@ export const statsPanel =
   );
 
 /**
- * Simple auto camera, moves via x and y, zooms via z or zoom
+ * Simple auto camera, moves via x and y, zooms via zoom
  */
 export class Camera extends Container {
-  public canvas: Container;
   private _viewport: Container;
   private _moving: boolean;
   private _last: Point;
   private _z: number;
+
+  public canvas: Container;
 
   /**
    * local x
@@ -80,17 +81,6 @@ export class Camera extends Container {
    */
   override set y(y: number) {
     this._viewport.pivot.y = y;
-  }
-
-  get z(): number {
-    return this._z;
-  }
-
-  set z(z: number) {
-    z = Math.max(z, 1);
-    this._viewport.scale.x *= this.z / z;
-    this._viewport.scale.y *= this.z / z;
-    this._z = z;
   }
 
   /**
@@ -207,13 +197,15 @@ export class Camera extends Container {
     this._viewport.position.x = positionX;
     this._viewport.position.y = positionY;
 
-    this.z += e.deltaY;
+    const z = Math.max(1, this._z + e.deltaY);
+    this._viewport.scale.x *= this._z / z;
+    this._viewport.scale.y *= this._z / z;
+    this._z = z;
   }
 
   get stats() {
     return {
-      z: this.z.toFixed(2),
-      scale: this.zoom.toFixed(2),
+      zoom: this.zoom.toFixed(2),
       position: {
         x: this._viewport.position.x.toFixed(2),
         y: this._viewport.position.y.toFixed(2)
