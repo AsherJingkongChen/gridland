@@ -3,19 +3,16 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 module.exports = (env, argv) => {
   return ({
-    stats: 'minimal', // Keep console output easy to read.
-    entry: './src/index.ts', // Your program entry point
-
-    // Your build destination
+    stats: (argv.mode === 'development') ? 'minimal' : undefined,
+    entry: './src/index.ts',
     output: {
       path: path.resolve(__dirname, 'dist'),
       filename: 'bundle.js'
     },
-
-    // Config for your testing server
     devServer: {
       compress: true,
       static: false,
@@ -29,14 +26,8 @@ module.exports = (env, argv) => {
       },
       port: 8080
     },
-
-    // Web games are bigger than pages, disable the warnings that our game is too big.
     performance: { hints: false },
-
-    // Enable sourcemaps while debugging
-    devtool: argv.mode === 'development' ? 'eval-source-map' : undefined,
-
-    // Minify the code when making a final build
+    devtool: (argv.mode === 'development') ? 'source-map' : undefined,
     optimization: {
       minimize: argv.mode === 'production',
       minimizer: [new TerserPlugin({
@@ -47,8 +38,6 @@ module.exports = (env, argv) => {
         },
       })],
     },
-
-    // Explain webpack how to do Typescript
     module: {
       rules: [
         {
@@ -58,7 +47,6 @@ module.exports = (env, argv) => {
         }
       ]
     },
-
     resolve: {
       extensions: [
         '.tsx',
@@ -66,18 +54,21 @@ module.exports = (env, argv) => {
         '.js'
       ]
     },
-
     plugins: [
       // Copy our static assets to the final build
       new CopyPlugin({
         patterns: [{ from: 'static/' }],
       }),
 
-        // Make an index.html from the template
+      // Make an index.html from the template
       new HtmlWebpackPlugin({
         template: 'src/index.ejs',
         hash: true,
         minify: false
+      }),
+
+      new SpeedMeasurePlugin({
+        disable: argv.mode === 'development'
       })
     ]
   });
