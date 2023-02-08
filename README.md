@@ -4,7 +4,7 @@
 ## Build
 
 - For development: `npm run dev`
-- For releasing: `npm run release`
+- For production: `npm run build`
 
 ## Techstack
 

@@ -45,7 +45,7 @@ export const statsPanel =
   );
 
 /**
- * Simple auto camera
+ * Simple auto camera, moves via x and y, zooms via z or zoom
  */
 export class Camera extends Container {
   public canvas: Container;
@@ -54,20 +54,32 @@ export class Camera extends Container {
   private _last: Point;
   private _z: number;
 
-  get localX(): number {
+  /**
+   * local x
+   */
+  override get x(): number {
     return this._viewport.pivot.x;
   }
-  
-  set localX(localX: number) {
-    this._viewport.pivot.x = localX;
+
+  /**
+   * local x
+   */
+  override set x(x: number) {
+    this._viewport.pivot.x = x;
   }
 
-  get localY(): number {
+  /**
+   * local y
+   */
+  override get y(): number {
     return this._viewport.pivot.y;
   }
-  
-  set localY(localY: number) {
-    this._viewport.pivot.y = localY;
+
+  /**
+   * local y
+   */
+  override set y(y: number) {
+    this._viewport.pivot.y = y;
   }
 
   get z(): number {
@@ -81,7 +93,26 @@ export class Camera extends Container {
     this._z = z;
   }
 
-  constructor(canvas: Container, maxScale: number = 100) {
+  /**
+   * Alias to scale
+   */
+  get zoom(): number {
+    return this._viewport.scale.x
+  }
+
+  /**
+   * Alias to scale
+   */
+  set zoom(zoom: number) {
+    this._viewport.scale.x = zoom;
+    this._viewport.scale.y = zoom;
+  }
+
+  /**
+   * @param canvas The Container under camera
+   * @param maxZoom Maximum of scale
+   */
+  constructor(canvas: Container, maxZoom: number = 500) {
     super();
     this.interactive = true;
     
@@ -90,7 +121,7 @@ export class Camera extends Container {
     this._viewport = new Container();
     this._moving = false;
     this._last = new Point();
-    this._z = maxScale;
+    this._z = maxZoom;
 
     (this)
       .addChild(this._viewport)
@@ -135,39 +166,39 @@ export class Camera extends Container {
   private _pointermove(e: FederatedPointerEvent) {
     if (! this._moving) { return; }
 
-    this._moveFromWindow(e);
+    this._moveAtGlobal(e);
   }
 
   private _pointerup(e: FederatedPointerEvent) {
     if (! this._moving) { return; }
 
-    this._moveFromWindow(e);
+    this._moveAtGlobal(e);
     this._moving = false;
   }
 
   private _pointerupoutside(e: FederatedPointerEvent) {
     if (! this._moving) { return; }
 
-    this._moveFromWindow(e);
+    this._moveAtGlobal(e);
     this._moving = false;
   }
 
   private _wheel(e: FederatedWheelEvent) {
     if (!e.metaKey && !e.ctrlKey) { return; }
 
-    this._zoomFromWindow(e);
+    this._zoomAtGlobal(e);
   }
 
-  private _moveFromWindow(e: FederatedPointerEvent) {
-    const { x: oldX, y: oldY } = this.toLocal(this._last);
+  private _moveAtGlobal(e: FederatedPointerEvent) {
     const { x: newX, y: newY } = this.toLocal(e.client);
+    const { x: oldX, y: oldY } = this.toLocal(this._last);
     this._last.copyFrom(e.client);
 
     this._viewport.position.x += newX - oldX;
     this._viewport.position.y += newY - oldY;
   }
 
-  private _zoomFromWindow(e: FederatedWheelEvent) {
+  private _zoomAtGlobal(e: FederatedWheelEvent) {
     const { x: pivotX, y: pivotY } = this._viewport.toLocal(e.client);
     this._viewport.pivot.x = pivotX;
     this._viewport.pivot.y = pivotY;
@@ -182,7 +213,7 @@ export class Camera extends Container {
   get stats() {
     return {
       z: this.z.toFixed(2),
-      scale: this._viewport.scale.x.toFixed(2),
+      scale: this.zoom.toFixed(2),
       position: {
         x: this._viewport.position.x.toFixed(2),
         y: this._viewport.position.y.toFixed(2)
