@@ -4,14 +4,14 @@ import {
 } from 'pixi.js';
 import { Camera, statsPanel } from './camera/Camera';
 import { TileScene } from './scene/TileScene';
-import { StatsPanel } from './stats/StatsPanel';
+import { StatsPanel } from './panel/StatsPanel';
 
 const app = new Application({
-  view: document.getElementById('canvas_1') as HTMLCanvasElement,
-  resolution: 1,
+  view: document.getElementById('stage') as HTMLCanvasElement,
+  resolution: window.devicePixelRatio || 1,
   autoDensity: true,
   backgroundColor: 0x000000,
-  resizeTo: window
+  // resizeTo: window
 });
 
 function colorMap() {

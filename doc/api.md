@@ -9,6 +9,8 @@
 #### Method
 
 - constructor(canvas?: Container, maxZoom?: number)
+- attach(): void
+- detach(): void
 
 #### Property
 
