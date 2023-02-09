@@ -45,7 +45,7 @@ export const statsPanel =
   );
 
 /**
- * Simple auto camera, moves via x and y, zooms via zoom
+ * Simple auto camera, moves via x and y, scales via zoom
  */
 export class Camera extends Container {
   private _viewport: Container;

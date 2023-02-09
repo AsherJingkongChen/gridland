@@ -2,9 +2,9 @@ import {
   Application,
   BitmapText,
 } from 'pixi.js';
-import { Camera, statsPanel } from './camera/Camera';
-import { TileScene } from './scene/TileScene';
-import { StatsPanel } from './panel/StatsPanel';
+import { Camera, statsPanel } from './camera';
+import { TileScene } from './scene';
+import { StatsPanel } from './panel';
 
 const app = new Application({
   view: document.getElementById('stage') as HTMLCanvasElement,
