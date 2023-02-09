@@ -106,7 +106,6 @@ export class Camera extends Container {
     super();
     this.interactive = true;
     
-    // this.canvas.getBounds(); // [TODO]
     this.canvas = canvas || new Container();
     this._viewport = new Container();
     this._moving = false;
@@ -221,27 +220,4 @@ export class Camera extends Container {
       border: undefined
     };
   }
-
-  // checkBounds() {
-  //   if (this.needBounds) {
-  //     this.getBounds();
-  //     this.needBounds = false;
-  //   }
-
-  //   if (this.viewX < this._bounds.minX) {
-  //     this.viewX = this._bounds.minX;
-  //   }
-
-  //   if (this.viewX > this._bounds.maxX - this.viewWidth) {
-  //     this.viewX = this._bounds.maxX - this.viewWidth;
-  //   }
-
-  //   if (this.viewY < this._bounds.minY) {
-  //     this.viewY = this._bounds.minY;
-  //   }
-
-  //   if (this.viewY > this._bounds.maxY - this.viewHeight) {
-  //     this.viewY = this._bounds.maxY - this.viewHeight;
-  //   }
-  // }
 };
