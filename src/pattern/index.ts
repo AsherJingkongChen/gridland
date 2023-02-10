@@ -1,1 +1,1 @@
-export * from './ObserverPattern';
+export * from './Observer';

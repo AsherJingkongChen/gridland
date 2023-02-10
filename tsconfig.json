@@ -3,8 +3,8 @@
     // Settings for the compiler
     "outDir": "./dist/",
     "sourceMap": true,
-    "target": "es2015",
-    "module": "ESNext",
+    "module": "esnext",
+    "target": "esnext",
 
     // Rules for your code
     "strict": true,
@@ -21,6 +21,8 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
   },
 
   // Folder for your code

@@ -1,9 +1,6 @@
 import {
   Container,
-  BitmapText,
-  BitmapFont,
   FederatedPointerEvent,
-  Ticker,
   FederatedWheelEvent,
   Point,
 } from 'pixi.js';
@@ -24,25 +21,6 @@ window.addEventListener(
   'keydown',
   (e) => { console.log(e); }
 );
-
-BitmapFont.from('Stats', {
-  fontFamily: 'Arial',
-  fontSize: 12,
-  fill: '#ffffff',
-  fontWeight: 'normal'
-},
-{
-  chars: BitmapFont.ASCII, 
-});
-
-export const statsPanel =
-  new BitmapText(
-    '',
-    {
-      fontName: 'Stats',
-      align: 'left'
-    }
-  );
 
 /**
  * Simple auto camera, moves via x and y, scales via zoom
@@ -106,7 +84,6 @@ export class Camera extends Container {
     super();
     this.interactive = true;
     
-    // this.canvas.getBounds(); // [TODO]
     this.canvas = canvas || new Container();
     this._viewport = new Container();
     this._moving = false;
@@ -119,10 +96,6 @@ export class Camera extends Container {
 
     this.on('added', this.attach);
     this.on('removed', this.detach);
-
-    Ticker.shared.add(() => {
-      statsPanel.text = JSON.stringify({ camera: this.stats }, null, 2);
-    });
   }
 
   public attach() {
@@ -206,46 +179,4 @@ export class Camera extends Container {
     this._viewport.scale.y *= this._z / z;
     this._z = z;
   }
-
-  public get stats() {
-    return {
-      zoom: this.zoom.toFixed(2),
-      position: {
-        x: this._viewport.position.x.toFixed(2),
-        y: this._viewport.position.y.toFixed(2)
-      },
-      pivot: {
-        x: this._viewport.pivot.x.toFixed(2),
-        y: this._viewport.pivot.y.toFixed(2)
-      },
-      canvas: {
-        w: this.canvas.width.toFixed(2),
-        h: this.canvas.height.toFixed(2)
-      },
-      border: undefined
-    };
-  }
-
-  // checkBounds() {
-  //   if (this.needBounds) {
-  //     this.getBounds();
-  //     this.needBounds = false;
-  //   }
-
-  //   if (this.viewX < this._bounds.minX) {
-  //     this.viewX = this._bounds.minX;
-  //   }
-
-  //   if (this.viewX > this._bounds.maxX - this.viewWidth) {
-  //     this.viewX = this._bounds.maxX - this.viewWidth;
-  //   }
-
-  //   if (this.viewY < this._bounds.minY) {
-  //     this.viewY = this._bounds.minY;
-  //   }
-
-  //   if (this.viewY > this._bounds.maxY - this.viewHeight) {
-  //     this.viewY = this._bounds.maxY - this.viewHeight;
-  //   }
-  // }
 };

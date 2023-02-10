@@ -1,17 +1,19 @@
 import {
   Application,
-  BitmapText,
 } from 'pixi.js';
-import { Camera, statsPanel } from './camera';
+import { Camera } from './camera';
 import { TileScene } from './scene';
-import { StatsPanel } from './panel';
+import {
+  StatsPanel,
+  Stats
+} from './panel';
 
 const app = new Application({
   view: document.getElementById('stage') as HTMLCanvasElement,
   resolution: window.devicePixelRatio || 1,
   autoDensity: true,
   backgroundColor: 0x000000,
-  // resizeTo: window
+  resizeTo: window
 });
 
 function colorMap() {
@@ -27,25 +29,36 @@ function colorMap() {
 };
 
 const camera = new Camera(new TileScene(0, 0, 4096, 4096, colorMap()));
-const stats = new StatsPanel();
 
-app.stage.addChild(camera);
-app.stage.addChild(stats);
-app.stage.addChild(statsPanel);
-
-// [TODO]
-const versionPanel =
-  new BitmapText(
-    'version 0.0.2',
-    {
-      fontName: 'Stats',
-      align: 'right'
+const statsPanel = new StatsPanel(window);
+const cameraStats =
+  new Stats(
+    () => {
+      return JSON.stringify(
+        {
+          x: camera.x.toFixed(2),
+          y: camera.y.toFixed(2),
+          zoom: camera.zoom.toFixed(2),
+          canvas: {
+            w: camera.canvas.width.toFixed(2),
+            h: camera.canvas.height.toFixed(2)
+          }
+        },
+        null,
+        2
+      );
     }
   );
-app.stage.addChild(versionPanel);
 
-versionPanel.position.x = window.innerWidth - versionPanel.textWidth;
+statsPanel.addOne(cameraStats);
+statsPanel.addOne(
+  new Stats(
+    () => 'version 0.0.3',
+    (stats, panel) => {
+      stats.position.x = panel.size.x - stats.textWidth;
+    }
+  )
+);
 
-window.addEventListener('resize', () => {
-  versionPanel.position.x = window.innerWidth - versionPanel.textWidth;
-});
+app.stage.addChild(camera);
+app.stage.addChild(statsPanel);
