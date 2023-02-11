@@ -70,6 +70,9 @@ module.exports = (env, argv) => {
       new SpeedMeasurePlugin({
         disable: argv.mode === 'development'
       })
-    ]
+    ],
+    experiments: {
+      topLevelAwait: true
+    }
   });
 }
