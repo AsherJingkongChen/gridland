@@ -1,3 +1,4 @@
+import { Attachable } from '../design/Attachable';
 import {
   BitmapText,
   Container,
@@ -5,96 +6,110 @@ import {
   Point,
   BitmapFont,
   Ticker,
-  TickerCallback
 } from "pixi.js";
 import {
   IObserver,
   ISubject,
-} from '../pattern/Observer';
+} from '../design/Observer';
 
 /**
  * View for statistics
  */
 export class StatsPanel extends Container
-implements ISubject {
+implements ISubject, Attachable {
 
-  public observers: Set<Stats>;
-  
+  public static readonly activeTick: number = 9;
+
+  private _statsSet: Set<Stats>;
+
   public resizeTo: HTMLElement | Window;
-  public size: Point;
+  private _size: Point;
   private _resize: () => void;
 
-  public static readonly activeTick: number = 6;
   private _lastTick: number;
-  private _ticker: TickerCallback<any>;
+  private _ticker: () => void;
+  
+  public attach: () => void;
+  public detach: () => void;
+
+  override get width(): number {
+    return this._size.x;
+  }
+
+  override get height(): number {
+    return this._size.y;
+  }
 
   constructor(resizeTo?: HTMLElement | Window) {
     super();
 
     this.resizeTo = resizeTo || window;
-    this.size = new Point();
-    this.observers = new Set();
+    this._size = new Point();
+    this._statsSet = new Set();
     this._lastTick = StatsPanel.activeTick;
 
     this._resize = () => {
       if (this.resizeTo === window) {
         const { innerWidth, innerHeight } = this.resizeTo;
-        this.size.x = innerWidth;
-        this.size.y = innerHeight;
+        this._size.x = innerWidth;
+        this._size.y = innerHeight;
 
       } else if (this.resizeTo instanceof HTMLElement) {
         const { clientWidth, clientHeight } = this.resizeTo;
-        this.size.x = clientWidth;
-        this.size.y = clientHeight;
+        this._size.x = clientWidth;
+        this._size.y = clientHeight;
       }
-      this.notifyAll();
+      this.notify();
     };
 
     this._ticker = () => {
       if (this._lastTick == StatsPanel.activeTick) {
-        this.notifyAll();
+        this.notify();
         this._lastTick = 0;
       }
       this._lastTick += 1;
+    };
+
+    this.attach = () => {
+      this._resize();
+      window.addEventListener('resize', this._resize);
+      Ticker.shared.add(this._ticker);
+    };
+
+    this.detach = () => {
+      window.removeEventListener('resize', this._resize);
+      Ticker.shared.remove(this._ticker);
     };
 
     this.on('added', this.attach);
     this.on('removed', this.detach);
   }
 
-  public attach() {
-    this._resize();
-    globalThis.addEventListener('resize', this._resize);
-    Ticker.shared.add(this._ticker);
-  }
-
-  public detach() {
-    globalThis.removeEventListener('resize', this._resize);
-    Ticker.shared.remove(this._ticker);
-  }
-
-  public addOne(stats: Stats): Stats {
-    this.observers.add(stats);
+  public observe(stats: Stats): StatsPanel {
+    this._statsSet.add(stats);
     this.addChild(stats);
-    return stats;
+    return this;
   }
 
-  public removeOne(stats: Stats): Stats | undefined {
-    if (this.observers.delete(stats)) {
+  public unobserve(stats: Stats): Stats | undefined {
+    if (this._statsSet.delete(stats)) {
       this.removeChild(stats);
       return stats;
     }
     return undefined;
   }
 
-  public notifyAll(): void {
-    this.observers.forEach((stats) => {
+  public notify(): void {
+    this._statsSet.forEach((stats) => {
       stats.text = stats.content();
       stats.update(stats, this);
     });
   }
 };
 
+/**
+ * Controller for statistics
+ */
 export class Stats extends BitmapText
 implements IObserver {
 
