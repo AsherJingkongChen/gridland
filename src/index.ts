@@ -3,7 +3,7 @@ import {
 } from 'pixi.js';
 import { Camera } from './camera';
 import { TileScene } from './scene';
-import { containerTreeLog } from './tool/containerTreeLog';
+import { keyMatch } from './input/KeyMatch';
 import {
   StatsPanel,
   Stats
@@ -64,4 +64,15 @@ app.stage.addChild(
     )
 );
 
-containerTreeLog(app.stage, 4);
+window.addEventListener('keydown', (e) => {
+  console.log(
+    keyMatch(e,
+      {
+        key: 'F12',
+        modifier: {
+          ctrlKey: true
+        }
+      }
+    )
+  );
+});

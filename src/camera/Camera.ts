@@ -1,5 +1,6 @@
 import { Attachable } from '../design/Attachable';
-import { windowPreventDefault } from '../tool/windowPreventDefault';
+import { windowPreventDefault } from '../input/WindowPreventDefault';
+import { keyMatch } from '../input/KeyMatch';
 import {
   Container,
   FederatedPointerEvent,
@@ -137,7 +138,9 @@ implements Attachable {
   }
 
   private _wheel(e: FederatedWheelEvent) {
-    if (!e.metaKey && !e.ctrlKey) { return; }
+    if (! keyMatch(e, { modifier: { ctrlKey: true } })) {
+      return;
+    }
 
     this._zoomAtGlobal(e);
   }
