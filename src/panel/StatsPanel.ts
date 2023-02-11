@@ -1,4 +1,5 @@
 import { Attachable } from '../design/Attachable';
+import { windowPreventDefault } from '../tool/windowPreventDefault';
 import {
   BitmapText,
   Container,
@@ -70,14 +71,20 @@ implements ISubject, Attachable {
       this._lastTick += 1;
     };
 
+    const kf = (e: KeyboardEvent) => {
+      console.log(e);
+    };
+
     this.attach = () => {
       this._resize();
       window.addEventListener('resize', this._resize);
+      window.addEventListener('keydown', kf);
       Ticker.shared.add(this._ticker);
     };
 
     this.detach = () => {
       window.removeEventListener('resize', this._resize);
+      window.removeEventListener('keydown', kf);
       Ticker.shared.remove(this._ticker);
     };
 
@@ -149,4 +156,6 @@ BitmapFont.from(
     chars: BitmapFont.ASCII
   }
 );
+
+windowPreventDefault('keydown');
   

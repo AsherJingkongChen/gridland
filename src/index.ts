@@ -3,6 +3,7 @@ import {
 } from 'pixi.js';
 import { Camera } from './camera';
 import { TileScene } from './scene';
+import { containerTreeLog } from './tool/containerTreeLog';
 import {
   StatsPanel,
   Stats
@@ -55,10 +56,12 @@ app.stage.addChild(
     )
     .observe(
       new Stats(
-        () => 'version 0.0.3',
+        () => 'version 0.0.4',
         (stats, panel) => {
           stats.position.x = panel.width - stats.textWidth;
         }
       )
     )
 );
+
+containerTreeLog(app.stage, 4);

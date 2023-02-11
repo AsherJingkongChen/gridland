@@ -14,3 +14,5 @@
   - Observer Pattern is applied
   - StatsPanel, Stats is added
   - GIF ![demo](../demo/v0.0.3.gif)
+
+## 0.0.4

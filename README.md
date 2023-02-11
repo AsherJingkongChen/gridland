@@ -16,4 +16,4 @@
 
 ## [Version](doc/version.md)
 
-- current is [0.0.3](doc/version.md#003)
+- current is [0.0.4](doc/version.md#004)
