@@ -3,7 +3,6 @@ import {
 } from 'pixi.js';
 import { Camera } from './camera';
 import { TileScene } from './scene';
-import { keyMatch } from './input/KeyMatch';
 import {
   StatsPanel,
   Stats
@@ -64,15 +63,6 @@ app.stage.addChild(
     )
 );
 
-window.addEventListener('keydown', (e) => {
-  console.log(
-    keyMatch(e,
-      {
-        key: 'F12',
-        modifier: {
-          ctrlKey: true
-        }
-      }
-    )
-  );
-});
+// window.addEventListener('keydown', (e) => {
+//   console.log(keyMatch(e, { key: 'F12', ctrlKey: true, altKey: true }));
+// });

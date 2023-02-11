@@ -1,5 +1,7 @@
 import { Attachable } from '../design/Attachable';
 import { windowPreventDefault } from '../input/WindowPreventDefault';
+import { Resizable } from '../design/Resizable';
+import { keyMatch } from '../input/KeyMatch';
 import {
   BitmapText,
   Container,
@@ -17,7 +19,7 @@ import {
  * View for statistics
  */
 export class StatsPanel extends Container
-implements ISubject, Attachable {
+implements ISubject, Attachable, Resizable {
 
   public static readonly activeTick: number = 9;
 
@@ -25,11 +27,11 @@ implements ISubject, Attachable {
 
   public resizeTo: HTMLElement | Window;
   private _size: Point;
-  private _resize: () => void;
-
+  
   private _lastTick: number;
   private _ticker: () => void;
   
+  public resize: () => void;
   public attach: () => void;
   public detach: () => void;
 
@@ -49,7 +51,7 @@ implements ISubject, Attachable {
     this._statsSet = new Set();
     this._lastTick = StatsPanel.activeTick;
 
-    this._resize = () => {
+    this.resize = () => {
       if (this.resizeTo === window) {
         const { innerWidth, innerHeight } = this.resizeTo;
         this._size.x = innerWidth;
@@ -72,16 +74,22 @@ implements ISubject, Attachable {
     };
 
     this.attach = () => {
-      this._resize();
-      window.addEventListener('resize', this._resize);
-      // window.addEventListener('keydown', kf);
+      this.resize();
+      window.addEventListener('resize', this.resize);
+      window.addEventListener('keydown', (e) => {
+        if (keyMatch(e, { key: 'F12' })) {
+          this.visible = ! this.visible;
+        }
+      });
       Ticker.shared.add(this._ticker);
+      console.log('att'); // [LOG]
     };
 
     this.detach = () => {
-      window.removeEventListener('resize', this._resize);
+      window.removeEventListener('resize', this.resize);
       // window.removeEventListener('keydown', kf);
       Ticker.shared.remove(this._ticker);
+      console.log('det'); // [LOG]
     };
 
     this.on('added', this.attach);

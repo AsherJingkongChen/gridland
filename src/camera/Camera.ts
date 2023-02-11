@@ -138,7 +138,7 @@ implements Attachable {
   }
 
   private _wheel(e: FederatedWheelEvent) {
-    if (! keyMatch(e, { modifier: { ctrlKey: true } })) {
+    if (! keyMatch(e, { ctrlKey: true })) {
       return;
     }
 
