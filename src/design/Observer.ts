@@ -1,15 +1,14 @@
 export interface IObserver {
-  update: (observer: any, subject: any) => void;
+  update: (...args: any[]) => void;
 };
 
 export interface ISubject {
-  observers: Set<IObserver>;
-  addOne(observer: IObserver): IObserver;
-  removeOne(observer: IObserver): IObserver | undefined;
-  notifyAll(): void;
+  observe(observer: IObserver): ISubject;
+  unobserve(observer: IObserver): IObserver | undefined;
+  notify(): void;
 };
 
-/* A template for implementation: */
+/* A template for implementation */
 
 // class Observer {
 //   public update: (o: Observer, s: Subject) => void;
@@ -26,19 +25,19 @@ export interface ISubject {
 //     this.observers = new Set();
 //   }
 // 
-//   public addOne(observer: Observer): Observer {
+//   public observe(observer: Observer): Subject {
 //     this.observers.add(observer);
-//     return observer;
+//     return this;
 //   }
 // 
-//   public removeOne(observer: Observer): Observer | undefined {
+//   public unobserve(observer: Observer): Observer | undefined {
 //     if (this.observers.delete(observer)) {
 //       return observer;
 //     }
 //     return undefined;
 //   }
 // 
-//   public notifyAll(): void {
+//   public notify(): void {
 //     this.observers.forEach((o) => { o.update(o, this); });
 //   }
 // };

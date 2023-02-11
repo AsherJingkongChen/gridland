@@ -1,3 +1,5 @@
+import { Attachable } from '../design/Attachable';
+import { windowPreventDefault } from '../tool/windowPreventDefault';
 import {
   Container,
   FederatedPointerEvent,
@@ -5,33 +7,21 @@ import {
   Point,
 } from 'pixi.js';
 
-window.addEventListener(
-  'wheel',
-  (e) => { e.preventDefault(); },
-  { passive: false }
-);
-
-window.addEventListener(
-  'keydown',
-  (e) => { e.preventDefault(); },
-  { passive: false }
-);
-
-window.addEventListener(
-  'keydown',
-  (e) => { console.log(e); }
-);
-
 /**
  * Simple auto camera, moves via x and y, scales via zoom
  */
-export class Camera extends Container {
+export class Camera extends Container
+implements Attachable {
+
   private _viewport: Container;
   private _moving: boolean;
   private _last: Point;
   private _z: number;
 
   public canvas: Container;
+
+  public attach: () => void;
+  public detach: () => void;
 
   /**
    * local x
@@ -94,24 +84,24 @@ export class Camera extends Container {
       .addChild(this._viewport)
       .addChild(this.canvas);
 
+    this.attach = () => {
+      this.on('pointerdown', this._pointerdown);
+      this.on('pointermove', this._pointermove);
+      this.on('pointerup', this._pointerup);
+      this.on('pointerupoutside', this._pointerupoutside);
+      this.on('wheel', this._wheel);
+    };
+
+    this.detach = () => {
+      this.off('pointerdown', this._pointerdown);
+      this.off('pointermove', this._pointermove);
+      this.off('pointerup', this._pointerup);
+      this.off('pointerupoutside', this._pointerupoutside);
+      this.off('wheel', this._wheel);
+    };
+
     this.on('added', this.attach);
     this.on('removed', this.detach);
-  }
-
-  public attach() {
-    this.on('pointerdown', this._pointerdown);
-    this.on('pointermove', this._pointermove);
-    this.on('pointerup', this._pointerup);
-    this.on('pointerupoutside', this._pointerupoutside);
-    this.on('wheel', this._wheel);
-  }
-
-  public detach() {
-    this.off('pointerdown', this._pointerdown);
-    this.off('pointermove', this._pointermove);
-    this.off('pointerup', this._pointerup);
-    this.off('pointerupoutside', this._pointerupoutside);
-    this.off('wheel', this._wheel);
   }
 
   private _pointerdown(e: FederatedPointerEvent) {
@@ -180,3 +170,5 @@ export class Camera extends Container {
     this._z = z;
   }
 };
+
+windowPreventDefault('wheel');

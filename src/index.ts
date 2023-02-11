@@ -30,35 +30,35 @@ function colorMap() {
 
 const camera = new Camera(new TileScene(0, 0, 4096, 4096, colorMap()));
 
-const statsPanel = new StatsPanel(window);
-const cameraStats =
-  new Stats(
-    () => {
-      return JSON.stringify(
-        {
-          x: camera.x.toFixed(2),
-          y: camera.y.toFixed(2),
-          zoom: camera.zoom.toFixed(2),
-          canvas: {
-            w: camera.canvas.width.toFixed(2),
-            h: camera.canvas.height.toFixed(2)
-          }
-        },
-        null,
-        2
-      );
-    }
-  );
-
-statsPanel.addOne(cameraStats);
-statsPanel.addOne(
-  new Stats(
-    () => 'version 0.0.3',
-    (stats, panel) => {
-      stats.position.x = panel.size.x - stats.textWidth;
-    }
-  )
-);
-
 app.stage.addChild(camera);
-app.stage.addChild(statsPanel);
+
+app.stage.addChild(
+  new StatsPanel(window)
+    .observe(
+      new Stats(
+        () => {
+          return JSON.stringify(
+            {
+              x: camera.x.toFixed(2),
+              y: camera.y.toFixed(2),
+              zoom: camera.zoom.toFixed(2),
+              canvas: {
+                w: camera.canvas.width.toFixed(2),
+                h: camera.canvas.height.toFixed(2)
+              }
+            },
+            null,
+            2
+          );
+        }
+      )
+    )
+    .observe(
+      new Stats(
+        () => 'version 0.0.3',
+        (stats, panel) => {
+          stats.position.x = panel.width - stats.textWidth;
+        }
+      )
+    )
+);

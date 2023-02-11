@@ -17,5 +17,3 @@
 ## [Version](doc/version.md)
 
 - current is [0.0.2](doc/version.md#002)
-
-## [API](doc/api.md)
