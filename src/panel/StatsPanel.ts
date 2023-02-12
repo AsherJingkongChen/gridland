@@ -34,15 +34,14 @@ implements ISubject, Attachable, Resizable {
   private _size: Point;
   private _statsSet: Set<Stats>;
   private readonly _ticker: () => void;
+  public readonly _toggle: (e: KeyboardEvent) => void;
   
   public readonly attach: () => void;
   public readonly detach: () => void;
-
   public readonly resize:
     (width: number, height: number) => void;
 
   public resizeTo: HTMLElement | Window;
-  public readonly toggle: (e: KeyboardEvent) => void;
 
   /**
    * Come with resizeTo's height
@@ -84,6 +83,16 @@ implements ISubject, Attachable, Resizable {
       this._lastTick += 1;
     };
 
+    this._toggle = (e) => {
+      if (StatsPanel.ToggleKMO.equal(e)) {
+        if (this.visible) {
+          this.detach();
+        } else {
+          this.attach();
+        }
+      }
+    };
+
     this.attach = () => {
       this.detach();
 
@@ -113,19 +122,9 @@ implements ISubject, Attachable, Resizable {
 
     this.resizeTo = resizeTo || window;
 
-    this.toggle = (e) => {
-      if (StatsPanel.ToggleKMO.equal(e)) {
-        if (this.visible) {
-          this.detach();
-        } else {
-          this.attach();
-        }
-      }
-    };
-
     this.on('added', this.attach);
     this.on('removed', this.detach);
-    window.addEventListener('keydown', this.toggle);
+    window.addEventListener('keydown', this._toggle);
   }
 
   public observe(stats: Stats): StatsPanel {

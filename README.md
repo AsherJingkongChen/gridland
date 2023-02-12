@@ -1,7 +1,7 @@
 # Gridland
 > PIXI.js (WebGL) render engine game
 
-## [Demo](https://asherjingkongchen.github.io/gridland/)
+## [Demo](https://asherjingkongchen.github.io/gridland-demo/)
 
 ## Build
 

@@ -18,14 +18,21 @@ windowPreventDefault('wheel');
 export class Camera extends Container
 implements Attachable {
 
-  public static ZoomKMO =
+  public static ZoomWheelKMO = 
     new KeyModifierOption({ ctrlKey: true });
+
+  public static ZoominKMO =
+    new KeyModifierOption({ ctrlKey: true, key: '=' });
+
+  public static ZoomoutKMO =
+    new KeyModifierOption({ ctrlKey: true, key: '-' });
 
   private _canvas: Container;
   private _last: Point;
   private _moving: boolean;
   private _viewport: Container;
   private _z: number;
+  private readonly _zoominout: (e: KeyboardEvent) => void;
 
   public readonly attach: () => void;
   public readonly detach: () => void;
@@ -95,13 +102,23 @@ implements Attachable {
    */
   constructor(canvas?: Container, maxZoom?: number) {
     super();
-    
+    const _maxZoom = maxZoom || 100;
+
     this._canvas = canvas || new Container();
     this._last = new Point();
     this._moving = false;
     this._viewport = new Container();
-    this._z = maxZoom || 100;
-    
+    this._z = _maxZoom;
+
+    this._zoominout = (e) => {
+      console.log(e);
+      if (Camera.ZoominKMO.equal(e)) {
+        this._zoomOnWindow(this._last, -_maxZoom / 20);
+      } else if (Camera.ZoomoutKMO.equal(e)) {
+        this._zoomOnWindow(this._last, +_maxZoom / 20);
+      }
+    };
+
     this.attach = () => {
       this.detach();
 
@@ -113,6 +130,7 @@ implements Attachable {
       this.on('pointerup', this._pointerup);
       this.on('pointerupoutside', this._pointerupoutside);
       this.on('wheel', this._wheel);
+      window.addEventListener('keydown', this._zoominout);
     };
 
     this.detach = () => {
@@ -124,6 +142,7 @@ implements Attachable {
       this.off('pointerup', this._pointerup);
       this.off('pointerupoutside', this._pointerupoutside);
       this.off('wheel', this._wheel);
+      window.removeEventListener('keydown', this._zoominout);
     };
 
     this
@@ -141,38 +160,41 @@ implements Attachable {
   }
 
   private _leftpointerdown(e: FederatedPointerEvent) {
-    this._moveclientAtGlobal(e.client);
-    this._last.copyFrom(e.client);
+    this._moveclientOnWindow(e.client);
     this._moving = true;
   }
 
   private _pointermove(e: FederatedPointerEvent) {
     if (this._moving) {
-      this._moveAtGlobal(e);
+      this._moveOnWindow(e.client);
+    } else {
+      this._last.copyFrom(e.client);
     }
   }
 
   private _pointerup(e: FederatedPointerEvent) {
     if (this._moving) {
-      this._moveAtGlobal(e);
+      this._moveOnWindow(e.client);
       this._moving = false;
     }
   }
 
   private _pointerupoutside(e: FederatedPointerEvent) {
     if (this._moving) {
-      this._moveAtGlobal(e);
+      this._moveOnWindow(e.client);
       this._moving = false;
     }
   }
 
   private _wheel(e: FederatedWheelEvent) {
-    if (Camera.ZoomKMO.equal(e)) {
-      this._zoomAtGlobal(e);
+    if (Camera.ZoomWheelKMO.equal(e)) {
+      this._zoomOnWindow(e.client, e.deltaY);
     }
   }
 
-  private _moveclientAtGlobal(client: Point) {
+  private _moveclientOnWindow(client: Point) {
+    this._last.copyFrom(client);
+
     const { x: pivotX, y: pivotY } = this._viewport.toLocal(client);
     this._viewport.pivot.x = pivotX;
     this._viewport.pivot.y = pivotY;
@@ -182,19 +204,18 @@ implements Attachable {
     this._viewport.position.y = positionY;
   }
 
-  private _moveAtGlobal(e: FederatedPointerEvent) {
-    const { x: newX, y: newY } = this.toLocal(e.client);
+  private _moveOnWindow(client: Point) {
+    const { x: newX, y: newY } = this.toLocal(client);
     const { x: oldX, y: oldY } = this.toLocal(this._last);
-    this._last.copyFrom(e.client);
+    this._last.copyFrom(client);
 
     this._viewport.position.x += newX - oldX;
     this._viewport.position.y += newY - oldY;
   }
 
-  private _zoomAtGlobal(e: FederatedWheelEvent) {
-    this._moveclientAtGlobal(e.client);
-
-    const z = Math.max(1, this._z + e.deltaY);
+  private _zoomOnWindow(client: Point, dz: number) {
+    this._moveclientOnWindow(client);
+    const z = Math.max(1, this._z + dz);
     this._viewport.scale.x *= this._z / z;
     this._viewport.scale.y *= this._z / z;
     this._z = z;
