@@ -20,3 +20,5 @@
   - More designs are added: Attachable, Resizable
   - KeyModifierOption is added for managing keyboard inputs
   - GIF ![demo](../demo/v0.0.4.gif)
+
+## 0.0.5

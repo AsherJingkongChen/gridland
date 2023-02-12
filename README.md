@@ -3,6 +3,8 @@
 
 ## [Demo](https://asherjingkongchen.github.io/gridland-demo/)
 
+## [Manual](doc/manual.md)
+
 ## Build
 
 - For development: `npm run dev`
@@ -16,4 +18,4 @@
 
 ## [Version](doc/version.md)
 
-- current is [0.0.4](doc/version.md#004)
+- current is [0.0.5](doc/version.md#005)
