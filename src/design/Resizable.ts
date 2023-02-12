@@ -1,3 +1,3 @@
 export interface Resizable {
-  readonly resize: () => void;
+  readonly resize: (width: number, height: number) => void;
 };

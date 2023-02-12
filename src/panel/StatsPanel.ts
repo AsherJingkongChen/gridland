@@ -1,55 +1,83 @@
-import { Attachable } from '../design/Attachable';
-import { windowPreventDefault } from '../input/WindowPreventDefault';
-import { Resizable } from '../design/Resizable';
-import { keyMatch } from '../input/KeyMatch';
+import {
+  windowPreventDefault,
+  KeyModifierOption
+} from '../input';
 import {
   BitmapText,
-  Container,
-  IBitmapTextStyle,
-  Point,
   BitmapFont,
-  Ticker,
+  IBitmapTextStyle,
+  Graphics,
+  Point,
+  Ticker
 } from "pixi.js";
 import {
+  Attachable,
   IObserver,
   ISubject,
-} from '../design/Observer';
+  Resizable
+} from '../design';
+
+windowPreventDefault('keydown');
 
 /**
  * View for statistics
  */
-export class StatsPanel extends Container
+export class StatsPanel extends Graphics
 implements ISubject, Attachable, Resizable {
 
-  public static readonly activeTick: number = 9;
+  public static TickInterval: number = 9;
+  public static ToggleKMO = new KeyModifierOption({ key: 'F12' });
+  public static Alpha = 0.3;
 
   private _lastTick: number;
+  public readonly _onresize: () => void;
   private _size: Point;
   private _statsSet: Set<Stats>;
   private readonly _ticker: () => void;
-
+  
   public readonly attach: () => void;
   public readonly detach: () => void;
-  public readonly resize: () => void;
-  public resizeTo: HTMLElement | Window;
 
-  override get width(): number {
-    return this._size.x;
+  public readonly resize:
+    (width: number, height: number) => void;
+
+  public resizeTo: HTMLElement | Window;
+  public readonly toggle: (e: KeyboardEvent) => void;
+
+  /**
+   * Come with resizeTo's height
+   */
+  public override get height(): number {
+    return this._size.y;
   }
 
-  override get height(): number {
-    return this._size.y;
+  /**
+   * Come with resizeTo's width
+   */
+  public override get width() : number {
+    return this._size.x;
   }
 
   constructor(resizeTo?: HTMLElement | Window) {
     super();
 
-    this._lastTick = StatsPanel.activeTick;
+    this._lastTick = StatsPanel.TickInterval;
+
+    this._onresize = () => {
+      if (this.resizeTo === window) {
+        const { innerWidth, innerHeight } = this.resizeTo;
+        this.resize(innerWidth, innerHeight);
+      } else {
+        const { clientWidth, clientHeight } = this.resizeTo as HTMLElement;
+        this.resize(clientWidth, clientHeight);
+      }
+    };
+
     this._size = new Point();
     this._statsSet = new Set();
 
     this._ticker = () => {
-      if (this._lastTick == StatsPanel.activeTick) {
+      if (this._lastTick >= StatsPanel.TickInterval) {
         this.notify();
         this._lastTick = 0;
       }
@@ -57,42 +85,47 @@ implements ISubject, Attachable, Resizable {
     };
 
     this.attach = () => {
-      this.resize();
-      window.addEventListener('resize', this.resize);
-      window.addEventListener('keydown', (e) => {
-        if (keyMatch(e, { key: 'F12' })) {
-          this.visible = ! this.visible;
-        }
-      });
+      this.detach();
+
+      this.visible = true;
+      this._onresize();
+
+      window.addEventListener('resize', this._onresize);
       Ticker.shared.add(this._ticker);
-      console.log('att'); // [LOG]
     };
 
     this.detach = () => {
-      window.removeEventListener('resize', this.resize);
-      // window.removeEventListener('keydown', kf);
+      this.visible = false;
+
+      window.removeEventListener('resize', this._onresize);
       Ticker.shared.remove(this._ticker);
-      console.log('det'); // [LOG]
     };
 
-    this.resize = () => {
-      if (this.resizeTo === window) {
-        const { innerWidth, innerHeight } = this.resizeTo;
-        this._size.x = innerWidth;
-        this._size.y = innerHeight;
-
-      } else if (this.resizeTo instanceof HTMLElement) {
-        const { clientWidth, clientHeight } = this.resizeTo;
-        this._size.x = clientWidth;
-        this._size.y = clientHeight;
-      }
+    this.resize = (width: number, height: number) => {
+      this.clear();
+      this.beginFill(0x000000, StatsPanel.Alpha);
+      this.drawRect(0, 0, width, height);
+      this.endFill();
+      this._size.x = width;
+      this._size.y = height;
       this.notify();
     };
 
     this.resizeTo = resizeTo || window;
 
+    this.toggle = (e) => {
+      if (StatsPanel.ToggleKMO.equal(e)) {
+        if (this.visible) {
+          this.detach();
+        } else {
+          this.attach();
+        }
+      }
+    };
+
     this.on('added', this.attach);
     this.on('removed', this.detach);
+    window.addEventListener('keydown', this.toggle);
   }
 
   public observe(stats: Stats): StatsPanel {
@@ -110,10 +143,9 @@ implements ISubject, Attachable, Resizable {
   }
 
   public notify(): void {
-    this._statsSet.forEach((stats) => {
-      stats.text = stats.content();
-      stats.update(stats, this);
-    });
+    for (const stats of this._statsSet) {
+      stats.text = stats.update(stats, this);
+    }
   }
 };
 
@@ -123,32 +155,31 @@ implements ISubject, Attachable, Resizable {
 export class Stats extends BitmapText
 implements IObserver {
 
-  public static readonly defaultFontName = 'Stats_Light_12';
+  public static readonly DefaultFontName = 'Stats_Light_12';
 
-  public content: () => string;
-  public update: (stats: Stats, panel: StatsPanel) => void;
+  /**
+   * The result will be assigned to BitmapText.text
+   */
+  public update: (stats: Stats, panel: StatsPanel) => string;
 
   constructor(
-      content?: () => string,
-      update?: (stats: Stats, panel: StatsPanel) => void,
+      update?: (stats: Stats, panel: StatsPanel) => string,
       style?: Partial<IBitmapTextStyle> | undefined) {
 
     if (style === undefined) {
-      style = { fontName: Stats.defaultFontName };
+      style = { fontName: Stats.DefaultFontName };
 
     } else if (style.fontName === undefined) {
-      style.fontName = Stats.defaultFontName;
+      style.fontName = Stats.DefaultFontName;
     }
 
     super('', style);
-
-    this.content = content || (() => '');
-    this.update = update || (() => {});
+    this.update = update || (() => '');
   }
 };
 
 BitmapFont.from(
-  Stats.defaultFontName,
+  Stats.DefaultFontName,
   {
     fontFamily: 'Menlo',
     fontSize: 12,
@@ -159,6 +190,3 @@ BitmapFont.from(
     chars: BitmapFont.ASCII
   }
 );
-
-windowPreventDefault('keydown');
-  

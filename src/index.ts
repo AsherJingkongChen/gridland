@@ -1,9 +1,6 @@
-import {
-  Application,
-} from 'pixi.js';
+import { Application, Ticker } from 'pixi.js';
 import { Camera } from './camera';
 import { TileScene } from './scene';
-import { containerTreeLog } from './tool/ContainerTreeLog';
 import {
   StatsPanel,
   Stats
@@ -30,41 +27,40 @@ function colorMap() {
 };
 
 const camera = new Camera(new TileScene(0, 0, 4096, 4096, colorMap()));
-camera.canvas = new TileScene(0, 0, 100, 100, colorMap());
+
+const statsPanel = new StatsPanel(window);
+const versionStats =
+  new Stats(
+    (stats, panel) => {
+      stats.position.x = panel.width - stats.textWidth;
+      return 'version 0.0.4';
+    }
+  );
+const devStats =
+  new Stats(
+    () =>
+      JSON.stringify(
+        {
+          fps: Math.trunc(Ticker.shared.FPS),
+          camera: {
+            x: camera.x.toFixed(2),
+            y: camera.y.toFixed(2),
+            zoom: camera.zoom.toFixed(2),
+            canvas: {
+              w: camera.canvas.width.toFixed(2),
+              h: camera.canvas.height.toFixed(2)
+            }
+          }
+        },
+        null,
+        2
+      )
+      .replace(/"/g, '')
+  );
 
 app.stage.addChild(
   camera,
-  new StatsPanel(window)
-    .observe(
-      new Stats(
-        () => {
-          return JSON.stringify(
-            {
-              x: camera.x.toFixed(2),
-              y: camera.y.toFixed(2),
-              zoom: camera.zoom.toFixed(2),
-              canvas: {
-                w: camera.canvas.width.toFixed(2),
-                h: camera.canvas.height.toFixed(2)
-              }
-            },
-            null,
-            2
-          );
-        }
-      )
-    )
-    .observe(
-      new Stats(
-        () => 'version 0.0.4',
-        (stats, panel) => {
-          stats.position.x = panel.width - stats.textWidth;
-        }
-      )
-    )
+  statsPanel
+    .observe(versionStats)
+    .observe(devStats)
 );
-
-containerTreeLog(camera);
-// window.addEventListener('keydown', (e) => {
-//   console.log(keyMatch(e, { key: 'F12', ctrlKey: true, altKey: true }));
-// });

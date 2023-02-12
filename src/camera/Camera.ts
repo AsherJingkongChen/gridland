@@ -1,6 +1,8 @@
 import { Attachable } from '../design/Attachable';
-import { windowPreventDefault } from '../input/WindowPreventDefault';
-import { keyMatch } from '../input/KeyMatch';
+import {
+  windowPreventDefault,
+  KeyModifierOption
+} from '../input';
 import {
   Container,
   FederatedPointerEvent,
@@ -8,11 +10,16 @@ import {
   Point,
 } from 'pixi.js';
 
+windowPreventDefault('wheel');
+
 /**
  * Simple auto camera, moves via x and y, scales via zoom
  */
 export class Camera extends Container
 implements Attachable {
+
+  public static ZoomKMO =
+    new KeyModifierOption({ ctrlKey: true });
 
   private _canvas: Container;
   private _last: Point;
@@ -94,18 +101,24 @@ implements Attachable {
     this._moving = false;
     this._viewport = new Container();
     this._z = maxZoom || 100;
-
-    this.interactive = true;
     
     this.attach = () => {
+      this.detach();
+
+      this.interactive = true;
+      this.visible = true;
+
       this.on('pointerdown', this._pointerdown);
       this.on('pointermove', this._pointermove);
       this.on('pointerup', this._pointerup);
       this.on('pointerupoutside', this._pointerupoutside);
       this.on('wheel', this._wheel);
     };
-    
+
     this.detach = () => {
+      this.interactive = false;
+      this.visible = false;
+
       this.off('pointerdown', this._pointerdown);
       this.off('pointermove', this._pointermove);
       this.off('pointerup', this._pointerup);
@@ -113,7 +126,7 @@ implements Attachable {
       this.off('wheel', this._wheel);
     };
 
-    (this)
+    this
       .addChild(this._viewport)
       .addChild(this._canvas);
 
@@ -134,31 +147,29 @@ implements Attachable {
   }
 
   private _pointermove(e: FederatedPointerEvent) {
-    if (! this._moving) { return; }
-
-    this._moveAtGlobal(e);
+    if (this._moving) {
+      this._moveAtGlobal(e);
+    }
   }
 
   private _pointerup(e: FederatedPointerEvent) {
-    if (! this._moving) { return; }
-
-    this._moveAtGlobal(e);
-    this._moving = false;
+    if (this._moving) {
+      this._moveAtGlobal(e);
+      this._moving = false;
+    }
   }
 
   private _pointerupoutside(e: FederatedPointerEvent) {
-    if (! this._moving) { return; }
-
-    this._moveAtGlobal(e);
-    this._moving = false;
+    if (this._moving) {
+      this._moveAtGlobal(e);
+      this._moving = false;
+    }
   }
 
   private _wheel(e: FederatedWheelEvent) {
-    if (! keyMatch(e, { ctrlKey: true })) {
-      return;
+    if (Camera.ZoomKMO.equal(e)) {
+      this._zoomAtGlobal(e);
     }
-
-    this._zoomAtGlobal(e);
   }
 
   private _moveclientAtGlobal(client: Point) {
@@ -189,5 +200,3 @@ implements Attachable {
     this._z = z;
   }
 };
-
-windowPreventDefault('wheel');

@@ -1,5 +1,5 @@
 export interface IObserver {
-  update: (...args: any[]) => void;
+  update: (...args: any[]) => any;
 };
 
 export interface ISubject {
@@ -38,6 +38,8 @@ export interface ISubject {
 //   }
 // 
 //   public notify(): void {
-//     this.observers.forEach((o) => { o.update(o, this); });
+//     for (const o of this.observers) {
+//       o.update(o, this);
+//     }
 //   }
 // };
