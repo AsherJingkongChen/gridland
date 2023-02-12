@@ -126,7 +126,7 @@ implements IObserver {
   public static readonly defaultFontName = 'Stats_Light_12';
 
   public content: () => string;
-  public readonly update: (stats: Stats, panel: StatsPanel) => void;
+  public update: (stats: Stats, panel: StatsPanel) => void;
 
   constructor(
       content?: () => string,
