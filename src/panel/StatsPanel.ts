@@ -26,7 +26,7 @@ implements ISubject, Attachable, Resizable {
   private _lastTick: number;
   private _size: Point;
   private _statsSet: Set<Stats>;
-  private _ticker: () => void;
+  private readonly _ticker: () => void;
 
   public readonly attach: () => void;
   public readonly detach: () => void;
@@ -44,24 +44,9 @@ implements ISubject, Attachable, Resizable {
   constructor(resizeTo?: HTMLElement | Window) {
     super();
 
-    this.resizeTo = resizeTo || window;
+    this._lastTick = StatsPanel.activeTick;
     this._size = new Point();
     this._statsSet = new Set();
-    this._lastTick = StatsPanel.activeTick;
-
-    this.resize = () => {
-      if (this.resizeTo === window) {
-        const { innerWidth, innerHeight } = this.resizeTo;
-        this._size.x = innerWidth;
-        this._size.y = innerHeight;
-
-      } else if (this.resizeTo instanceof HTMLElement) {
-        const { clientWidth, clientHeight } = this.resizeTo;
-        this._size.x = clientWidth;
-        this._size.y = clientHeight;
-      }
-      this.notify();
-    };
 
     this._ticker = () => {
       if (this._lastTick == StatsPanel.activeTick) {
@@ -89,6 +74,22 @@ implements ISubject, Attachable, Resizable {
       Ticker.shared.remove(this._ticker);
       console.log('det'); // [LOG]
     };
+
+    this.resize = () => {
+      if (this.resizeTo === window) {
+        const { innerWidth, innerHeight } = this.resizeTo;
+        this._size.x = innerWidth;
+        this._size.y = innerHeight;
+
+      } else if (this.resizeTo instanceof HTMLElement) {
+        const { clientWidth, clientHeight } = this.resizeTo;
+        this._size.x = clientWidth;
+        this._size.y = clientHeight;
+      }
+      this.notify();
+    };
+
+    this.resizeTo = resizeTo || window;
 
     this.on('added', this.attach);
     this.on('removed', this.detach);
@@ -122,10 +123,10 @@ implements ISubject, Attachable, Resizable {
 export class Stats extends BitmapText
 implements IObserver {
 
+  public static readonly defaultFontName = 'Stats_Light_12';
+
   public content: () => string;
   public update: (stats: Stats, panel: StatsPanel) => void;
-
-  public static readonly defaultFontName = 'Stats_Light_12';
 
   constructor(
       content?: () => string,
