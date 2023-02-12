@@ -22,18 +22,16 @@ export class StatsPanel extends Container
 implements ISubject, Attachable, Resizable {
 
   public static readonly activeTick: number = 9;
-
-  private _statsSet: Set<Stats>;
-
-  public resizeTo: HTMLElement | Window;
-  private _size: Point;
   
   private _lastTick: number;
+  private _size: Point;
+  private _statsSet: Set<Stats>;
   private _ticker: () => void;
-  
-  public resize: () => void;
-  public attach: () => void;
-  public detach: () => void;
+
+  public readonly attach: () => void;
+  public readonly detach: () => void;
+  public readonly resize: () => void;
+  public resizeTo: HTMLElement | Window;
 
   override get width(): number {
     return this._size.x;

@@ -1,4 +1,4 @@
 export interface Attachable {
-  attach: () => void;
-  detach: () => void;
+  readonly attach: () => void;
+  readonly detach: () => void;
 };

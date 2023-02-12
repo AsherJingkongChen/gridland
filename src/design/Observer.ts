@@ -1,5 +1,5 @@
 export interface IObserver {
-  update: (...args: any[]) => void;
+  readonly update: (...args: any[]) => void;
 };
 
 export interface ISubject {

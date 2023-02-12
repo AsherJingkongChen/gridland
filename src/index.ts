@@ -3,6 +3,7 @@ import {
 } from 'pixi.js';
 import { Camera } from './camera';
 import { TileScene } from './scene';
+import { containerTreeLog } from './tool/ContainerTreeLog';
 import {
   StatsPanel,
   Stats
@@ -29,10 +30,10 @@ function colorMap() {
 };
 
 const camera = new Camera(new TileScene(0, 0, 4096, 4096, colorMap()));
-
-app.stage.addChild(camera);
+camera.canvas = new TileScene(0, 0, 100, 100, colorMap());
 
 app.stage.addChild(
+  camera,
   new StatsPanel(window)
     .observe(
       new Stats(
@@ -63,6 +64,7 @@ app.stage.addChild(
     )
 );
 
+containerTreeLog(camera);
 // window.addEventListener('keydown', (e) => {
 //   console.log(keyMatch(e, { key: 'F12', ctrlKey: true, altKey: true }));
 // });

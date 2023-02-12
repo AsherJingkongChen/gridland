@@ -14,39 +14,54 @@ import {
 export class Camera extends Container
 implements Attachable {
 
-  private _viewport: Container;
-  private _moving: boolean;
+  private _canvas: Container;
   private _last: Point;
+  private _moving: boolean;
+  private _viewport: Container;
   private _z: number;
 
-  public canvas: Container;
-
-  public attach: () => void;
-  public detach: () => void;
+  public readonly attach: () => void;
+  public readonly detach: () => void;
 
   /**
-   * local x
+   * View
    */
-   public override get x(): number {
+  get canvas(): Container {
+    return this._canvas;
+  }
+
+  /**
+   * View
+   */
+  set canvas(canvas: Container) {
+    this._viewport.removeChild(this._canvas);
+    this._canvas = canvas;
+    this._viewport.addChild(this._canvas);
+  }
+
+  /**
+   * Local x
+   */
+  public override get x(): number {
     return this._viewport.pivot.x;
   }
 
   /**
-   * local x
+   * Local x
    */
   public override set x(x: number) {
     this._viewport.pivot.x = x;
   }
 
   /**
-   * local y
+   * Local y
    */
   public override get y(): number {
     return this._viewport.pivot.y;
   }
 
   /**
-   * local y
+   * Local y
    */
   public override set y(y: number) {
     this._viewport.pivot.y = y;
@@ -73,18 +88,15 @@ implements Attachable {
    */
   constructor(canvas?: Container, maxZoom?: number) {
     super();
-    this.interactive = true;
     
-    this.canvas = canvas || new Container();
-    this._viewport = new Container();
-    this._moving = false;
+    this._canvas = canvas || new Container();
     this._last = new Point();
+    this._moving = false;
+    this._viewport = new Container();
     this._z = maxZoom || 100;
 
-    (this)
-      .addChild(this._viewport)
-      .addChild(this.canvas);
-
+    this.interactive = true;
+    
     this.attach = () => {
       this.on('pointerdown', this._pointerdown);
       this.on('pointermove', this._pointermove);
@@ -92,7 +104,7 @@ implements Attachable {
       this.on('pointerupoutside', this._pointerupoutside);
       this.on('wheel', this._wheel);
     };
-
+    
     this.detach = () => {
       this.off('pointerdown', this._pointerdown);
       this.off('pointermove', this._pointermove);
@@ -100,6 +112,10 @@ implements Attachable {
       this.off('pointerupoutside', this._pointerupoutside);
       this.off('wheel', this._wheel);
     };
+
+    (this)
+      .addChild(this._viewport)
+      .addChild(this._canvas);
 
     this.on('added', this.attach);
     this.on('removed', this.detach);
