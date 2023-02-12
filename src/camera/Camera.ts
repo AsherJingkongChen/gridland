@@ -111,7 +111,6 @@ implements Attachable {
     this._z = _maxZoom;
 
     this._zoominout = (e) => {
-      console.log(e);
       if (Camera.ZoominKMO.equal(e)) {
         this._zoomOnWindow(this._last, -_maxZoom / 20);
       } else if (Camera.ZoomoutKMO.equal(e)) {

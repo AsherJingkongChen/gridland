@@ -16,7 +16,7 @@
   - GIF ![demo](../demo/v0.0.3.gif)
 
 ## 0.0.4
-  - StatsPanel is edited
+  - StatsPanel and Camera are extended
   - More designs are added: Attachable, Resizable
   - KeyModifierOption is added for managing keyboard inputs
   - GIF ![demo](../demo/v0.0.4.gif)
