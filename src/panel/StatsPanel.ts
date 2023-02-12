@@ -77,7 +77,6 @@ implements ISubject, Attachable, Resizable {
 
     this._ticker = () => {
       if (this._lastTick >= StatsPanel.TickInterval) {
-        console.log('ticker'); // [LOG]
         this.notify();
         this._lastTick = 0;
       }
@@ -95,7 +94,6 @@ implements ISubject, Attachable, Resizable {
     };
 
     this.attach = () => {
-      console.log('attach'); // [LOG]
       this.detach();
 
       this.visible = true;
@@ -106,7 +104,6 @@ implements ISubject, Attachable, Resizable {
     };
 
     this.detach = () => {
-      console.log('detach'); // [LOG]
       this.visible = false;
 
       window.removeEventListener('resize', this._onresize);
