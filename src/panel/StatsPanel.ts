@@ -22,7 +22,7 @@ export class StatsPanel extends Container
 implements ISubject, Attachable, Resizable {
 
   public static readonly activeTick: number = 9;
-  
+
   private _lastTick: number;
   private _size: Point;
   private _statsSet: Set<Stats>;
