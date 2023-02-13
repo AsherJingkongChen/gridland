@@ -4,14 +4,15 @@
 export class KeyboardInputOption
 implements IKeyboardInputOption {
 
-  public code?: KeyboardInputCodeMap;
+  public code?: string;
   public altKey?: boolean;
   public ctrlKey?: boolean;
   public metaKey?: boolean;
   public shiftKey?: boolean;
 
   constructor(
-      from: {
+      from: IKeyboardInputOption |
+      {
         code?: KeyboardInputCodeMap,
         altKey?: boolean,
         ctrlKey?: boolean,
@@ -23,7 +24,7 @@ implements IKeyboardInputOption {
     this.altKey = from.altKey;
     this.ctrlKey = from.ctrlKey;
     this.metaKey = from.metaKey;
-    this.shiftKey = from.ctrlKey;
+    this.shiftKey = from.shiftKey;
   }
 
   public static Equal(
@@ -128,10 +129,3 @@ export type KeyboardInputCodeMap =
   'ArrowUp' |
   'ArrowDown' |
   'ArrowRight';
-
-window.addEventListener(
-  'keydown',
-  (e) => {
-    console.log({ key: e.key, code: e.code })
-  }
-);

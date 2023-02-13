@@ -1,2 +1,2 @@
-export * from './KeyModifierOption';
+export * from './KeyboardInput';
 export * from './WindowPreventDefault';
