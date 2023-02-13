@@ -34,9 +34,6 @@ implements Attachable {
   private _z: number;
   private readonly _zoominout: (e: KeyboardEvent) => void;
 
-  public readonly attach: () => void;
-  public readonly detach: () => void;
-
   /**
    * View
    */
@@ -118,38 +115,38 @@ implements Attachable {
       }
     };
 
-    this.attach = () => {
-      this.detach();
-
-      this.interactive = true;
-      this.visible = true;
-
-      this.on('pointerdown', this._pointerdown);
-      this.on('pointermove', this._pointermove);
-      this.on('pointerup', this._pointerup);
-      this.on('pointerupoutside', this._pointerupoutside);
-      this.on('wheel', this._wheel);
-      window.addEventListener('keydown', this._zoominout);
-    };
-
-    this.detach = () => {
-      this.interactive = false;
-      this.visible = false;
-
-      this.off('pointerdown', this._pointerdown);
-      this.off('pointermove', this._pointermove);
-      this.off('pointerup', this._pointerup);
-      this.off('pointerupoutside', this._pointerupoutside);
-      this.off('wheel', this._wheel);
-      window.removeEventListener('keydown', this._zoominout);
-    };
-
     this
       .addChild(this._viewport)
       .addChild(this._canvas);
 
     this.on('added', this.attach);
     this.on('removed', this.detach);
+  }
+
+  public attach() {
+    this.detach();
+
+    this.interactive = true;
+    this.visible = true;
+
+    this.on('pointerdown', this._pointerdown);
+    this.on('pointermove', this._pointermove);
+    this.on('pointerup', this._pointerup);
+    this.on('pointerupoutside', this._pointerupoutside);
+    this.on('wheel', this._wheel);
+    window.addEventListener('keydown', this._zoominout);
+  }
+
+  public detach() {
+    this.interactive = false;
+    this.visible = false;
+
+    this.off('pointerdown', this._pointerdown);
+    this.off('pointermove', this._pointermove);
+    this.off('pointerup', this._pointerup);
+    this.off('pointerupoutside', this._pointerupoutside);
+    this.off('wheel', this._wheel);
+    window.removeEventListener('keydown', this._zoominout);
   }
 
   private _pointerdown(e: FederatedPointerEvent) {

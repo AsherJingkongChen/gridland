@@ -35,11 +35,6 @@ implements ISubject, Attachable, Resizable {
   private _statsSet: Set<Stats>;
   private readonly _ticker: () => void;
   public readonly _toggle: (e: KeyboardEvent) => void;
-  
-  public readonly attach: () => void;
-  public readonly detach: () => void;
-  public readonly resize:
-    (width: number, height: number) => void;
 
   public resizeTo: HTMLElement | Window;
 
@@ -93,39 +88,39 @@ implements ISubject, Attachable, Resizable {
       }
     };
 
-    this.attach = () => {
-      this.detach();
-
-      this.visible = true;
-      this._onresize();
-
-      window.addEventListener('resize', this._onresize);
-      Ticker.shared.add(this._ticker);
-    };
-
-    this.detach = () => {
-      this.visible = false;
-
-      window.removeEventListener('resize', this._onresize);
-      Ticker.shared.remove(this._ticker);
-    };
-
-    this.resize = (width: number, height: number) => {
-      this.clear();
-      this.beginFill(0x000000, StatsPanel.Alpha);
-      this.drawRect(0, 0, width, height);
-      this.endFill();
-      this._size.x = width;
-      this._size.y = height;
-      this.notify();
-    };
-
     this.resizeTo = resizeTo || window;
 
     this.on('added', this.attach);
     this.once('added', this.detach);
     this.on('removed', this.detach);
     window.addEventListener('keydown', this._toggle);
+  }
+
+  public attach() {
+    this.detach();
+
+    this.visible = true;
+    this._onresize();
+
+    window.addEventListener('resize', this._onresize);
+    Ticker.shared.add(this._ticker);
+  }
+
+  public detach() {
+    this.visible = false;
+
+    window.removeEventListener('resize', this._onresize);
+    Ticker.shared.remove(this._ticker);
+  }
+
+  public resize(width: number, height: number) {
+    this.clear();
+    this.beginFill(0x000000, StatsPanel.Alpha);
+    this.drawRect(0, 0, width, height);
+    this.endFill();
+    this._size.x = width;
+    this._size.y = height;
+    this.notify();
   }
 
   public observe(stats: Stats): StatsPanel {
