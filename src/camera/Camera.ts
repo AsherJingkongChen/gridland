@@ -190,14 +190,8 @@ implements Attachable {
 
   private _moveclientOnWindow(client: Point) {
     this._last.copyFrom(client);
-
-    const { x: pivotX, y: pivotY } = this._viewport.toLocal(client);
-    this._viewport.pivot.x = pivotX;
-    this._viewport.pivot.y = pivotY;
-
-    const { x: positionX, y: positionY } = this.toLocal(client);
-    this._viewport.position.x = positionX;
-    this._viewport.position.y = positionY;
+    this._viewport.toLocal(client, undefined, this._viewport.pivot);
+    this.toLocal(client, undefined, this._viewport.position);
   }
 
   private _moveOnWindow(client: Point) {
