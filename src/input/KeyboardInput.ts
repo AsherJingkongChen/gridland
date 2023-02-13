@@ -4,27 +4,17 @@
 export class KeyboardInputOption
 implements IKeyboardInputOption {
 
-  public code?: string;
+  public code?: KeyboardInputCodeMap;
   public altKey?: boolean;
   public ctrlKey?: boolean;
   public metaKey?: boolean;
   public shiftKey?: boolean;
 
   constructor(
-      from: IKeyboardInputOption |
-      {
-        code?: KeyboardInputCodeMap,
-        altKey?: boolean,
-        ctrlKey?: boolean,
-        metaKey?: boolean,
-        shiftKey?: boolean
-      }) {
+      from: IKeyboardInputOption &
+      { code?: KeyboardInputCodeMap }) {
 
-    this.code = from.code;
-    this.altKey = from.altKey;
-    this.ctrlKey = from.ctrlKey;
-    this.metaKey = from.metaKey;
-    this.shiftKey = from.shiftKey;
+    Object.assign(this, from);
   }
 
   public static Equal(
@@ -56,6 +46,9 @@ export interface IKeyboardInputOption {
   shiftKey?: boolean;
 };
 
+/**
+ * Enum for values of KeyboardEvent.code
+ */
 export type KeyboardInputCodeMap =
   'Backquote' |
   'Digit1' |
