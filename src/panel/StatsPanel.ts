@@ -1,6 +1,6 @@
 import {
   windowPreventDefault,
-  KeyModifierOption
+  KeyboardInputOption,
 } from '../input';
 import {
   BitmapText,
@@ -26,7 +26,7 @@ export class StatsPanel extends Graphics
 implements ISubject, Attachable, Resizable {
 
   public static TickInterval: number = 9;
-  public static ToggleKMO = new KeyModifierOption({ key: 'F12' });
+  public static ToggleKIO = new KeyboardInputOption({ code: 'F12' });
   public static Alpha = 0.3;
 
   private _lastTick: number;
@@ -79,7 +79,7 @@ implements ISubject, Attachable, Resizable {
     };
 
     this._toggle = (e) => {
-      if (StatsPanel.ToggleKMO.equal(e)) {
+      if (StatsPanel.ToggleKIO.equal(e)) {
         if (this.visible) {
           this.detach();
         } else {

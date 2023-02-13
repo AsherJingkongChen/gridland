@@ -1,7 +1,7 @@
 import { Attachable } from '../design/Attachable';
 import {
   windowPreventDefault,
-  KeyModifierOption
+  KeyboardInputOption
 } from '../input';
 import {
   Container,
@@ -18,14 +18,14 @@ windowPreventDefault('wheel');
 export class Camera extends Container
 implements Attachable {
 
-  public static ZoomWheelKMO = 
-    new KeyModifierOption({ ctrlKey: true });
+  public static ZoomWheelKIO = 
+    new KeyboardInputOption({ ctrlKey: true });
 
-  public static ZoominKMO =
-    new KeyModifierOption({ ctrlKey: true, key: '=' });
+  public static ZoominKIO =
+    new KeyboardInputOption({ ctrlKey: true, code: 'Equal' });
 
-  public static ZoomoutKMO =
-    new KeyModifierOption({ ctrlKey: true, key: '-' });
+  public static ZoomoutKIO =
+    new KeyboardInputOption({ ctrlKey: true, code: 'Minus' });
 
   private _canvas: Container;
   private _last: Point;
@@ -108,9 +108,9 @@ implements Attachable {
     this._z = _maxZoom;
 
     this._zoominout = (e) => {
-      if (Camera.ZoominKMO.equal(e)) {
+      if (Camera.ZoominKIO.equal(e)) {
         this._zoomOnWindow(this._last, -_maxZoom / 20);
-      } else if (Camera.ZoomoutKMO.equal(e)) {
+      } else if (Camera.ZoomoutKIO.equal(e)) {
         this._zoomOnWindow(this._last, +_maxZoom / 20);
       }
     };
@@ -183,7 +183,7 @@ implements Attachable {
   }
 
   private _wheel(e: FederatedWheelEvent) {
-    if (Camera.ZoomWheelKMO.equal(e)) {
+    if (Camera.ZoomWheelKIO.equal(e)) {
       this._zoomOnWindow(e.client, e.deltaY);
     }
   }
