@@ -7,8 +7,8 @@ import {
   BitmapFont,
   IBitmapTextStyle,
   Graphics,
-  Point,
-  Ticker
+  Ticker,
+  ISize,
 } from "pixi.js";
 import {
   Attachable,
@@ -31,7 +31,7 @@ implements ISubject, Attachable, Resizable {
 
   private _lastTick: number;
   public readonly _onresize: () => void;
-  private _size: Point;
+  private _size: ISize;
   private _statsSet: Set<Stats>;
   private readonly _ticker: () => void;
   public readonly _toggle: (e: KeyboardEvent) => void;
@@ -39,17 +39,17 @@ implements ISubject, Attachable, Resizable {
   public resizeTo: HTMLElement | Window;
 
   /**
-   * Come with resizeTo's height
+   * Come with resizeTo's width
    */
-  public override get height(): number {
-    return this._size.y;
+   public override get width() : number {
+    return this._size.width;
   }
 
   /**
-   * Come with resizeTo's width
+   * Come with resizeTo's height
    */
-  public override get width() : number {
-    return this._size.x;
+  public override get height(): number {
+    return this._size.height;
   }
 
   constructor(resizeTo?: HTMLElement | Window) {
@@ -58,16 +58,16 @@ implements ISubject, Attachable, Resizable {
     this._lastTick = StatsPanel.TickInterval;
 
     this._onresize = () => {
-      if (this.resizeTo === window) {
+      if (this.resizeTo instanceof Window) {
         const { innerWidth, innerHeight } = this.resizeTo;
         this.resize(innerWidth, innerHeight);
       } else {
-        const { clientWidth, clientHeight } = this.resizeTo as HTMLElement;
+        const { clientWidth, clientHeight } = this.resizeTo;
         this.resize(clientWidth, clientHeight);
       }
     };
 
-    this._size = new Point();
+    this._size = { width: 0, height: 0 };
     this._statsSet = new Set();
 
     this._ticker = () => {
@@ -102,14 +102,14 @@ implements ISubject, Attachable, Resizable {
     this.visible = true;
     this._onresize();
 
-    window.addEventListener('resize', this._onresize);
+    this.resizeTo.addEventListener('resize', this._onresize);
     Ticker.shared.add(this._ticker);
   }
 
   public detach() {
     this.visible = false;
 
-    window.removeEventListener('resize', this._onresize);
+    this.resizeTo.removeEventListener('resize', this._onresize);
     Ticker.shared.remove(this._ticker);
   }
 
@@ -118,8 +118,8 @@ implements ISubject, Attachable, Resizable {
     this.beginFill(0x000000, StatsPanel.Alpha);
     this.drawRect(0, 0, width, height);
     this.endFill();
-    this._size.x = width;
-    this._size.y = height;
+    this._size.width = width;
+    this._size.height = height;
     this.notify();
   }
 
@@ -151,12 +151,12 @@ export class Stats extends BitmapText
 implements IObserver {
 
   public static readonly DefaultFontName = 'Stats_Light_12';
-
-  /**
-   * The result will be assigned to BitmapText.text
-   */
   public update: (stats: Stats, panel: StatsPanel) => string;
 
+  /**
+   * @param update
+   * Its result will be assigned to BitmapText.text
+   */
   constructor(
       update?: (stats: Stats, panel: StatsPanel) => string,
       style?: Partial<IBitmapTextStyle> | undefined) {

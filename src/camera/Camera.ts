@@ -1,4 +1,5 @@
 import { Attachable } from '../design/Attachable';
+import { invSqrt } from 'fast-inv-sqrt';
 import {
   windowPreventDefault,
   KeyboardInputOption
@@ -11,6 +12,7 @@ import {
 } from 'pixi.js';
 
 windowPreventDefault('wheel');
+windowPreventDefault('keydown');
 
 /**
  * Simple auto camera, moves via x and y, scales via zoom
@@ -28,7 +30,7 @@ implements Attachable {
     new KeyboardInputOption({ ctrlKey: true, code: 'Minus' });
 
   private _canvas: Container;
-  private _last: Point;
+  private _cursor: Point;
   private _moving: boolean;
   private _viewport: Container;
   private _z: number;
@@ -94,24 +96,33 @@ implements Attachable {
   }
 
   /**
-   * @param canvas The Container under camera
-   * @param maxZoom Maximum of scale, default is 100 (10000%)
+   * @param canvas
+   * The Container inside Camera
+   * 
+   * @param maxZoom
+   * Maximum of zoom, default is 32 (3200%);
+   * Minimum of zoom is always 0.01 (1%)
    */
   constructor(canvas?: Container, maxZoom?: number) {
     super();
-    const _maxZoom = maxZoom || 100;
+    const _maxZoom = maxZoom || 64;
 
     this._canvas = canvas || new Container();
-    this._last = new Point();
+    this._cursor = new Point();
     this._moving = false;
     this._viewport = new Container();
     this._z = _maxZoom;
 
     this._zoominout = (e) => {
       if (Camera.ZoominKIO.equal(e)) {
-        this._zoomOnWindow(this._last, -_maxZoom / 20);
+        this._movecursorOnWindow(this._cursor);
+        this._zoomOnWindow(-_maxZoom / 6);
+
       } else if (Camera.ZoomoutKIO.equal(e)) {
-        this._zoomOnWindow(this._last, +_maxZoom / 20);
+        if (this.zoom <= 0.01) { return; }
+
+        this._movecursorOnWindow(this._cursor);
+        this._zoomOnWindow(+_maxZoom / 6);
       }
     };
 
@@ -156,7 +167,7 @@ implements Attachable {
   }
 
   private _leftpointerdown(e: FederatedPointerEvent) {
-    this._moveclientOnWindow(e.client);
+    this._movecursorOnWindow(e.client);
     this._moving = true;
   }
 
@@ -164,7 +175,7 @@ implements Attachable {
     if (this._moving) {
       this._moveOnWindow(e.client);
     } else {
-      this._last.copyFrom(e.client);
+      this._cursor.copyFrom(e.client);
     }
   }
 
@@ -184,28 +195,36 @@ implements Attachable {
 
   private _wheel(e: FederatedWheelEvent) {
     if (Camera.ZoomWheelKIO.equal(e)) {
-      this._zoomOnWindow(e.client, e.deltaY);
+      if (e.deltaY > 0 && this.zoom <= 0.01) {
+        return;
+      }
+  
+      this._movecursorOnWindow(e.client);
+      this._zoomOnWindow(e.deltaY);
     }
   }
 
-  private _moveclientOnWindow(client: Point) {
-    this._last.copyFrom(client);
-    this._viewport.toLocal(client, undefined, this._viewport.pivot);
-    this.toLocal(client, undefined, this._viewport.position);
+  private _movecursorOnWindow(cursor: Point) {
+    this._viewport.toLocal(cursor, undefined, this._viewport.pivot);
+    this.toLocal(cursor, undefined, this._viewport.position);
+
+    this._cursor.copyFrom(cursor);
   }
 
-  private _moveOnWindow(client: Point) {
-    const { x: newX, y: newY } = this.toLocal(client);
-    const { x: oldX, y: oldY } = this.toLocal(this._last);
-    this._last.copyFrom(client);
-
+  private _moveOnWindow(cursor: Point) {
+    const { x: newX, y: newY } = this.toLocal(cursor);
+    const { x: oldX, y: oldY } = this.toLocal(this._cursor);
     this._viewport.position.x += newX - oldX;
     this._viewport.position.y += newY - oldY;
+
+    this._cursor.copyFrom(cursor);
   }
 
-  private _zoomOnWindow(client: Point, dz: number) {
-    this._moveclientOnWindow(client);
-    const z = Math.max(1, this._z + dz);
+  /**
+   * z-axis projected zooming (fixed with inverse sqrt of zoom)
+   */
+  private _zoomOnWindow(dz: number) {
+    const z = Math.max(1, this._z + dz * invSqrt(this.zoom));
     this._viewport.scale.x *= this._z / z;
     this._viewport.scale.y *= this._z / z;
     this._z = z;
