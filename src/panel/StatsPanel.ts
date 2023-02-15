@@ -182,7 +182,5 @@ BitmapFont.from(
     fontWeight: 'normal',
     fill: 0xffffff
   },
-  {
-    chars: BitmapFont.ASCII
-  }
+  { chars: BitmapFont.ASCII }
 );

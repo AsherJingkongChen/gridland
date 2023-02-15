@@ -97,17 +97,17 @@ implements Attachable {
   }
 
   /**
-   * @param option.canvas
+   * @param options.canvas
    * The Container inside Camera
    * 
-   * @param option.maxzoom
+   * @param options.maxzoom
    * Maximum of zoom, default is 10.0 (1000%)
    * 
-   * @param option.minzoom
-   * Minimum of zoom, default is inverse of maxzoom, 0.1 (10%)
+   * @param options.minzoom
+   * Minimum of zoom, default is 0.1 (10%)
    */
   constructor(
-      option?: {
+      options?: {
         canvas?: Container,
         maxzoom?: number,
         minzoom?: number
@@ -115,7 +115,7 @@ implements Attachable {
 
     super();
 
-    this._canvas = option?.canvas || new Container();
+    this._canvas = options?.canvas || new Container();
     this._cursor = new Point();
     this._moving = false;
     this._viewport = new Container();
@@ -131,8 +131,8 @@ implements Attachable {
       }
     };
 
-    this.maxzoom = option?.maxzoom || 10;
-    this.minzoom = option?.minzoom || (1 / this.maxzoom);
+    this.maxzoom = options?.maxzoom || 10;
+    this.minzoom = options?.minzoom || .1;
 
     this
       .addChild(this._viewport)
