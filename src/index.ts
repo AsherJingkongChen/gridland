@@ -4,6 +4,8 @@ import {
   TilingSprite,
   SCALE_MODES,
   MIPMAP_MODES,
+  Texture,
+  Container
 } from 'pixi.js';
 import { Camera } from './camera';
 import {
@@ -12,11 +14,11 @@ import {
 } from './panel';
 
 const app = new Application({
-  view: document.getElementById('stage') as HTMLCanvasElement,
-  resolution: window.devicePixelRatio || 1,
   autoDensity: true,
   backgroundColor: 0x000000,
-  resizeTo: window
+  resizeTo: window,
+  resolution: window.devicePixelRatio || 1,
+  view: document.getElementById('stage') as HTMLCanvasElement,
 });
 
 const ingrid = (pixel: number) => pixel >> 5;
@@ -24,27 +26,51 @@ const ingrid = (pixel: number) => pixel >> 5;
 
 // 2^15 = 2^(5 + 6 + 4); P/G, G/C, C/L
 
-// [TODO] load from spritesheet
-const chunk =
-  TilingSprite.from(
-    `grid.png`,
+const gridTexture =
+  Texture.from(
+    'grid.png',
     {
-      width: 1 << 5 << 6,
-      height: 1 << 5 << 6,
       scaleMode: SCALE_MODES.NEAREST,
       mipmap: MIPMAP_MODES.ON
     }
   );
 
-const camera = new Camera({ canvas: chunk });
+const scene = new Container(); //
+const chunk =
+  TilingSprite.from(
+    gridTexture,
+    {
+      width: 1 << 5 << 6,
+      height: 1 << 5 << 6,
+    }
+  );
+const chunk2 =
+  TilingSprite.from(
+    gridTexture,
+    {
+      width: 1 << 5 << 6,
+      height: 1 << 5 << 6
+    }
+  );
+scene.addChild(chunk); //
+scene.addChild(chunk2); //
+chunk2.x = chunk.x - chunk2.width; //
+
+const camera = new Camera({ canvas: scene }); //
+camera.x -= window.innerWidth / 2; //
+camera.y -= window.innerHeight / 2; //
 
 const statsPanel = new StatsPanel(window);
-const versionStats =
+const systeminfo = 
+  `version 0.0.5\n` +
+  `${app.renderer.rendererLogId}`;
+const systemStats =
   new Stats(
     (stats, panel) => {
       stats.position.x = panel.width - stats.textWidth;
-      return 'version 0.0.5';
-    }
+      return systeminfo;
+    },
+    { align: 'right' }
   );
 const devStats =
   new Stats(
@@ -69,7 +95,7 @@ const devStats =
           null,
           2
         )
-        .replace(/"/g, '')
+        .replaceAll('"', '')
       );
     }
   );
@@ -77,6 +103,6 @@ const devStats =
 app.stage.addChild(
   camera,
   statsPanel
-    .observe(versionStats)
+    .observe(systemStats)
     .observe(devStats)
 );

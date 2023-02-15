@@ -25,7 +25,7 @@ windowPreventDefault('keydown');
 export class StatsPanel extends Graphics
 implements ISubject, Attachable, Resizable {
 
-  public static TickInterval: number = 12;
+  public static TickInterval: number = 6;
   public static ToggleKIO = new KeyboardInputOption({ code: 'F12' });
   public static Alpha = 0.4;
 

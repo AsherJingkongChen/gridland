@@ -122,11 +122,9 @@ implements Attachable {
 
     this._zoominout = (e) => {
       if (Camera.ZoominKIO.equal(e)) {
-        this._movecursorOnWindow(this._cursor);
         this._zoomOnWindow(+10);
 
       } else if (Camera.ZoomoutKIO.equal(e)) {
-        this._movecursorOnWindow(this._cursor);
         this._zoomOnWindow(-10);
       }
     };
@@ -183,7 +181,7 @@ implements Attachable {
     if (this._moving) {
       this._moveOnWindow(e.client);
     } else {
-      this._cursor.copyFrom(e.client);
+      this._movecursorOnWindow(e.client);
     }
   }
 
@@ -228,7 +226,7 @@ implements Attachable {
    * zoom by approximation
    */
   private _zoomOnWindow(delta: number) {
-    /* Linear Symmetric Function: f(x) = 1 + |x|/50 */
+    /* Linear Symmetric Function: mul = 1 + |x|/50 */
 
     if (delta >= 0) {
       if (this.zoom < this.maxzoom) {
