@@ -104,7 +104,7 @@ implements Attachable {
    * Maximum of zoom, default is 10.0 (1000%)
    * 
    * @param option.minzoom
-   * Minimum of zoom is always 0.1 (10%)
+   * Minimum of zoom, default is inverse of maxzoom, 0.1 (10%)
    */
   constructor(
       option?: {
@@ -123,16 +123,16 @@ implements Attachable {
     this._zoominout = (e) => {
       if (Camera.ZoominKIO.equal(e)) {
         this._movecursorOnWindow(this._cursor);
-        this._zoomOnWindow(+20);
+        this._zoomOnWindow(+10);
 
       } else if (Camera.ZoomoutKIO.equal(e)) {
         this._movecursorOnWindow(this._cursor);
-        this._zoomOnWindow(-20);
+        this._zoomOnWindow(-10);
       }
     };
 
-    this.maxzoom = option?.maxzoom || 10.0;
-    this.minzoom = option?.minzoom || 0.1;
+    this.maxzoom = option?.maxzoom || 10;
+    this.minzoom = option?.minzoom || (1 / this.maxzoom);
 
     this
       .addChild(this._viewport)
@@ -228,17 +228,14 @@ implements Attachable {
    * zoom by approximation
    */
   private _zoomOnWindow(delta: number) {
+    /* Linear Symmetric Function: f(x) = 1 + |x|/50 */
+
     if (delta >= 0) {
       if (this.zoom < this.maxzoom) {
-        this.zoom *= 1 + delta / (50 + delta);
+        this.zoom *= 1 + delta / 50;
       }
     } else if (this.zoom > this.minzoom) {
-      this.zoom /= 1 + -delta / (50 + -delta);
+      this.zoom /= 1 + -delta / 50;
     }
-
-    console.log({
-      delta,
-      r: 1 + Math.abs(delta) / (50 + Math.abs(delta))
-    });
   }
 };
