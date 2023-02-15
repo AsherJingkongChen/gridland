@@ -25,9 +25,9 @@ windowPreventDefault('keydown');
 export class StatsPanel extends Graphics
 implements ISubject, Attachable, Resizable {
 
-  public static TickInterval: number = 9;
+  public static TickInterval: number = 12;
   public static ToggleKIO = new KeyboardInputOption({ code: 'F12' });
-  public static Alpha = 0.3;
+  public static Alpha = 0.4;
 
   private _lastTick: number;
   public readonly _onresize: () => void;
@@ -57,6 +57,7 @@ implements ISubject, Attachable, Resizable {
 
     this._lastTick = StatsPanel.TickInterval;
 
+    // [TODO] fix for HTMLCanvasElement
     this._onresize = () => {
       if (this.resizeTo instanceof Window) {
         const { innerWidth, innerHeight } = this.resizeTo;

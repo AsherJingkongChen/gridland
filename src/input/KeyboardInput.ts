@@ -11,10 +11,10 @@ implements IKeyboardInputOption {
   public shiftKey?: boolean;
 
   constructor(
-      source: IKeyboardInputOption &
+      option: IKeyboardInputOption &
       { code?: KeyboardInputCodeMap }) {
 
-    Object.assign(this, source);
+    Object.assign(this, option);
   }
 
   public static Equal(

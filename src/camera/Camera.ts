@@ -1,5 +1,4 @@
 import { Attachable } from '../design/Attachable';
-import { invSqrt } from 'fast-inv-sqrt';
 import {
   windowPreventDefault,
   KeyboardInputOption
@@ -33,8 +32,10 @@ implements Attachable {
   private _cursor: Point;
   private _moving: boolean;
   private _viewport: Container;
-  private _z: number;
   private readonly _zoominout: (e: KeyboardEvent) => void;
+
+  public maxzoom: number;
+  public minzoom: number;
 
   /**
    * View
@@ -96,35 +97,42 @@ implements Attachable {
   }
 
   /**
-   * @param canvas
+   * @param option.canvas
    * The Container inside Camera
    * 
-   * @param maxZoom
-   * Maximum of zoom, default is 32 (3200%);
-   * Minimum of zoom is always 0.01 (1%)
+   * @param option.maxzoom
+   * Maximum of zoom, default is 10.0 (1000%)
+   * 
+   * @param option.minzoom
+   * Minimum of zoom is always 0.1 (10%)
    */
-  constructor(canvas?: Container, maxZoom?: number) {
-    super();
-    const _maxZoom = maxZoom || 64;
+  constructor(
+      option?: {
+        canvas?: Container,
+        maxzoom?: number,
+        minzoom?: number
+      }) {
 
-    this._canvas = canvas || new Container();
+    super();
+
+    this._canvas = option?.canvas || new Container();
     this._cursor = new Point();
     this._moving = false;
     this._viewport = new Container();
-    this._z = _maxZoom;
 
     this._zoominout = (e) => {
       if (Camera.ZoominKIO.equal(e)) {
         this._movecursorOnWindow(this._cursor);
-        this._zoomOnWindow(-_maxZoom / 6);
+        this._zoomOnWindow(+20);
 
       } else if (Camera.ZoomoutKIO.equal(e)) {
-        if (this.zoom <= 0.01) { return; }
-
         this._movecursorOnWindow(this._cursor);
-        this._zoomOnWindow(+_maxZoom / 6);
+        this._zoomOnWindow(-20);
       }
     };
+
+    this.maxzoom = option?.maxzoom || 10.0;
+    this.minzoom = option?.minzoom || 0.1;
 
     this
       .addChild(this._viewport)
@@ -195,12 +203,8 @@ implements Attachable {
 
   private _wheel(e: FederatedWheelEvent) {
     if (Camera.ZoomWheelKIO.equal(e)) {
-      if (e.deltaY > 0 && this.zoom <= 0.01) {
-        return;
-      }
-  
       this._movecursorOnWindow(e.client);
-      this._zoomOnWindow(e.deltaY);
+      this._zoomOnWindow(-e.deltaY);
     }
   }
 
@@ -221,12 +225,20 @@ implements Attachable {
   }
 
   /**
-   * z-axis projected zooming (fixed with inverse sqrt of zoom)
+   * zoom by approximation
    */
-  private _zoomOnWindow(dz: number) {
-    const z = Math.max(1, this._z + dz * invSqrt(this.zoom));
-    this._viewport.scale.x *= this._z / z;
-    this._viewport.scale.y *= this._z / z;
-    this._z = z;
+  private _zoomOnWindow(delta: number) {
+    if (delta >= 0) {
+      if (this.zoom < this.maxzoom) {
+        this.zoom *= 1 + delta / (50 + delta);
+      }
+    } else if (this.zoom > this.minzoom) {
+      this.zoom /= 1 + -delta / (50 + -delta);
+    }
+
+    console.log({
+      delta,
+      r: 1 + Math.abs(delta) / (50 + Math.abs(delta))
+    });
   }
 };

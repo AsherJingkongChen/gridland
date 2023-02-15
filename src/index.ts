@@ -22,21 +22,21 @@ const app = new Application({
 const ingrid = (pixel: number) => pixel >> 5;
 // const inpixel = (grid: number) => grid << 5;
 
-// 2^15 = 2^(5 + 5 + 5); P/G, G/C, C/L
+// 2^15 = 2^(5 + 6 + 4); P/G, G/C, C/L
 
 // [TODO] load from spritesheet
 const chunk =
   TilingSprite.from(
     `grid.png`,
     {
-      width: 1 << 5 << 5,
-      height: 1 << 5 << 5,
+      width: 1 << 5 << 6,
+      height: 1 << 5 << 6,
       scaleMode: SCALE_MODES.NEAREST,
       mipmap: MIPMAP_MODES.ON
     }
   );
 
-const camera = new Camera(chunk);
+const camera = new Camera({ canvas: chunk });
 
 const statsPanel = new StatsPanel(window);
 const versionStats =
