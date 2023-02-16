@@ -1,5 +1,8 @@
 /**
  * KIO
+ * 
+ * Class for comparing to types including
+ * KeyboardEvent, MouseEvent and etc.
  */
 export class KeyboardInputOption
 implements IKeyboardInputOption {
@@ -10,6 +13,11 @@ implements IKeyboardInputOption {
   public metaKey?: boolean;
   public shiftKey?: boolean;
 
+  /**
+   * Build a KeyboardInputOption object from `option`
+   * 
+   * @param options.code must be in KeyboardInputCodes
+   */
   constructor(
       options: {
         code?: KeyboardInputCodes,
@@ -23,41 +31,55 @@ implements IKeyboardInputOption {
     Object.assign(this, options);
   }
 
+  /**
+   * Build a KeyboardInputOption object from `option`
+   * 
+   * @param options.code must be in KeyboardInputCodes
+   */
   public static From(
-      options: IKeyboardInputOption): KeyboardInputOption {
+      option: IKeyboardInputOption): KeyboardInputOption {
 
     const result = new KeyboardInputOption({});
 
-    if (options.code as string in KeyboardInputCodes) {
-      result.code = options.code as KeyboardInputCodes;
+    if (option.code as string in KeyboardInputCodes) {
+      result.code = option.code as KeyboardInputCodes;
     }
-    result.altKey = options.altKey;
-    result.ctrlKey = options.ctrlKey;
-    result.metaKey = options.metaKey;
-    result.shiftKey = options.shiftKey;
+    result.altKey = option.altKey;
+    result.ctrlKey = option.ctrlKey;
+    result.metaKey = option.metaKey;
+    result.shiftKey = option.shiftKey;
     return result;
   }
 
+  /**
+   * Compare two IKeyboardInputOption objects
+   */
   public static Equal(
-      self: IKeyboardInputOption,
+      option: IKeyboardInputOption,
       other: IKeyboardInputOption): boolean {
 
     return (
-      ((self.code || false) === (other.code || false)) &&
-      ((self.altKey || false) === (other.altKey || false)) &&
-      ((self.ctrlKey || false) === (other.ctrlKey || false)) &&
-      ((self.metaKey || false) === (other.metaKey || false)) &&
-      ((self.shiftKey || false) === (other.shiftKey || false))
+      ((option.code || false) === (other.code || false)) &&
+      ((option.altKey || false) === (other.altKey || false)) &&
+      ((option.ctrlKey || false) === (other.ctrlKey || false)) &&
+      ((option.metaKey || false) === (other.metaKey || false)) &&
+      ((option.shiftKey || false) === (other.shiftKey || false))
     );
   }
 
+  /**
+   * Compare to the other IKeyboardInputOption object
+   */
   public equal(other: IKeyboardInputOption): boolean {
     return KeyboardInputOption.Equal(this, other);
   }
 };
 
 /**
- * KIO, compatible to KeyboardEvent, MouseEvent and etc.
+ * IKIO
+ * 
+ * Interface that is compatible to types including
+ * KeyboardEvent, MouseEvent and etc.
  */
 export interface IKeyboardInputOption {
   code?: string;
@@ -68,7 +90,7 @@ export interface IKeyboardInputOption {
 };
 
 /**
- * Enum for values of KeyboardEvent.code
+ * Valid values of KeyboardEvent.code
  */
 export const KeyboardInputCodes = {
   Backquote: undefined,
@@ -145,5 +167,8 @@ export const KeyboardInputCodes = {
   ArrowRight: undefined
 } as const;
 
+/**
+ * Valid values of KeyboardEvent.code
+ */
 export type KeyboardInputCodes =
   keyof typeof KeyboardInputCodes;
