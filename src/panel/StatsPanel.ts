@@ -79,7 +79,7 @@ implements
 
   /**
    * @param options.opacity
-   * Alpha of background, by default it's 0.5
+   * Alpha of background, by default it's 0.35
    * 
    * @param options.toggleKIO
    * KIO to toggle StatsPanel to show or not, by default it's { F12 }
@@ -93,7 +93,7 @@ implements
 
     super();
 
-    this._opacity = options?.opacity || 0.5;
+    this._opacity = options?.opacity || 0.35;
     this._size = { width: 0, height: 0 };
 
     this._toggle = (e) => {

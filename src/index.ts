@@ -24,9 +24,9 @@ const ingrid = (pixel: number) => pixel >> 5;
 
 // 2^15 = 2^(5 + 6 + 4); P/G, G/C, C/L
 
-const gridTexture =
+const gridLightTexture =
   Texture.from(
-    'grid.png',
+    'grid_light.png',
     {
       scaleMode: SCALE_MODES.NEAREST,
       mipmap: MIPMAP_MODES.ON
@@ -37,7 +37,7 @@ const gridTexture =
 const scene = new Container(); //
 const chunk =
   TilingSprite.from(
-    gridTexture,
+    gridLightTexture,
     {
       width: 1 << 5 << 6,
       height: 1 << 5 << 6,
@@ -45,7 +45,7 @@ const chunk =
   );
 const chunk2 =
   TilingSprite.from(
-    gridTexture,
+    gridLightTexture,
     {
       width: 1 << 5 << 6,
       height: 1 << 5 << 6

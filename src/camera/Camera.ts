@@ -145,7 +145,7 @@ implements
     };
 
     this.event = new utils.EventEmitter();
-    this.maxzoom = options?.maxzoom || 10; // [TODO]: inaccurate limit
+    this.maxzoom = options?.maxzoom || 10;
     this.minzoom = options?.minzoom || .1;
 
     this.zoominKIO =
@@ -259,14 +259,13 @@ implements
    */
   private _zoomOnWindow(delta: number) {
     if (delta >= 0) {
-      if (this.zoom < this.maxzoom) {
-        this.zoom *= 1 + delta / 50;
-        this.event.emit('zoom', this);
-      }
-    } else if (this.zoom > this.minzoom) {
-      this.zoom /= 1 + -delta / 50;
-      this.event.emit('zoom', this);
+      this.zoom =
+        Math.min(this.maxzoom, this.zoom * (1 + delta / 50));
+    } else {
+      this.zoom =
+        Math.max(this.minzoom, this.zoom / (1 + -delta / 50));
     }
+    this.event.emit('zoom', this);
   }
 };
 
