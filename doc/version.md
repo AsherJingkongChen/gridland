@@ -1,5 +1,12 @@
 # Version
 
+- ![0.0.1](#001)
+- ![0.0.2](#002)
+- ![0.0.3](#003)
+- ![0.0.4](#004)
+- ![0.0.5](#005)
+- ![0.0.6](#006)
+
 ## 0.0.1
   - Under development
   - Camera (almost)
@@ -28,3 +35,5 @@
   - Real-time update of StatsPanel is true
   - `grid.png` is used for TilingSprite to create large repeating patterns for background
   - GIF ![demo](../demo/v0.0.5.gif)
+
+## 0.0.6
