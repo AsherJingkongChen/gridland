@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.191",
-    "fast-inv-sqrt": "^1.0.2",
     "lodash": "^4.17.21",
     "pixi.js": "^7.1.1"
   },
