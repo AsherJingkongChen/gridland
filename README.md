@@ -12,7 +12,8 @@
 
 ## Techstack
 
-- PIXI.js
+- Typescript
+- Pixi.js
 - Webpack
 - NPM
 
