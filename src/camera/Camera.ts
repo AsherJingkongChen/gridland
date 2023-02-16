@@ -1,4 +1,7 @@
-import { Attachable } from '../design/Attachable';
+import {
+  Attachable,
+  Eventable
+} from '../design';
 import {
   windowPreventDefault,
   KeyboardInputOption
@@ -8,25 +11,29 @@ import {
   FederatedPointerEvent,
   FederatedWheelEvent,
   Point,
+  utils,
 } from 'pixi.js';
 
 windowPreventDefault('wheel');
 windowPreventDefault('keydown');
 
 /**
- * Simple auto camera, moves via x and y, scales via zoom
+ * Simple auto camera, moves via x and y, zooms via zoom
  */
-export class Camera extends Container
-implements Attachable {
-
-  public static ZoomWheelKIO = 
-    new KeyboardInputOption({ ctrlKey: true });
+export class Camera
+extends Container
+implements
+  Attachable,
+  Eventable<CameraEvents> {
 
   public static ZoominKIO =
     new KeyboardInputOption({ ctrlKey: true, code: 'Equal' });
-
+  
   public static ZoomoutKIO =
     new KeyboardInputOption({ ctrlKey: true, code: 'Minus' });
+
+  public static ZoomwheelKIO = 
+    new KeyboardInputOption({ ctrlKey: true });
 
   private _canvas: Container;
   private _cursor: Point;
@@ -34,6 +41,7 @@ implements Attachable {
   private _viewport: Container;
   private readonly _zoominout: (e: KeyboardEvent) => void;
 
+  public readonly event: utils.EventEmitter<CameraEvents>;
   public maxzoom: number;
   public minzoom: number;
 
@@ -82,14 +90,14 @@ implements Attachable {
   }
 
   /**
-   * Alias to scale
+   * Scale
    */
   public get zoom(): number {
-    return this._viewport.scale.x
+    return this._viewport.scale.x;
   }
 
   /**
-   * Alias to scale
+   * Scale
    */
   public set zoom(zoom: number) {
     this._viewport.scale.x = zoom;
@@ -111,7 +119,8 @@ implements Attachable {
         canvas?: Container,
         maxzoom?: number,
         minzoom?: number
-      }) {
+      }
+    ) {
 
     super();
 
@@ -129,6 +138,7 @@ implements Attachable {
       }
     };
 
+    this.event = new utils.EventEmitter();
     this.maxzoom = options?.maxzoom || 10;
     this.minzoom = options?.minzoom || .1;
 
@@ -136,8 +146,9 @@ implements Attachable {
       .addChild(this._viewport)
       .addChild(this._canvas);
 
-    this.on('added', this.attach);
-    this.on('removed', this.detach);
+    this
+      .on('added', this.attach)
+      .on('removed', this.detach);
   }
 
   public attach() {
@@ -146,11 +157,13 @@ implements Attachable {
     this.interactive = true;
     this.visible = true;
 
-    this.on('pointerdown', this._pointerdown);
-    this.on('pointermove', this._pointermove);
-    this.on('pointerup', this._pointerup);
-    this.on('pointerupoutside', this._pointerupoutside);
-    this.on('wheel', this._wheel);
+    this
+      .on('pointerdown', this._pointerdown)
+      .on('pointermove', this._pointermove)
+      .on('pointerup', this._pointerup)
+      .on('pointerupoutside', this._pointerupoutside)
+      .on('wheel', this._wheel);
+
     window.addEventListener('keydown', this._zoominout);
   }
 
@@ -158,11 +171,13 @@ implements Attachable {
     this.interactive = false;
     this.visible = false;
 
-    this.off('pointerdown', this._pointerdown);
-    this.off('pointermove', this._pointermove);
-    this.off('pointerup', this._pointerup);
-    this.off('pointerupoutside', this._pointerupoutside);
-    this.off('wheel', this._wheel);
+    this
+      .off('pointerdown', this._pointerdown)
+      .off('pointermove', this._pointermove)
+      .off('pointerup', this._pointerup)
+      .off('pointerupoutside', this._pointerupoutside)
+      .off('wheel', this._wheel);
+
     window.removeEventListener('keydown', this._zoominout);
   }
 
@@ -200,7 +215,7 @@ implements Attachable {
   }
 
   private _wheel(e: FederatedWheelEvent) {
-    if (Camera.ZoomWheelKIO.equal(e)) {
+    if (Camera.ZoomwheelKIO.equal(e)) {
       this._movecursorOnWindow(e.client);
       this._zoomOnWindow(-e.deltaY);
     }
@@ -209,8 +224,10 @@ implements Attachable {
   private _movecursorOnWindow(cursor: Point) {
     this._viewport.toLocal(cursor, undefined, this._viewport.pivot);
     this.toLocal(cursor, undefined, this._viewport.position);
-
     this._cursor.copyFrom(cursor);
+
+    this.event.emit('move', this);
+    this.event.emit('update', this);
   }
 
   private _moveOnWindow(cursor: Point) {
@@ -218,8 +235,10 @@ implements Attachable {
     const { x: oldX, y: oldY } = this.toLocal(this._cursor);
     this._viewport.position.x += newX - oldX;
     this._viewport.position.y += newY - oldY;
-
     this._cursor.copyFrom(cursor);
+
+    this.event.emit('move', this);
+    this.event.emit('update', this);
   }
 
   /**
@@ -231,9 +250,19 @@ implements Attachable {
     if (delta >= 0) {
       if (this.zoom < this.maxzoom) {
         this.zoom *= 1 + delta / 50;
+        this.event.emit('zoom', this);
+        this.event.emit('update', this);
       }
     } else if (this.zoom > this.minzoom) {
       this.zoom /= 1 + -delta / 50;
+      this.event.emit('zoom', this);
+      this.event.emit('update', this);
     }
   }
 };
+
+export interface CameraEvents {
+  move: [camera: Camera];
+  zoom: [camera: Camera];
+  update: [camera: Camera];
+}

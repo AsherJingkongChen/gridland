@@ -1,17 +1,15 @@
 import {
   Application,
-  Ticker,
   TilingSprite,
   SCALE_MODES,
   MIPMAP_MODES,
   Texture,
-  Container
+  Container,
+  BitmapText
 } from 'pixi.js';
 import { Camera } from './camera';
-import {
-  StatsPanel,
-  Stats
-} from './panel';
+import { StatsPanel } from './panel';
+import { deserialize } from './tool/Deserialize';
 
 const app = new Application({
   autoDensity: true,
@@ -35,6 +33,7 @@ const gridTexture =
     }
   );
 
+// [TODO]
 const scene = new Container(); //
 const chunk =
   TilingSprite.from(
@@ -61,48 +60,66 @@ camera.x -= window.innerWidth / 2; //
 camera.y -= window.innerHeight / 2; //
 
 const statsPanel = new StatsPanel(window);
-const systeminfo = 
-  `version 0.0.5\n` +
-  `${app.renderer.rendererLogId}`;
-const systemStats =
-  new Stats(
-    (stats, panel) => {
-      stats.position.x = panel.width - stats.textWidth;
-      return systeminfo;
-    },
-    { align: 'right' }
+const appStats =
+  new BitmapText(
+    '',
+    {
+      fontName: StatsPanel.FontName,
+      align: 'left'
+    }
   );
-const devStats =
-  new Stats(
-    () => {
-      let { x, y, zoom } = camera;
-      let { width: w, height: h } = camera.canvas;
-
-      return (
-        JSON.stringify(
-          {
-            fps: Math.trunc(Ticker.shared.FPS),
-            camera: {
-              x: `${x.toFixed(1)} (${ingrid(x)})`,
-              y: `${y.toFixed(1)} (${ingrid(y)})`,
-              zoom: zoom.toFixed(2)
-            },
-            canvas: {
-              width: `${w} (${ingrid(w)})`,
-              height: `${h} (${ingrid(h)})`
-            }
-          },
-          null,
-          2
-        )
-        .replaceAll('"', '')
-      );
+const cameraStats =
+  new BitmapText(
+    '',
+    {
+      fontName: StatsPanel.FontName,
+      align: 'left'
     }
   );
 
 app.stage.addChild(
   camera,
-  statsPanel
-    .observe(systemStats)
-    .observe(devStats)
+  statsPanel.addChild(
+    cameraStats,
+    appStats).parent
 );
+
+statsPanel.event.on(
+  'resize',
+  () => {
+    cameraStats.position.y = appStats.height;
+  }
+);
+
+app.ticker.add(() => {
+  appStats.text =
+    deserialize({
+      fps: Math.round(app.ticker.FPS),
+      renderer: app.renderer.rendererLogId,
+      version: `0.0.5`,
+    })
+    .replaceAll('"', '');
+});
+
+camera.event.on(
+  'update',
+  (camera) => {
+    let { x, y, zoom } = camera;
+    let { width: w, height: h } = camera.canvas;
+
+    cameraStats.text =
+      deserialize({
+        camera: {
+          canvas: {
+            width: `${w} (${ingrid(w)})`,
+            height: `${h} (${ingrid(h)})`
+          },
+          x: `${x.toFixed(1)} (${ingrid(x)})`,
+          y: `${y.toFixed(1)} (${ingrid(y)})`,
+          zoom: zoom.toFixed(2)
+        },
+      })
+      .replaceAll('"', '');
+  }
+);
+camera.event.emit('update', camera);

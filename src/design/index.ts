@@ -1,3 +1,3 @@
 export * from './Attachable';
-export * from './Observer';
+export * from './Eventable';
 export * from './Resizable';
