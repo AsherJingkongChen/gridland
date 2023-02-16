@@ -22,3 +22,9 @@
   - GIF ![demo](../demo/v0.0.4.gif)
 
 ## 0.0.5
+  - Eventable is added with one `event` property
+  - Refactored, StatsPanel and Camera is Eventable now
+  - Observer pattern is replaced by EventEmitter3 (in PIXI.utils)
+  - Real-time update of StatsPanel is true
+  - `grid.png` is used for TilingSprite to create large repeating patterns for background
+  - GIF ![demo](../demo/v0.0.5.gif)
