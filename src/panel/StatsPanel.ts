@@ -1,3 +1,4 @@
+import { Eventable } from '../design/Eventable';
 import {
   windowPreventDefault,
   KeyboardInputOption,
@@ -19,7 +20,10 @@ windowPreventDefault('keydown');
  * View for statistics
  */
 export class StatsPanel extends Graphics
-implements Attachable, Resizable {
+implements
+  Attachable,
+  Eventable<StatsPanelEvents>,
+  Resizable {
 
   public static Alpha = 0.4;
   public static readonly FontName = 'Stats';
