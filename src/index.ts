@@ -51,20 +51,18 @@ const chunk2 =
       height: 1 << 5 << 6
     }
   );
-scene.addChild(chunk); //
-scene.addChild(chunk2); //
 chunk2.x = chunk.x - chunk2.width; //
 
-const camera = new Camera({ canvas: scene }); //
-camera.x -= window.innerWidth / 2; //
-camera.y -= window.innerHeight / 2; //
+const camera = new Camera({ canvas: scene });
+camera.x -= window.innerWidth / 2;
+camera.y -= window.innerHeight / 2;
 
-const statsPanel = new StatsPanel(window);
+const statsPanel = new StatsPanel();
 const appStats =
   new BitmapText(
     '',
     {
-      fontName: StatsPanel.FontName,
+      fontName: StatsPanel.DefaultFontName,
       align: 'left'
     }
   );
@@ -72,38 +70,32 @@ const cameraStats =
   new BitmapText(
     '',
     {
-      fontName: StatsPanel.FontName,
+      fontName: StatsPanel.DefaultFontName,
       align: 'left'
     }
   );
 
-app.stage.addChild(
-  camera,
-  statsPanel.addChild(
-    cameraStats,
-    appStats).parent
-);
+const resizeStatsPanel = () => {
+  const { innerWidth, innerHeight } = window;
+  statsPanel.resize(innerWidth, innerHeight);
+};
 
-statsPanel.event.on(
-  'resize',
-  () => {
-    cameraStats.position.y = appStats.height;
-  }
-);
+const moveAllStats = () => {
+  cameraStats.position.y = appStats.height;
+};
 
-app.ticker.add(() => {
+const updateAppStats = () => {
   appStats.text =
     deserialize({
       fps: Math.round(app.ticker.FPS),
       renderer: app.renderer.rendererLogId,
-      version: `0.0.5`,
+      version: `0.0.6`,
     })
     .replaceAll('"', '');
-});
+}
 
-camera.event.on(
-  'update',
-  (camera) => {
+const updateCameraStats =
+  (camera: Camera) => {
     let { x, y, zoom } = camera;
     let { width: w, height: h } = camera.canvas;
 
@@ -120,6 +112,25 @@ camera.event.on(
         },
       })
       .replaceAll('"', '');
-  }
+  };
+
+app.stage.addChild(
+  camera,
+  statsPanel.addChild(
+    appStats,
+    cameraStats).parent
 );
-camera.event.emit('update', camera);
+scene.addChild( //
+  chunk,
+  chunk2
+);
+
+app.ticker.add(updateAppStats);
+window.addEventListener('resize', resizeStatsPanel);
+statsPanel.event.on('resize', moveAllStats);
+camera.event.on('move', updateCameraStats);
+camera.event.on('zoom', updateCameraStats);
+
+updateAppStats();
+updateCameraStats(camera);
+resizeStatsPanel();

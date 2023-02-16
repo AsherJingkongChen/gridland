@@ -21,56 +21,83 @@ windowPreventDefault('keydown');
  */
 export class StatsPanel extends Graphics
 implements
-  Attachable,
-  Eventable<StatsPanelEvents>,
-  Resizable {
+    Attachable,
+    Eventable<StatsPanelEvents>,
+    Resizable {
 
-  public static Alpha = 0.4;
-  public static readonly FontName = 'Stats';
-  public static ToggleKIO = new KeyboardInputOption({ code: 'F12' });
-
-  public readonly _onresize: () => void;
+  public static readonly DefaultFontName = 'Stats';
+  
+  private _opacity: number;
   private _size: ISize;
-  public readonly _toggle: (e: KeyboardEvent) => void;
-
-  public readonly event: utils.EventEmitter<StatsPanelEvents>;
-  public resizeTo: HTMLElement | Window;
+  private readonly _toggle: (e: KeyboardEvent) => void;
+  
+  public event: utils.EventEmitter<StatsPanelEvents>;
+  public toggleKIO: KeyboardInputOption;
 
   /**
-   * Come with resizeTo's width
+   * Virtual width, irrevalent to scale
    */
-   public override get width() : number {
+  public override get width() : number {
     return this._size.width;
   }
 
   /**
-   * Come with resizeTo's height
+   * Virtual width, irrevalent to scale
+   */
+  public override set width(width: number) {
+    this.resize(width, this.height);
+  }
+
+  /**
+   * Virtual height, irrevalent to scale
    */
   public override get height(): number {
     return this._size.height;
   }
 
   /**
-   * @param resizeTo DOM Object to resize to
+   * Virtual height, irrevalent to scale
    */
-  constructor(resizeTo?: HTMLElement | Window) {
+  public override set height(height: number) {
+    this.resize(this.width, height);
+  }
+
+  /**
+   * Alpha of background
+   */
+  public get opacity(): number {
+    return this._opacity;
+  }
+
+  /**
+   * Alpha of background
+   */
+  public set opacity(opacity: number) {
+    this._opacity = opacity;
+    this.resize(this.width, this.height);
+  }
+
+  /**
+   * @param options.opacity
+   * Alpha of background, by default it's 0.5
+   * 
+   * @param options.toggleKIO
+   * KIO to toggle StatsPanel to show or not, by default it's { F12 }
+   */
+  constructor(
+      options?: {
+        opacity?: number,
+        toggleKIO?: KeyboardInputOption
+      }
+    ) {
+
     super();
 
-    // [TODO] fix for HTMLCanvasElement
-    this._onresize = () => {
-      if (this.resizeTo instanceof Window) {
-        const { innerWidth, innerHeight } = this.resizeTo;
-        this.resize(innerWidth, innerHeight);
-      } else {
-        const { clientWidth, clientHeight } = this.resizeTo;
-        this.resize(clientWidth, clientHeight);
-      }
-    };
-
+    this._opacity = options?.opacity || 0.5;
     this._size = { width: 0, height: 0 };
 
     this._toggle = (e) => {
-      if (StatsPanel.ToggleKIO.equal(e)) {
+      if (this.toggleKIO.equal(e)) {
         if (this.visible) {
           this.detach();
         } else {
@@ -80,7 +107,10 @@ implements
     };
 
     this.event = new utils.EventEmitter();
-    this.resizeTo = resizeTo || window;
+
+    this.toggleKIO =
+      options?.toggleKIO ||
+      new KeyboardInputOption({ code: 'F12' });
 
     this
       .on('added', this.attach)
@@ -94,21 +124,19 @@ implements
     this.detach();
 
     this.visible = true;
-    this._onresize();
-
-    this.resizeTo.addEventListener('resize', this._onresize);
   }
 
   public detach() {
     this.visible = false;
-
-    this.resizeTo.removeEventListener('resize', this._onresize);
   }
 
+  /**
+   * Redraw background
+   */
   public resize(width: number, height: number) {
     this.clear();
-    this.beginFill(0x000000, StatsPanel.Alpha);
-    this.drawRect(0, 0, width, height);
+    this.beginFill(0x000000, this.opacity);
+    super.drawRect(0, 0, width, height);
     this.endFill();
     this._size.width = width;
     this._size.height = height;
@@ -121,12 +149,12 @@ export interface StatsPanelEvents {
 };
 
 BitmapFont.from(
-  StatsPanel.FontName,
+  StatsPanel.DefaultFontName,
   {
     fontFamily: 'Menlo',
     fontSize: 12,
     fontWeight: 'normal',
-    fill: 0xffffff
+    fill: 0xffffff,
   },
   { chars: BitmapFont.ASCII }
 );

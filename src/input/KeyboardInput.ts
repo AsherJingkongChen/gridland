@@ -14,12 +14,12 @@ implements IKeyboardInputOption {
   public shiftKey?: boolean;
 
   /**
-   * Build a KeyboardInputOption object from `option`
+   * Build a KeyboardInputOption object from `options`
    * 
    * @param options.code must be in KeyboardInputCodes
    */
   constructor(
-      options: {
+      options?: {
         code?: KeyboardInputCodes,
         altKey?: boolean,
         ctrlKey?: boolean,
@@ -34,20 +34,20 @@ implements IKeyboardInputOption {
   /**
    * Build a KeyboardInputOption object from `option`
    * 
-   * @param options.code must be in KeyboardInputCodes
+   * @param other.code must be in KeyboardInputCodes
    */
   public static From(
-      option: IKeyboardInputOption): KeyboardInputOption {
+      other?: IKeyboardInputOption): KeyboardInputOption {
 
     const result = new KeyboardInputOption({});
 
-    if (option.code as string in KeyboardInputCodes) {
-      result.code = option.code as KeyboardInputCodes;
+    if (other?.code as string in KeyboardInputCodes) {
+      result.code = other?.code as KeyboardInputCodes;
     }
-    result.altKey = option.altKey;
-    result.ctrlKey = option.ctrlKey;
-    result.metaKey = option.metaKey;
-    result.shiftKey = option.shiftKey;
+    result.altKey = other?.altKey;
+    result.ctrlKey = other?.ctrlKey;
+    result.metaKey = other?.metaKey;
+    result.shiftKey = other?.shiftKey;
     return result;
   }
 
@@ -55,15 +55,15 @@ implements IKeyboardInputOption {
    * Compare two IKeyboardInputOption objects
    */
   public static Equal(
-      option: IKeyboardInputOption,
-      other: IKeyboardInputOption): boolean {
+      other: IKeyboardInputOption,
+      another: IKeyboardInputOption): boolean {
 
     return (
-      ((option.code || false) === (other.code || false)) &&
-      ((option.altKey || false) === (other.altKey || false)) &&
-      ((option.ctrlKey || false) === (other.ctrlKey || false)) &&
-      ((option.metaKey || false) === (other.metaKey || false)) &&
-      ((option.shiftKey || false) === (other.shiftKey || false))
+      ((other.code || false) === (another.code || false)) &&
+      ((other.altKey || false) === (another.altKey || false)) &&
+      ((other.ctrlKey || false) === (another.ctrlKey || false)) &&
+      ((other.metaKey || false) === (another.metaKey || false)) &&
+      ((other.shiftKey || false) === (another.shiftKey || false))
     );
   }
 
