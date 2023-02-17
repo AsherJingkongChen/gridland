@@ -120,13 +120,13 @@ scene.addChild( //
   chunk2
 );
 
-app.ticker.add(updateAppStats);
-window.addEventListener('resize', resizeStatsPanel);
-camera.event.on('move', updateCameraStats);
-camera.event.on('zoom', updateCameraStats);
-
 updateAppStats();
 updateCameraStats(camera);
 resizeStatsPanel();
 
 cameraStats.position.y = appStats.height;
+
+app.ticker.add(updateAppStats);
+window.addEventListener('resize', resizeStatsPanel);
+camera.event.on('move', updateCameraStats);
+camera.event.on('zoom', updateCameraStats);
