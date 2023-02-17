@@ -2,13 +2,13 @@
 
 ## User Action
 
-- Move
-  - Drag the window
+- **No support for mobile devices**
+- Drag
+  - Hold down the left button and move
 - Zoom
-  - **No support for mobile devices**
-  - Ctrl/Control and scroll the mouse
+  - Ctrl/Control and scroll the page
   - Ctrl/Control and - to zoom out
   - Ctrl/Control and = to zoom in
   - Touchpad zoom gesture
-- Toggle Development Stats Panel
+- Toggle Stats Panel
   - F12

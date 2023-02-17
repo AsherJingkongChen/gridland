@@ -152,7 +152,7 @@ BitmapFont.from(
   StatsPanel.DefaultFontName,
   {
     fontFamily: 'Monaco',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'normal',
     fill: 0xffffff,
   },

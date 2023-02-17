@@ -80,39 +80,34 @@ const resizeStatsPanel = () => {
   statsPanel.resize(innerWidth, innerHeight);
 };
 
-const moveAllStats = () => {
-  cameraStats.position.y = appStats.height;
-};
-
 const updateAppStats = () => {
   appStats.text =
     deserialize({
       fps: Math.round(app.ticker.FPS),
       renderer: app.renderer.rendererLogId,
-      version: `0.0.6`,
+      version: `0.0.6`
     })
     .replaceAll('"', '');
-}
+};
 
-const updateCameraStats =
-  (camera: Camera) => {
-    let { x, y, zoom } = camera;
-    let { width: w, height: h } = camera.canvas;
+const updateCameraStats = (camera: Camera) => {
+  const { x, y, zoom } = camera;
+  const { width: w, height: h } = camera.canvas;
 
-    cameraStats.text =
-      deserialize({
-        camera: {
-          canvas: {
-            width: `${w} (${ingrid(w)})`,
-            height: `${h} (${ingrid(h)})`
-          },
-          x: `${x.toFixed(1)} (${ingrid(x)})`,
-          y: `${y.toFixed(1)} (${ingrid(y)})`,
-          zoom: zoom.toFixed(2)
-        }
-      })
-      .replaceAll('"', '');
-  };
+  cameraStats.text =
+    deserialize({
+      camera: {
+        canvas: {
+          width: `${w} (${ingrid(w)})`,
+          height: `${h} (${ingrid(h)})`
+        },
+        x: `${x.toFixed(1)} (${ingrid(x)})`,
+        y: `${y.toFixed(1)} (${ingrid(y)})`,
+        zoom: zoom.toFixed(2)
+      }
+    })
+    .replaceAll('"', '');
+};
 
 app.stage.addChild(
   camera,
@@ -127,10 +122,11 @@ scene.addChild( //
 
 app.ticker.add(updateAppStats);
 window.addEventListener('resize', resizeStatsPanel);
-statsPanel.event.on('resize', moveAllStats);
 camera.event.on('move', updateCameraStats);
 camera.event.on('zoom', updateCameraStats);
 
 updateAppStats();
 updateCameraStats(camera);
 resizeStatsPanel();
+
+cameraStats.position.y = appStats.height;

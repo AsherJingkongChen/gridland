@@ -8,7 +8,7 @@ import {
 } from '../input';
 import {
   Container,
-  FederatedPointerEvent,
+  FederatedMouseEvent,
   FederatedWheelEvent,
   Point,
   utils,
@@ -176,10 +176,10 @@ implements
     this.visible = true;
 
     this
-      .on('pointerdown', this._onpointerdown)
-      .on('pointermove', this._onpointermove)
-      .on('pointerup', this._onpointerup)
-      .on('pointerupoutside', this._onpointerupoutside)
+      .on('mousedown', this._onmousedown)
+      .on('mousemove', this._onmousemove)
+      .on('mouseup', this._onmouseup)
+      .on('mouseupoutside', this._onmouseupoutside)
       .on('wheel', this._onwheel);
 
     window.addEventListener('keydown', this._zoominout);
@@ -190,27 +190,22 @@ implements
     this.visible = false;
 
     this
-      .off('pointerdown', this._onpointerdown)
-      .off('pointermove', this._onpointermove)
-      .off('pointerup', this._onpointerup)
-      .off('pointerupoutside', this._onpointerupoutside)
+      .off('mousedown', this._onmousedown)
+      .off('mousemove', this._onmousemove)
+      .off('mouseup', this._onmouseup)
+      .off('mouseupoutside', this._onmouseupoutside)
       .off('wheel', this._onwheel);
 
     window.removeEventListener('keydown', this._zoominout);
   }
 
-  private _onpointerdown(e: FederatedPointerEvent) {
+  private _onmousedown(e: FederatedMouseEvent) {
     if (e.button == 0) {
-      this._leftpointerdown(e);
+      this._dragging = true;
     }
   }
 
-  private _leftpointerdown(e: FederatedPointerEvent) {
-    this._dragging = true;
-    this._moveOnWindow(e.client);
-  }
-
-  private _onpointermove(e: FederatedPointerEvent) {
+  private _onmousemove(e: FederatedMouseEvent) {
     if (this._dragging) {
       this._dragOnWindow(e.client);
     } else {
@@ -218,13 +213,13 @@ implements
     }
   }
 
-  private _onpointerup() {
+  private _onmouseup() {
     if (this._dragging) {
       this._dragging = false;
     }
   }
 
-  private _onpointerupoutside(e: FederatedPointerEvent) {
+  private _onmouseupoutside(e: FederatedMouseEvent) {
     if (this._dragging) {
       this._dragOnWindow(e.client);
       this._dragging = false;
