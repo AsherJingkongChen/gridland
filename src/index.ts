@@ -9,7 +9,7 @@ import {
 } from 'pixi.js';
 import { Camera } from './camera';
 import { StatsPanel } from './panel';
-import { deserialize } from './tool/Deserialize';
+import { deserialize } from './tool';
 
 const app = new Application({
   autoDensity: true,
@@ -128,5 +128,6 @@ cameraStats.position.y = appStats.height;
 
 app.ticker.add(updateAppStats);
 window.addEventListener('resize', resizeStatsPanel);
-camera.event.on('move', updateCameraStats);
-camera.event.on('zoom', updateCameraStats);
+camera.event
+  .on('move', updateCameraStats)
+  .on('zoom', updateCameraStats);
