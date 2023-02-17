@@ -94,9 +94,6 @@ const updateAppStats = () => {
     .replaceAll('"', '');
 }
 
-// [TODO]
-let devinfo: any;
-
 const updateCameraStats =
   (camera: Camera) => {
     let { x, y, zoom } = camera;
@@ -112,8 +109,7 @@ const updateCameraStats =
           x: `${x.toFixed(1)} (${ingrid(x)})`,
           y: `${y.toFixed(1)} (${ingrid(y)})`,
           zoom: zoom.toFixed(2)
-        },
-        devinfo
+        }
       })
       .replaceAll('"', '');
   };
@@ -134,9 +130,6 @@ window.addEventListener('resize', resizeStatsPanel);
 statsPanel.event.on('resize', moveAllStats);
 camera.event.on('move', updateCameraStats);
 camera.event.on('zoom', updateCameraStats);
-
-// [TODO]
-camera.event.on('drag', updateCameraStats);
 
 updateAppStats();
 updateCameraStats(camera);
