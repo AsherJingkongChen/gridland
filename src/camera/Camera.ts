@@ -201,12 +201,13 @@ implements
 
   private _onpointerdown(e: FederatedPointerEvent) {
     if (e.button == 0) {
-      this._leftpointerdown();
+      this._leftpointerdown(e);
     }
   }
 
-  private _leftpointerdown() {
+  private _leftpointerdown(e: FederatedPointerEvent) {
     this._dragging = true;
+    this._moveOnWindow(e.client);
   }
 
   private _onpointermove(e: FederatedPointerEvent) {

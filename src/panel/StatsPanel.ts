@@ -151,8 +151,8 @@ export interface StatsPanelEvents {
 BitmapFont.from(
   StatsPanel.DefaultFontName,
   {
-    fontFamily: 'Menlo',
-    fontSize: 12,
+    fontFamily: 'Monaco',
+    fontSize: 10,
     fontWeight: 'normal',
     fill: 0xffffff,
   },
