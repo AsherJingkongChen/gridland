@@ -8,6 +8,7 @@ import {
 } from '../input';
 import {
   Container,
+  DisplayObject,
   FederatedMouseEvent,
   FederatedWheelEvent,
   Point,
@@ -26,7 +27,6 @@ implements
     Attachable,
     Eventable<CameraEvents> {
 
-  private _canvas: Container;
   private _client: Point;
   private _dragging: boolean;
   private _viewport: Container;
@@ -42,17 +42,20 @@ implements
   /**
    * View
    */
-  get canvas(): Container {
-    return this._canvas;
+  get canvas(): DisplayObject | undefined {
+    return this._viewport.children[0];
   }
 
   /**
    * View
    */
-  set canvas(canvas: Container) {
-    this._viewport.removeChild(this._canvas);
-    this._canvas = canvas;
-    this._viewport.addChild(this._canvas);
+  set canvas(canvas: DisplayObject | undefined) {
+    if (this._viewport.children.length === 1) {
+      this._viewport.removeChildAt(0);
+    }
+    if (canvas !== undefined) {
+      this._viewport.addChildAt(canvas, 0);
+    }
   }
 
   /**
@@ -130,7 +133,6 @@ implements
 
     super();
 
-    this._canvas = options?.canvas || new Container();
     this._client = new Point();
     this._dragging = false;
     this._viewport = new Container();
@@ -144,6 +146,7 @@ implements
       }
     };
 
+    this.canvas = options?.canvas;
     this.event = new utils.EventEmitter();
     this.maxzoom = options?.maxzoom || 10;
     this.minzoom = options?.minzoom || .1;
@@ -160,13 +163,30 @@ implements
       options?.zoomwheelKIO ||
       new KeyboardInputOption({ ctrlKey: true });
 
-    this
-      .addChild(this._viewport)
-      .addChild(this._canvas);
+    this.addChild(this._viewport);
 
     this
       .on('added', this.attach)
       .on('removed', this.detach);
+  }
+
+  public override destroy() {
+    super.destroy();
+    this.detach();
+
+    (this._client as any) = undefined;
+    this._dragging = false;
+    this._viewport.destroy();
+    (this._viewport as any) = undefined;
+    (this._zoominout as any) = undefined;
+
+    this.event.removeAllListeners();
+    (this.event as any) = undefined;
+    this.maxzoom = Infinity;
+    this.minzoom = 0;
+    (this.zoominKIO as any) = undefined;
+    (this.zoomoutKIO as any) = undefined;
+    (this.zoomwheelKIO as any) = undefined;
   }
 
   public attach() {

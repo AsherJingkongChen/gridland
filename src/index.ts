@@ -10,6 +10,7 @@ import {
 import { Camera } from './camera';
 import { StatsPanel } from './panel';
 import { deserialize } from './tool';
+import { containerTreeLog } from './tool/ContainerTreeLog';
 
 const app = new Application({
   autoDensity: true,
@@ -92,7 +93,7 @@ const updateAppStats = () => {
 
 const updateCameraStats = (camera: Camera) => {
   const { x, y, zoom } = camera;
-  const { width: w, height: h } = camera.canvas;
+  const { width: w, height: h } = camera.canvas as Container;
 
   cameraStats.text =
     deserialize({
@@ -113,7 +114,8 @@ app.stage.addChild(
   camera,
   statsPanel.addChild(
     appStats,
-    cameraStats).parent
+    cameraStats)
+  .parent
 );
 scene.addChild( //
   chunk,
@@ -126,8 +128,10 @@ resizeStatsPanel();
 
 cameraStats.position.y = appStats.height;
 
-app.ticker.add(updateAppStats);
 window.addEventListener('resize', resizeStatsPanel);
+app.ticker.add(updateAppStats);
 camera.event
   .on('move', updateCameraStats)
   .on('zoom', updateCameraStats);
+
+containerTreeLog(app.stage, 5);

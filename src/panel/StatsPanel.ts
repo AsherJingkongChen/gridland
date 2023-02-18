@@ -120,6 +120,20 @@ implements
     window.addEventListener('keydown', this._toggle);
   }
 
+  public override destroy() {
+    super.destroy();
+    this.detach();
+    window.removeEventListener('keydown', this._toggle);
+
+    this._opacity = 0;
+    (this._size as any) = undefined;
+    (this._toggle as any) = undefined;
+
+    this.event.removeAllListeners();
+    (this.event as any) = undefined;
+    (this.toggleKIO as any) = undefined;
+  }
+
   public attach() {
     this.detach();
 
