@@ -27,11 +27,6 @@ implements
     Attachable,
     Eventable<CameraEvents> {
 
-  private _client: Point;
-  private _dragging: boolean;
-  private _viewport: Container;
-  private readonly _zoominout: (e: KeyboardEvent) => void;
-
   public event: utils.EventEmitter<CameraEvents>;
   public maxzoom: number;
   public minzoom: number;
@@ -39,22 +34,27 @@ implements
   public zoomoutKIO: KeyboardInputOption;
   public zoomwheelKIO: KeyboardInputOption;
 
+  private _client: Point;
+  private _dragging: boolean;
+  private _viewport: Container;
+  private readonly _zoominout: (e: KeyboardEvent) => void;
+
   /**
-   * View
+   * Camera's target
    */
-  get canvas(): DisplayObject | undefined {
+  get scene(): DisplayObject | undefined {
     return this._viewport.children[0];
   }
 
   /**
-   * View
+   * Camera's target
    */
-  set canvas(canvas: DisplayObject | undefined) {
+  set scene(scene: DisplayObject | undefined) {
     if (this._viewport.children.length === 1) {
       this._viewport.removeChildAt(0);
     }
-    if (canvas !== undefined) {
-      this._viewport.addChildAt(canvas, 0);
+    if (scene !== undefined) {
+      this._viewport.addChildAt(scene, 0);
     }
   }
 
@@ -102,14 +102,14 @@ implements
   }
 
   /**
-   * @param options.canvas
-   * The Container inside Camera
-   * 
    * @param options.maxzoom
    * Maximum of zoom, by default it's 10.0 (1000%)
    * 
    * @param options.minzoom
    * Minimum of zoom, by default it's 0.1 (10%)
+   * 
+   * @param options.scene
+   * The Container inside Camera
    * 
    * @param options.zoominKIO
    * KIO to zoom in, by default it's { ctrlKey, Equal }
@@ -122,9 +122,9 @@ implements
    */
   constructor(
       options?: {
-        canvas?: Container,
         maxzoom?: number,
         minzoom?: number,
+        scene?: Container,
         zoominKIO?: KeyboardInputOption,
         zoomoutKIO?: KeyboardInputOption,
         zoomwheelKIO?: KeyboardInputOption
@@ -132,6 +132,23 @@ implements
     ) {
 
     super();
+
+    this.event = new utils.EventEmitter();
+    this.maxzoom = options?.maxzoom || 10;
+    this.minzoom = options?.minzoom || .1;
+    this.scene = options?.scene;
+
+    this.zoominKIO =
+      options?.zoominKIO ||
+      new KeyboardInputOption({ ctrlKey: true, code: 'Equal' });
+
+    this.zoomoutKIO =
+      options?.zoomoutKIO ||
+      new KeyboardInputOption({ ctrlKey: true, code: 'Minus' });
+
+    this.zoomwheelKIO =
+      options?.zoomwheelKIO ||
+      new KeyboardInputOption({ ctrlKey: true });
 
     this._client = new Point();
     this._dragging = false;
@@ -145,23 +162,6 @@ implements
         this._zoomOnWindow(-10);
       }
     };
-
-    this.canvas = options?.canvas;
-    this.event = new utils.EventEmitter();
-    this.maxzoom = options?.maxzoom || 10;
-    this.minzoom = options?.minzoom || .1;
-
-    this.zoominKIO =
-      options?.zoominKIO ||
-      new KeyboardInputOption({ ctrlKey: true, code: 'Equal' });
-
-    this.zoomoutKIO =
-      options?.zoomoutKIO ||
-      new KeyboardInputOption({ ctrlKey: true, code: 'Minus' });
-
-    this.zoomwheelKIO =
-      options?.zoomwheelKIO ||
-      new KeyboardInputOption({ ctrlKey: true });
 
     this.addChild(this._viewport);
 

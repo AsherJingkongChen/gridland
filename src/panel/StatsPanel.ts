@@ -1,4 +1,3 @@
-import { Eventable } from '../design/Eventable';
 import {
   windowPreventDefault,
   KeyboardInputOption,
@@ -11,6 +10,7 @@ import {
 } from "pixi.js";
 import {
   Attachable,
+  Eventable,
   Resizable
 } from '../design';
 
@@ -26,27 +26,13 @@ implements
     Resizable {
 
   public static readonly DefaultFontName = 'Stats';
-  
-  private _opacity: number;
-  private _size: ISize;
-  private readonly _toggle: (e: KeyboardEvent) => void;
-  
+
   public event: utils.EventEmitter<StatsPanelEvents>;
   public toggleKIO: KeyboardInputOption;
 
-  /**
-   * Virtual width, irrevalent to scale
-   */
-  public override get width() : number {
-    return this._size.width;
-  }
-
-  /**
-   * Virtual width, irrevalent to scale
-   */
-  public override set width(width: number) {
-    this.resize(width, this.height);
-  }
+  private _opacity: number;
+  private _size: ISize;
+  private readonly _toggle: (e: KeyboardEvent) => void;
 
   /**
    * Virtual height, irrevalent to scale
@@ -78,6 +64,20 @@ implements
   }
 
   /**
+   * Virtual width, irrevalent to scale
+   */
+  public override get width() : number {
+    return this._size.width;
+  }
+
+  /**
+   * Virtual width, irrevalent to scale
+   */
+  public override set width(width: number) {
+    this.resize(width, this.height);
+  }
+
+  /**
    * @param options.opacity
    * Alpha of background, by default it's 0.35
    * 
@@ -93,6 +93,12 @@ implements
 
     super();
 
+    this.event = new utils.EventEmitter();
+
+    this.toggleKIO =
+      options?.toggleKIO ||
+      new KeyboardInputOption({ code: 'F12' });
+
     this._opacity = options?.opacity || 0.35;
     this._size = { width: 0, height: 0 };
 
@@ -105,12 +111,6 @@ implements
         }
       }
     };
-
-    this.event = new utils.EventEmitter();
-
-    this.toggleKIO =
-      options?.toggleKIO ||
-      new KeyboardInputOption({ code: 'F12' });
 
     this
       .on('added', this.attach)

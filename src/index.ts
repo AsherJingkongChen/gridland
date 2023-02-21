@@ -9,15 +9,14 @@ import {
 } from 'pixi.js';
 import { Camera } from './camera';
 import { StatsPanel } from './panel';
-import { deserialize } from './tool';
-import { containerTreeLog } from './tool/ContainerTreeLog';
+import { serialize } from './tool';
 
 const app = new Application({
   autoDensity: true,
   backgroundColor: 0x000000,
   resizeTo: window,
   resolution: window.devicePixelRatio || 1,
-  view: document.getElementById('stage') as HTMLCanvasElement,
+  view: document.getElementById('stage') as HTMLCanvasElement
 });
 
 const ingrid = (pixel: number) => pixel >> 5;
@@ -54,7 +53,7 @@ const chunk2 =
   );
 chunk2.x = chunk.x - chunk2.width; //
 
-const camera = new Camera({ canvas: scene });
+const camera = new Camera({ scene });
 camera.x -= window.innerWidth / 2;
 camera.y -= window.innerHeight / 2;
 
@@ -83,7 +82,7 @@ const resizeStatsPanel = () => {
 
 const updateAppStats = () => {
   appStats.text =
-    deserialize({
+    serialize({
       fps: Math.round(app.ticker.FPS),
       renderer: app.renderer.rendererLogId,
       version: `0.0.6`
@@ -91,14 +90,14 @@ const updateAppStats = () => {
     .replaceAll('"', '');
 };
 
-const updateCameraStats = (camera: Camera) => {
+const updateCameraStats = () => {
   const { x, y, zoom } = camera;
-  const { width: w, height: h } = camera.canvas as Container;
+  const { width: w, height: h } = camera.scene as Container;
 
   cameraStats.text =
-    deserialize({
+    serialize({
       camera: {
-        canvas: {
+        scene: {
           width: `${w} (${ingrid(w)})`,
           height: `${h} (${ingrid(h)})`
         },
@@ -123,7 +122,7 @@ scene.addChild( //
 );
 
 updateAppStats();
-updateCameraStats(camera);
+updateCameraStats();
 resizeStatsPanel();
 
 cameraStats.position.y = appStats.height;
@@ -134,4 +133,30 @@ camera.event
   .on('move', updateCameraStats)
   .on('zoom', updateCameraStats);
 
-containerTreeLog(app.stage, 5);
+import { Db } from './database';
+import { Chunk, World } from './database/schema';
+
+console.log(Db);
+
+await
+  Db.transaction(
+    'rw',
+    Db.Chunk, Db.World,
+    async () => {
+      const world =
+        await Db.World.get(
+          await Db.World.add(new World())
+        );
+
+      const chunk =
+        await Db.Chunk.get(
+          await Db.Chunk.add(new Chunk({ world }))
+        );
+
+      console.log({world, chunk});
+    }
+  );
+
+console.log(Db);
+
+await Db.delete();

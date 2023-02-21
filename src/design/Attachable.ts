@@ -1,5 +1,5 @@
 /**
- * Do detaching before attaching
+ * Detach before attach
  */
 export interface Attachable {
   attach(): void;

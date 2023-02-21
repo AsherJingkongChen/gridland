@@ -1,22 +1,23 @@
 /**
  * KIO
  * 
- * Class for comparing to types including
+ * Type to compare with types including
  * KeyboardEvent, MouseEvent and etc.
  */
 export class KeyboardInputOption
 implements IKeyboardInputOption {
 
   public code?: KeyboardInputCodes;
-  public altKey?: boolean;
-  public ctrlKey?: boolean;
-  public metaKey?: boolean;
-  public shiftKey?: boolean;
+  public altKey: boolean;
+  public ctrlKey: boolean;
+  public metaKey: boolean;
+  public shiftKey: boolean;
 
   /**
    * Build a KeyboardInputOption object from `options`
    * 
-   * @param options.code must be in KeyboardInputCodes
+   * @param options.code
+   * must be one of KeyboardInputCodes
    */
   constructor(
       options?: {
@@ -28,27 +29,35 @@ implements IKeyboardInputOption {
       }
     ) {
 
-    Object.assign(this, options);
+    this.code = options?.code;
+    this.altKey = options?.altKey || false;
+    this.ctrlKey = options?.ctrlKey || false;
+    this.metaKey = options?.metaKey || false;
+    this.shiftKey = options?.shiftKey || false;
   }
 
   /**
-   * Build a KeyboardInputOption object from `option`
+   * Build a KeyboardInputOption object
+   * from an IKeyboardInputOption onject
    * 
-   * @param other.code must be in KeyboardInputCodes
+   * @param other.code
+   * must be one of KeyboardInputCodes,
+   * otherwise KeyboardInputOption.code will be undefined
    */
   public static From(
-      other?: IKeyboardInputOption): KeyboardInputOption {
+      other?: IKeyboardInputOption
+    ): KeyboardInputOption {
 
-    const result = new KeyboardInputOption({});
-
-    if (other?.code as string in KeyboardInputCodes) {
-      result.code = other?.code as KeyboardInputCodes;
-    }
-    result.altKey = other?.altKey;
-    result.ctrlKey = other?.ctrlKey;
-    result.metaKey = other?.metaKey;
-    result.shiftKey = other?.shiftKey;
-    return result;
+    return (
+      new KeyboardInputOption({
+        code: (other?.code as string in KeyboardInputCodes)?
+              (other?.code as KeyboardInputCodes): (undefined),
+        altKey: other?.altKey,
+        ctrlKey: other?.ctrlKey,
+        metaKey: other?.metaKey,
+        shiftKey: other?.shiftKey
+      })
+    );
   }
 
   /**
@@ -59,7 +68,7 @@ implements IKeyboardInputOption {
       another: IKeyboardInputOption): boolean {
 
     return (
-      ((other.code || false) === (another.code || false)) &&
+      (other.code === another.code) &&
       ((other.altKey || false) === (another.altKey || false)) &&
       ((other.ctrlKey || false) === (another.ctrlKey || false)) &&
       ((other.metaKey || false) === (another.metaKey || false)) &&
