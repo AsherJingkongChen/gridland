@@ -26,10 +26,16 @@ implements IWorldScene {
     this.world = world;
   }
 
-  public async getChunks(_coordinates: IPointData[]): Promise<Chunk[]> {
-    Db.chunks
-      .where('world.id')
-      .equals(this.world.id!);
+  public async getChunks(coordinates: IPointData[]): Promise<Chunk[]> {
+    for (const { x, y } of coordinates) {
+      console.log(
+        await Db.chunks
+          .where({ x, y, 'world.id': this.world.id! })
+          .toArray()
+      );
+    }
+      // .where('world.id')
+      // .equals(this.world.id!);
     
     return [];
   }

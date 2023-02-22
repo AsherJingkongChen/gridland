@@ -95,7 +95,7 @@ const updateChunk = async () => {
           })
         );
 
-      await scene.getChunks([]);
+      await scene.getChunks([{ x: 0, y: 1 }]);
 
       // - Disk: Db.chunks
       // - Mem: scene.loadedChunks

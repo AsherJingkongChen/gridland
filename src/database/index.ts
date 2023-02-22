@@ -28,8 +28,9 @@ export const Db = new class extends Dexie {
               Chunk.name,
               '++&id, ' +
               'createdate, ' +
-              'world.id, world.createdate, world.name, ' +
-              'x, y'
+              '[world.id+world.name], ' +
+              '[world.id+x+y], ' +
+              '[x+y]'
             ]
           ])
         );
@@ -39,4 +40,5 @@ export const Db = new class extends Dexie {
   }
 }();
 
+console.log(Db);
 export * from './schema';
