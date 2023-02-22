@@ -93,12 +93,6 @@ implements
 
     super();
 
-    this.event = new utils.EventEmitter();
-
-    this.toggleKIO =
-      options?.toggleKIO ||
-      new KeyboardInputOption({ code: 'F12' });
-
     this._opacity = options?.opacity || 0.35;
     this._size = { width: 0, height: 0 };
 
@@ -111,6 +105,12 @@ implements
         }
       }
     };
+
+    this.event = new utils.EventEmitter();
+
+    this.toggleKIO =
+      options?.toggleKIO ||
+      new KeyboardInputOption({ code: 'F12' });
 
     this
       .on('added', this.attach)

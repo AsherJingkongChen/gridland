@@ -1,30 +1,36 @@
-import {
-  IVector,
-  Vector 
-} from '../../datatype';
-import { WorldId } from './World';
+import { WorldIndex } from './World';
 
-export interface ChunkId {
-  readonly createdate?: Date;
-  readonly primkey?: number;
-  position?: IVector;
-  world?: WorldId;
+export interface ChunkIndex {
+  readonly id?: number;
+  readonly createdate: Date;
+  world: WorldIndex;
+  x: number;
+  y: number;
 };
 
 export interface ChunkData {
 };
 
-export type IChunk = ChunkId & ChunkData;
+export type IChunk = ChunkIndex & ChunkData;
 
 export class Chunk implements IChunk {
-  public readonly createdate?: Date;
-  public readonly primkey?: number;
-  public position?: IVector;
-  public world?: WorldId;
+  public readonly id?: number;
+  public readonly createdate: Date;
+  public world: WorldIndex;
+  public x: number;
+  public y: number;
 
-  constructor(options?: IChunk) {
+  constructor(
+      options: {
+        world: WorldIndex,
+        x: number,
+        y: number
+      }
+    ) {
+
     this.createdate = new Date();
-    this.position = options?.position || new Vector();
-    this.world = options?.world;
+    this.world = options.world;
+    this.x = options.x;
+    this.y = options.y;
   }
 };

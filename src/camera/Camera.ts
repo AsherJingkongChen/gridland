@@ -133,6 +133,19 @@ implements
 
     super();
 
+    this._client = new Point();
+    this._dragging = false;
+    this._viewport = new Container();
+
+    this._zoominout = (e) => {
+      if (this.zoominKIO.equal(e)) {
+        this._zoomOnWindow(+10);
+
+      } else if (this.zoomoutKIO.equal(e)) {
+        this._zoomOnWindow(-10);
+      }
+    };
+
     this.event = new utils.EventEmitter();
     this.maxzoom = options?.maxzoom || 10;
     this.minzoom = options?.minzoom || .1;
@@ -149,19 +162,6 @@ implements
     this.zoomwheelKIO =
       options?.zoomwheelKIO ||
       new KeyboardInputOption({ ctrlKey: true });
-
-    this._client = new Point();
-    this._dragging = false;
-    this._viewport = new Container();
-
-    this._zoominout = (e) => {
-      if (this.zoominKIO.equal(e)) {
-        this._zoomOnWindow(+10);
-
-      } else if (this.zoomoutKIO.equal(e)) {
-        this._zoomOnWindow(-10);
-      }
-    };
 
     this.addChild(this._viewport);
 

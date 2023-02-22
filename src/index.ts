@@ -10,6 +10,12 @@ import {
 import { Camera } from './camera';
 import { StatsPanel } from './panel';
 import { serialize } from './tool';
+import { WorldScene } from './scene/WorldScene';
+import {
+  Chunk,
+  Db,
+  World
+} from './database';
 
 const app = new Application({
   autoDensity: true,
@@ -22,8 +28,7 @@ const app = new Application({
 const ingrid = (pixel: number) => pixel >> 5;
 // const inpixel = (grid: number) => grid << 5;
 
-// 2^15 = 2^(5 + 6 + 4); P/G, G/C, C/L
-
+// 2^15 = 2^(5 + 6 + 4); P/G, G/C, C/L (7 + 1 + 7)
 const gridLightTexture =
   Texture.from(
     'grid_light.png',
@@ -34,7 +39,78 @@ const gridLightTexture =
   );
 
 // [TODO]
-const scene = new Container(); //
+const scene =
+  new WorldScene(
+    await Db.worlds.get(
+      await Db.worlds.add(new World({ name: 'hachime' }))
+    ) as World
+  );
+
+scene.loadedChunks.push(
+  new Chunk({
+    world: scene.world!,
+    x: 0,
+    y: 0
+  })
+);
+
+const updateChunk = async () => {
+  // const { loads, unloads } =
+  //   scene.requireChunks({
+  //     x: camera.x >> 11,
+  //     y: camera.y >> 11
+  //   });
+  const { x: oldX, y: oldY } = scene.loadedChunks[0];
+  const { x: newX, y: newY } = camera;
+  
+  if (oldX === newX && oldY === newY) {
+    return;
+  }
+
+  const newXs = [newX - 7];
+  const newYs = [newY - 7];
+
+  for (let _ = 15; _--;) {
+    newXs.push(1 + newXs[newXs.length - 1]);
+    newYs.push(1 + newYs[newYs.length - 1]);
+  }
+
+  // if toLoad or toUnload is not empty then:
+  
+  await Db.transaction(
+    'rw',
+    [
+      Db.chunks,
+      Db.worlds
+    ],
+    async () => {
+      // Get Db.chunks where [world] and [position]
+      // Add and get Db.chunks where [position]
+      await Db.chunks
+        .add(
+          new Chunk({
+            world: scene.world!,
+            x: 0,
+            y: 1
+          })
+        );
+
+      await scene.getChunks([]);
+
+      // - Disk: Db.chunks
+      // - Mem: scene.loadedChunks
+      //
+      // - Responses:
+      // - load
+      //   - not in Db.chunks => new chunks => put and get
+      //   - in Db.chunks     => old chunks => get
+      // - unload             => old chunks => put
+      
+    }
+  );
+  
+};
+
 const chunk =
   TilingSprite.from(
     gridLightTexture,
@@ -75,6 +151,18 @@ const cameraStats =
     }
   );
 
+app.stage.addChild(
+  camera,
+  statsPanel.addChild(
+    appStats,
+    cameraStats)
+  .parent
+);
+scene.addChild( //
+  chunk,
+  chunk2
+);
+
 const resizeStatsPanel = () => {
   const { innerWidth, innerHeight } = window;
   statsPanel.resize(innerWidth, innerHeight);
@@ -109,18 +197,6 @@ const updateCameraStats = () => {
     .replaceAll('"', '');
 };
 
-app.stage.addChild(
-  camera,
-  statsPanel.addChild(
-    appStats,
-    cameraStats)
-  .parent
-);
-scene.addChild( //
-  chunk,
-  chunk2
-);
-
 updateAppStats();
 updateCameraStats();
 resizeStatsPanel();
@@ -131,32 +207,19 @@ window.addEventListener('resize', resizeStatsPanel);
 app.ticker.add(updateAppStats);
 camera.event
   .on('move', updateCameraStats)
-  .on('zoom', updateCameraStats);
+  .on('zoom', updateCameraStats)
+  // .on('move', updateChunk);
 
-import { Db } from './database';
-import { Chunk, World } from './database/schema';
+// await
+//   Db.transaction(
+//     'readonly',
+//     Db.tables,
+//     async () => {
+//       for (const table of Db.tables) {
+//         await table.each((x) => console.log(x));
+//       }
+//     }
+//   );
 
-console.log(Db);
-
-await
-  Db.transaction(
-    'rw',
-    Db.Chunk, Db.World,
-    async () => {
-      const world =
-        await Db.World.get(
-          await Db.World.add(new World())
-        );
-
-      const chunk =
-        await Db.Chunk.get(
-          await Db.Chunk.add(new Chunk({ world }))
-        );
-
-      console.log({world, chunk});
-    }
-  );
-
-console.log(Db);
-
+await updateChunk();
 await Db.delete();

@@ -1,23 +1,26 @@
-import { ChunkId } from './Chunk';
-
-export interface WorldId {
-  readonly createdate?: Date;
-  readonly primkey?: number;
+export interface WorldIndex {
+  readonly id?: number;
+  readonly createdate: Date;
+  name: string;
 };
 
 export interface WorldData {
-  chunks?: ChunkId[];
 };
 
-export type IWorld = WorldId & WorldData;
+export type IWorld = WorldIndex & WorldData;
 
 export class World implements IWorld {
-  public readonly createdate?: Date;
-  public readonly primkey?: number;
-  public chunks?: ChunkId[];
+  public readonly id?: number;
+  public readonly createdate: Date;
+  public name: string;
 
-  constructor(options?: IWorld) {
+  constructor(
+      options?: {
+        name?: string
+      }
+    ) {
+
     this.createdate = new Date();
-    this.chunks = options?.chunks || [];
+    this.name = options?.name || 'Anonymous';
   }
 };
