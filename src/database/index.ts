@@ -21,16 +21,15 @@ export const Db = new class extends Dexie {
           Object.fromEntries([
             [
               World.name,
-              '++&id, ' +
-              'createdate, name'
+              '++&id,'+
+              'createdate,'+
+              'name'
             ],
             [
               Chunk.name,
-              '++&id, ' +
-              'createdate, ' +
-              '[world.id+world.name], ' +
-              '[world.id+x+y], ' +
-              '[x+y]'
+              '++&id,'+
+              'createdate,'+
+              '[world.id+x+y]'
             ]
           ])
         );
