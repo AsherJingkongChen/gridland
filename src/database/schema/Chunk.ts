@@ -1,35 +1,38 @@
-import { WorldIndex } from './World';
-
-export interface ChunkIndex {
-  readonly id?: number;
-  readonly createdate: Date;
-  world: WorldIndex;
+export interface HasXY {
   x: number;
   y: number;
 };
 
-export interface ChunkData {
+export interface IChunk {
+  readonly id: number;
+  readonly createdate: Date;
+  worldid: number;
+  x: number;
+  y: number;
 };
 
-export type IChunk = ChunkIndex & ChunkData;
+export interface ChunkOption {
+  worldid: number;
+  x: number;
+  y: number;
+};
 
 export class Chunk implements IChunk {
-  public readonly id?: number;
+  public static readonly Indexes =
+    '++&id, ' +
+    'createdate, ' +
+    'worldid, ' +
+    '[x+y+worldid]';
+
+  public readonly id!: number;
   public readonly createdate: Date;
-  public world: WorldIndex;
+  public worldid: number;
   public x: number;
   public y: number;
 
-  constructor(
-      options: {
-        world: WorldIndex,
-        x: number,
-        y: number
-      }
-    ) {
-
+  constructor(options: ChunkOption) {
     this.createdate = new Date();
-    this.world = options.world;
+    this.worldid = options.worldid;
     this.x = options.x;
     this.y = options.y;
   }

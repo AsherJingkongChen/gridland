@@ -1,9 +1,11 @@
-import { utils } from 'pixi.js';
+import { EventEmitter } from '@pixi/utils';
 
 export interface Eventable<
-    EventTypes extends utils.EventEmitter.ValidEventTypes = string | symbol,
+    EventTypes extends EventEmitter.ValidEventTypes = string | symbol,
     Context extends any = any
   > {
 
-  event: utils.EventEmitter<EventTypes, Context>;
-}
+  event: EventEmitter<EventTypes, Context>;
+};
+
+export { EventEmitter } from '@pixi/utils';

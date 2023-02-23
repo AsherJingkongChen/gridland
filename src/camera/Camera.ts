@@ -1,6 +1,7 @@
 import {
   Attachable,
-  Eventable
+  Eventable,
+  EventEmitter
 } from '../design';
 import {
   windowPreventDefault,
@@ -11,8 +12,7 @@ import {
   DisplayObject,
   FederatedMouseEvent,
   FederatedWheelEvent,
-  Point,
-  utils,
+  Point
 } from 'pixi.js';
 
 windowPreventDefault('wheel');
@@ -27,7 +27,7 @@ implements
     Attachable,
     Eventable<CameraEvents> {
 
-  public event: utils.EventEmitter<CameraEvents>;
+  public event: EventEmitter<CameraEvents>;
   public maxzoom: number;
   public minzoom: number;
   public zoominKIO: KeyboardInputOption;
@@ -146,7 +146,7 @@ implements
       }
     };
 
-    this.event = new utils.EventEmitter();
+    this.event = new EventEmitter();
     this.maxzoom = options?.maxzoom || 10;
     this.minzoom = options?.minzoom || .1;
     this.scene = options?.scene;

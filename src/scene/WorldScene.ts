@@ -1,46 +1,22 @@
 import {
-  Container,
-  IPointData
+  Container
 } from 'pixi.js';
 import {
   Chunk,
-  WorldIndex
-} from '../database/schema';
-import { Db } from '../database/index';
+  World,
+  HasXY
+} from '../database';
 
-export interface IWorldScene {
-  loadedChunks: Chunk[];
-  world: WorldIndex;
-};
+export class WorldScene extends Container {
+  public chunks: Map<HasXY, Chunk>;
+  public world: World;
+  public _center: HasXY; //
 
-export class WorldScene extends Container
-implements IWorldScene {
-
-  public loadedChunks: Chunk[];
-  public world: WorldIndex;
-
-  constructor(world: WorldIndex) {
+  constructor(world: World) {
     super();
 
-    this.loadedChunks = [];
+    this.chunks = new Map();
     this.world = world;
-  }
-
-  public async getChunks(coordinates: IPointData[]): Promise<Chunk[]> {
-    for (const { x, y } of coordinates) {
-      console.log(
-        await Db.chunks
-          .where({ x, y, 'world.id': this.world.id! })
-          .toArray()
-      );
-    }
-      // .where('world.id')
-      // .equals(this.world.id!);
-    
-    return [];
-  }
-
-  public async setChunks(_chunks: Chunk[]) {
-
+    this._center = { x: 0, y: 0 };
   }
 };

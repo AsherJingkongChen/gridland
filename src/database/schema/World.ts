@@ -1,26 +1,25 @@
-export interface WorldIndex {
-  readonly id?: number;
+export interface IWorld {
+  readonly id: number;
   readonly createdate: Date;
   name: string;
 };
 
-export interface WorldData {
+export interface WorldOption {
+  name: string;
 };
 
-export type IWorld = WorldIndex & WorldData;
-
 export class World implements IWorld {
-  public readonly id?: number;
+  public static readonly Indexes =
+    '++&id, ' +
+    'createdate, ' +
+    'name';
+
+  public readonly id!: number;
   public readonly createdate: Date;
   public name: string;
 
-  constructor(
-      options?: {
-        name?: string
-      }
-    ) {
-
+  constructor(options: WorldOption) {
     this.createdate = new Date();
-    this.name = options?.name || 'Anonymous';
+    this.name = options.name;
   }
 };

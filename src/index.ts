@@ -12,8 +12,8 @@ import { StatsPanel } from './panel';
 import { serialize } from './tool';
 import { WorldScene } from './scene/WorldScene';
 import {
-  Chunk,
   Db,
+  HasXY,
   World
 } from './database';
 
@@ -39,77 +39,15 @@ const gridLightTexture =
   );
 
 // [TODO]
+await Db.delete();
+await Db.open();
+
 const scene =
   new WorldScene(
     await Db.worlds.get(
       await Db.worlds.add(new World({ name: 'hachime' }))
     ) as World
   );
-
-scene.loadedChunks.push(
-  new Chunk({
-    world: scene.world!,
-    x: 0,
-    y: 0
-  })
-);
-
-const updateChunk = async () => {
-  // const { loads, unloads } =
-  //   scene.requireChunks({
-  //     x: camera.x >> 11,
-  //     y: camera.y >> 11
-  //   });
-  const { x: oldX, y: oldY } = scene.loadedChunks[0];
-  const { x: newX, y: newY } = camera;
-  
-  if (oldX === newX && oldY === newY) {
-    return;
-  }
-
-  const newXs = [newX - 7];
-  const newYs = [newY - 7];
-
-  for (let _ = 15; _--;) {
-    newXs.push(1 + newXs[newXs.length - 1]);
-    newYs.push(1 + newYs[newYs.length - 1]);
-  }
-
-  // if toLoad or toUnload is not empty then:
-  
-  await Db.transaction(
-    'rw',
-    [
-      Db.chunks,
-      Db.worlds
-    ],
-    async () => {
-      // Get Db.chunks where [world] and [position]
-      // Add and get Db.chunks where [position]
-      await Db.chunks
-        .add(
-          new Chunk({
-            world: scene.world!,
-            x: 0,
-            y: 1
-          })
-        );
-
-      await scene.getChunks([{ x: 0, y: 1 }]);
-
-      // - Disk: Db.chunks
-      // - Mem: scene.loadedChunks
-      //
-      // - Responses:
-      // - load
-      //   - not in Db.chunks => new chunks => put and get
-      //   - in Db.chunks     => old chunks => get
-      // - unload             => old chunks => put
-      
-    }
-  );
-  
-};
 
 const chunk =
   TilingSprite.from(
@@ -197,6 +135,60 @@ const updateCameraStats = () => {
     .replaceAll('"', '');
 };
 
+const updateChunk = () => {
+  let { x: oldX, y: oldY } = scene._center;
+  let { x: newX, y: newY } = camera;
+  const worldid = scene.world.id;
+
+  newX = newX >> 5;
+  newY = newY >> 5;
+
+  if (oldX === newX && oldY === newY) {
+    return;
+  }
+
+  scene._center = { x: newX, y: newY };
+
+  const newXYs = new Set<HasXY>();
+
+  for (let x = newX - 3; x <= newX + 3; x++) {
+    for (let y = newY - 3; y <= newY + 3; y++) {
+      newXYs.add({ x, y });
+    }
+  }
+
+  Db.transaction(
+      'readwrite',
+      Db.chunks,
+      async () => {
+        for (const xy of newXYs) {
+          const { x, y } = xy;
+          if (! scene.chunks.has(xy)) {
+            let chunk = await
+              Db.readChunk({
+                worldid, x, y
+              });
+
+            if (chunk === undefined) {
+              chunk = await
+                Db.createChunk({
+                  worldid, x, y
+                });
+            }
+            scene.chunks.set(xy, chunk);
+          }
+        }
+
+        for (const [xy, chunk] of scene.chunks) {
+          if (! newXYs.has(xy)) {
+            await Db.updateChunk(chunk);
+            scene.chunks.delete(xy);
+          }
+        }
+      }
+  );
+};
+
 updateAppStats();
 updateCameraStats();
 resizeStatsPanel();
@@ -208,18 +200,6 @@ app.ticker.add(updateAppStats);
 camera.event
   .on('move', updateCameraStats)
   .on('zoom', updateCameraStats)
-  // .on('move', updateChunk);
+  .on('move', updateChunk);
 
-// await
-//   Db.transaction(
-//     'readonly',
-//     Db.tables,
-//     async () => {
-//       for (const table of Db.tables) {
-//         await table.each((x) => console.log(x));
-//       }
-//     }
-//   );
-
-await updateChunk();
-await Db.delete();
+// await Db.delete();

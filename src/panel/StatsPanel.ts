@@ -5,12 +5,12 @@ import {
 import {
   BitmapFont,
   Graphics,
-  ISize,
-  utils
+  ISize
 } from "pixi.js";
 import {
   Attachable,
   Eventable,
+  EventEmitter,
   Resizable
 } from '../design';
 
@@ -27,7 +27,7 @@ implements
 
   public static readonly DefaultFontName = 'Stats';
 
-  public event: utils.EventEmitter<StatsPanelEvents>;
+  public event: EventEmitter<StatsPanelEvents>;
   public toggleKIO: KeyboardInputOption;
 
   private _opacity: number;
@@ -106,7 +106,7 @@ implements
       }
     };
 
-    this.event = new utils.EventEmitter();
+    this.event = new EventEmitter();
 
     this.toggleKIO =
       options?.toggleKIO ||
