@@ -1,17 +1,4 @@
-export interface HasXY {
-  x: number;
-  y: number;
-};
-
 export interface IChunk {
-  readonly id: number;
-  readonly createdate: Date;
-  worldid: number;
-  x: number;
-  y: number;
-};
-
-export interface ChunkOption {
   worldid: number;
   x: number;
   y: number;
@@ -30,7 +17,7 @@ export class Chunk implements IChunk {
   public x: number;
   public y: number;
 
-  constructor(options: ChunkOption) {
+  constructor(options: IChunk) {
     this.createdate = new Date();
     this.worldid = options.worldid;
     this.x = options.x;

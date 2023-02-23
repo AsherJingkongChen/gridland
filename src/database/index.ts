@@ -4,7 +4,6 @@ import {
 } from 'dexie';
 import {
   Chunk,
-  ChunkOption,
   IChunk,
   World
 } from './schema';
@@ -35,14 +34,14 @@ export const Db = new class Db extends Dexie {
     }
 
     public async createChunk(
-        options: ChunkOption
+        options: IChunk
       ): Promise<Chunk> {
 
       const { worldid, x, y } = options;
       let chunk = await
         this.chunks.get({ worldid, x, y });
 
-      if (chunk === undefined) {
+      if (! chunk) {
         chunk = new Chunk(options);
         await this.chunks.add(chunk);
       }
@@ -50,7 +49,7 @@ export const Db = new class Db extends Dexie {
     }
 
     public async readChunk(
-        idOrOptions: number | ChunkOption
+        idOrOptions: number | IChunk
       ): Promise<Chunk | undefined> {
 
       let chunk: Chunk | undefined;
@@ -68,21 +67,22 @@ export const Db = new class Db extends Dexie {
       return chunk;
     }
 
-    public async updateChunk(chunk: IChunk) {
+    public async updateChunk(chunk: Chunk) {
       await this.chunks.put(chunk);
     }
 
     public async deleteChunk(
-        idOrOptions: number | ChunkOption
+        idOrOptions: number | IChunk
       ) {
 
       const chunk = await
         this.readChunk(idOrOptions);
-      if (chunk !== undefined) {
+      if (chunk) {
         await this.chunks.delete(chunk.id);
       }
     }
   }();
 
 console.log(Db); // [LOG]
+
 export * from './schema';

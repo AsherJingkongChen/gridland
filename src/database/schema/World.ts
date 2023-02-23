@@ -1,10 +1,4 @@
 export interface IWorld {
-  readonly id: number;
-  readonly createdate: Date;
-  name: string;
-};
-
-export interface WorldOption {
   name: string;
 };
 
@@ -18,7 +12,7 @@ export class World implements IWorld {
   public readonly createdate: Date;
   public name: string;
 
-  constructor(options: WorldOption) {
+  constructor(options: IWorld) {
     this.createdate = new Date();
     this.name = options.name;
   }

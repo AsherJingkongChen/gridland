@@ -11,9 +11,9 @@ import { Camera } from './camera';
 import { StatsPanel } from './panel';
 import { serialize } from './tool';
 import { WorldScene } from './scene/WorldScene';
+import { Vec2 } from './type/Vec2';
 import {
   Db,
-  HasXY,
   World
 } from './database';
 
@@ -28,7 +28,7 @@ const app = new Application({
 const ingrid = (pixel: number) => pixel >> 5;
 // const inpixel = (grid: number) => grid << 5;
 
-// 2^15 = 2^(5 + 6 + 4); P/G, G/C, C/L (7 + 1 + 7)
+// 2^15 = 2^(5 + 6 + 4); P/G, G/C, C/Z (7 + 1 + 7)
 const gridLightTexture =
   Texture.from(
     'grid_light.png',
@@ -135,10 +135,10 @@ const updateCameraStats = () => {
     .replaceAll('"', '');
 };
 
-const updateChunk = () => {
+const updateChunks = () => {
   let { x: oldX, y: oldY } = scene._center;
   let { x: newX, y: newY } = camera;
-  const worldid = scene.world.id;
+  const worldid = scene.view.id;
 
   newX = newX >> 5;
   newY = newY >> 5;
@@ -147,13 +147,15 @@ const updateChunk = () => {
     return;
   }
 
-  scene._center = { x: newX, y: newY };
+  scene._center.x = newX;
+  scene._center.y = newY;
 
-  const newXYs = new Set<HasXY>();
+  const newZone = new Map<symbol, Vec2>();
 
   for (let x = newX - 3; x <= newX + 3; x++) {
     for (let y = newY - 3; y <= newY + 3; y++) {
-      newXYs.add({ x, y });
+      const v = new Vec2({ x, y });
+      newZone.set(v.symbol, v);
     }
   }
 
@@ -161,28 +163,30 @@ const updateChunk = () => {
       'readwrite',
       Db.chunks,
       async () => {
-        for (const xy of newXYs) {
-          const { x, y } = xy;
-          if (! scene.chunks.has(xy)) {
+        for (const [possym, pos] of newZone) {
+          if (! scene.zone.has(possym)) {
+            const { x, y } = pos;
+
             let chunk = await
               Db.readChunk({
                 worldid, x, y
               });
 
-            if (chunk === undefined) {
+            if (! chunk) {
               chunk = await
                 Db.createChunk({
                   worldid, x, y
                 });
             }
-            scene.chunks.set(xy, chunk);
+
+            scene.zone.set(possym, chunk);
           }
         }
 
-        for (const [xy, chunk] of scene.chunks) {
-          if (! newXYs.has(xy)) {
+        for (const [possym, chunk] of scene.zone) {
+          if (! newZone.has(possym)) {
             await Db.updateChunk(chunk);
-            scene.chunks.delete(xy);
+            scene.zone.delete(possym);
           }
         }
       }
@@ -200,6 +204,6 @@ app.ticker.add(updateAppStats);
 camera.event
   .on('move', updateCameraStats)
   .on('zoom', updateCameraStats)
-  .on('move', updateChunk);
+  .on('move', updateChunks);
 
 // await Db.delete();

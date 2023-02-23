@@ -1,22 +1,24 @@
 import {
+  Vec2
+} from '../type/Vec2';
+import {
   Container
 } from 'pixi.js';
 import {
   Chunk,
-  World,
-  HasXY
+  World
 } from '../database';
 
 export class WorldScene extends Container {
-  public chunks: Map<HasXY, Chunk>;
-  public world: World;
-  public _center: HasXY; //
+  public view: World;
+  public zone: Map<symbol, Chunk>;
+  public _center: Vec2; // [TODO]
 
-  constructor(world: World) {
+  constructor(view: World) {
     super();
 
-    this.chunks = new Map();
-    this.world = world;
-    this._center = { x: 0, y: 0 };
+    this.view = view;
+    this.zone = new Map();
+    this._center = new Vec2();
   }
 };
