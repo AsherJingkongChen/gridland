@@ -166,8 +166,8 @@ implements
     this.addChild(this._viewport);
 
     this
-      .on('added', this.attach)
-      .on('removed', this.detach);
+    .on('added', this.attach)
+    .on('removed', this.detach);
   }
 
   public override destroy() {
@@ -196,11 +196,11 @@ implements
     this.visible = true;
 
     this
-      .on('mousedown', this._onmousedown)
-      .on('mousemove', this._onmousemove)
-      .on('mouseup', this._onmouseup)
-      .on('mouseupoutside', this._onmouseupoutside)
-      .on('wheel', this._onwheel);
+    .on('mousedown', this._onmousedown)
+    .on('mousemove', this._onmousemove)
+    .on('mouseup', this._onmouseup)
+    .on('mouseupoutside', this._onmouseupoutside)
+    .on('wheel', this._onwheel);
 
     window.addEventListener('keydown', this._zoominout);
   }
@@ -210,11 +210,11 @@ implements
     this.visible = false;
 
     this
-      .off('mousedown', this._onmousedown)
-      .off('mousemove', this._onmousemove)
-      .off('mouseup', this._onmouseup)
-      .off('mouseupoutside', this._onmouseupoutside)
-      .off('wheel', this._onwheel);
+    .off('mousedown', this._onmousedown)
+    .off('mousemove', this._onmousemove)
+    .off('mouseup', this._onmouseup)
+    .off('mouseupoutside', this._onmouseupoutside)
+    .off('wheel', this._onwheel);
 
     window.removeEventListener('keydown', this._zoominout);
   }

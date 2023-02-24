@@ -113,9 +113,9 @@ implements
       new KeyboardInputOption({ code: 'F12' });
 
     this
-      .on('added', this.attach)
-      .once('added', this.detach)
-      .on('removed', this.detach);
+    .on('added', this.attach)
+    .once('added', this.detach)
+    .on('removed', this.detach);
 
     window.addEventListener('keydown', this._toggle);
   }

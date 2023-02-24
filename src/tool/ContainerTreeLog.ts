@@ -14,7 +14,11 @@ const treelogHelper =
 
     for (const child of root.children) {
       result +=
-        treelogHelper(child as Container, maxDepth, depth + 1);
+        treelogHelper(
+          child as Container,
+          maxDepth,
+          depth + 1
+        );
     }
     return result;
   };
