@@ -12,10 +12,7 @@ import { StatsPanel } from './panel';
 import { serialize } from './tool';
 import { WorldScene } from './scene/WorldScene';
 import { Vec2 } from './type/Vec2';
-import {
-  Dexie,
-  PromiseExtended
-} from 'dexie';
+import { Dexie } from 'dexie';
 import {
   Chunk,
   Db,
@@ -169,100 +166,54 @@ const updateChunks = () => {
         }
       }
 
-      const storeTasks =
-        new Array<PromiseExtended<symbol>>();
+      const loads = await
+        Dexie.Promise.all(
+          [...newZone].map(([ posSymbol, pos ]) => {
+            if (scene.zone.has(posSymbol)) {
+              return;
+            }
 
-      await Dexie.Promise.all(
-        [...newZone].map(([ symbolPos, pos ]) => {
-          if (scene.zone.has(symbolPos)) {
-            return;
-          }
-
-          const { x, y } = pos;
-
-          return (
-            Db.readChunk(
-              { worldid, x, y }
-            )
-            .then((chunk) => {
-              return (chunk) ?
-                chunk :
-                Db.createChunk(
-                  { worldid, x, y }
-                );
-            })
-            .then((chunk) => {
-              scene.zone.set(symbolPos, chunk);
-            })
-          );
-        })
-      );
-
-      for (const [symbolPos, pos] of newZone) {
-        if (! scene.zone.has(symbolPos)) {
-          const { x, y } = pos;
-
-          cacheTasks.push(
-            Db.readChunk(
-              { worldid, x, y }
-            )
-            .then((chunk) => {
-              if (! chunk) {
+            const { x, y } = pos;
+            return (
+              Db.readChunk(
+                { worldid, x, y }
+              )
+              .then((chunk) => {
                 return (
-                  Db.createChunk(
-                    { worldid, x, y }
-                  )
+                  (chunk) ?
+                  [posSymbol, chunk] :
+                  [
+                    posSymbol,
+                    Db.createChunk(
+                      { worldid, x, y }
+                    )
+                  ]
                 );
-              }
+              })
+            );
+          })
+        );
 
-              return chunk;
-            })
-            .then((chunk) => {
-              scene.zone.set(symbolPos, chunk);
-            })
-          );
-        }
+      const unloads = await
+        Dexie.Promise.all(
+          [...scene.zone].map(([ posSymbol, chunk ]) => {
+            if (newZone.has(posSymbol)) {
+              return;
+            }
+
+            return (
+              Db.updateChunk(chunk)
+                .then(() => posSymbol)
+            );
+          })
+        );
+
+      for (const [posSymbol, chunk] of loads) {
+        scene.zone.set(posSymbol, chunk);
       }
 
-      for (const [symbolPos, chunk] of scene.zone) {
-        if (! newZone.has(symbolPos)) {
-          storeTasks.push(
-            new Dexie.Promise(
-              async (resolve) => {
-                await Db.updateChunk(chunk);
-                resolve(symbolPos);
-              }
-            )
-          );
-        }
-      }
-
-      for (const _ of await
-           Dexie.Promise.allSettled(cacheTasks)) {
-
-        if (_.status === 'fulfilled') {
-          scene.zone.set(..._.value);
-
-        } else {
-          console.log(
-            'Section "await Promise.allSettled(cacheTasks)" ' +
-            'rejected'
-          );
-        }
-      }
-
-      for (const _ of await
-           Dexie.Promise.allSettled(storeTasks)) {
-
-        if (_.status === 'fulfilled') {
-          scene.zone.delete(_.value);
-
-        } else {
-          console.log(
-            'Section "await Promise.allSettled(storeTasks)" ' +
-            'is rejected'
-          );
-        }
+      for (const posSymbol of unloads) {
+        scene.zone.delete(posSymbol);
       }
 
       ////////
