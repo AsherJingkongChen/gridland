@@ -13,6 +13,11 @@ import { serialize } from './tool';
 import { WorldScene } from './scene/WorldScene';
 import { Vec2 } from './type/Vec2';
 import {
+  Dexie,
+  PromiseExtended
+} from 'dexie';
+import {
+  Chunk,
   Db,
   World
 } from './database';
@@ -138,7 +143,6 @@ const updateCameraStats = () => {
 const updateChunks = () => {
   let { x: oldX, y: oldY } = scene._center;
   let { x: newX, y: newY } = camera;
-  const worldid = scene.view.id;
 
   newX = newX >> 5;
   newY = newY >> 5;
@@ -150,46 +154,151 @@ const updateChunks = () => {
   scene._center.x = newX;
   scene._center.y = newY;
 
-  const newZone = new Map<symbol, Vec2>();
-
-  for (let x = newX - 3; x <= newX + 3; x++) {
-    for (let y = newY - 3; y <= newY + 3; y++) {
-      const v = new Vec2({ x, y });
-      newZone.set(v.symbol, v);
-    }
-  }
+  const worldid = scene.view.id;
 
   Db.transaction(
-      'readwrite',
-      Db.chunks,
-      async () => {
-        for (const [possym, pos] of newZone) {
-          if (! scene.zone.has(possym)) {
-            const { x, y } = pos;
+    'readwrite',
+    Db.chunks,
+    async () => {
+      const newZone = new Map<symbol, Vec2>();
 
-            let chunk = await
-              Db.readChunk({
-                worldid, x, y
-              });
-
-            if (! chunk) {
-              chunk = await
-                Db.createChunk({
-                  worldid, x, y
-                });
-            }
-
-            scene.zone.set(possym, chunk);
-          }
-        }
-
-        for (const [possym, chunk] of scene.zone) {
-          if (! newZone.has(possym)) {
-            await Db.updateChunk(chunk);
-            scene.zone.delete(possym);
-          }
+      for (let x = newX - 3; x <= newX + 3; x++) {
+        for (let y = newY - 3; y <= newY + 3; y++) {
+          const v = new Vec2({ x, y });
+          newZone.set(v.symbol, v);
         }
       }
+
+      const storeTasks =
+        new Array<PromiseExtended<symbol>>();
+
+      await Dexie.Promise.all(
+        [...newZone].map(([ symbolPos, pos ]) => {
+          if (scene.zone.has(symbolPos)) {
+            return;
+          }
+
+          const { x, y } = pos;
+
+          return (
+            Db.readChunk(
+              { worldid, x, y }
+            )
+            .then((chunk) => {
+              return (chunk) ?
+                chunk :
+                Db.createChunk(
+                  { worldid, x, y }
+                );
+            })
+            .then((chunk) => {
+              scene.zone.set(symbolPos, chunk);
+            })
+          );
+        })
+      );
+
+      for (const [symbolPos, pos] of newZone) {
+        if (! scene.zone.has(symbolPos)) {
+          const { x, y } = pos;
+
+          cacheTasks.push(
+            Db.readChunk(
+              { worldid, x, y }
+            )
+            .then((chunk) => {
+              if (! chunk) {
+                return (
+                  Db.createChunk(
+                    { worldid, x, y }
+                  )
+                );
+              }
+
+              return chunk;
+            })
+            .then((chunk) => {
+              scene.zone.set(symbolPos, chunk);
+            })
+          );
+        }
+      }
+
+      for (const [symbolPos, chunk] of scene.zone) {
+        if (! newZone.has(symbolPos)) {
+          storeTasks.push(
+            new Dexie.Promise(
+              async (resolve) => {
+                await Db.updateChunk(chunk);
+                resolve(symbolPos);
+              }
+            )
+          );
+        }
+      }
+
+      for (const _ of await
+           Dexie.Promise.allSettled(cacheTasks)) {
+
+        if (_.status === 'fulfilled') {
+          scene.zone.set(..._.value);
+
+        } else {
+          console.log(
+            'Section "await Promise.allSettled(cacheTasks)" ' +
+            'rejected'
+          );
+        }
+      }
+
+      for (const _ of await
+           Dexie.Promise.allSettled(storeTasks)) {
+
+        if (_.status === 'fulfilled') {
+          scene.zone.delete(_.value);
+
+        } else {
+          console.log(
+            'Section "await Promise.allSettled(storeTasks)" ' +
+            'is rejected'
+          );
+        }
+      }
+
+      ////////
+
+      // for (const [symbolPos, pos] of newZone) {
+      //   if (! scene.zone.has(symbolPos)) {
+      //     const { x, y } = pos;
+
+      //     let chunk = await
+      //       Db.readChunk({
+      //         worldid, x, y
+      //       });
+
+      //     if (! chunk) {
+      //       chunk = await
+      //         Db.createChunk({
+      //           worldid, x, y
+      //         });
+      //     }
+
+      //     scene.zone.set(symbolPos, chunk);
+      //   }
+      // }
+
+      // for (const [symbolPos, chunk] of scene.zone) {
+      //   if (! newZone.has(symbolPos)) {
+      //     await Db.updateChunk(chunk);
+      //     scene.zone.delete(symbolPos);
+      //   }
+      // }
+
+      console.log({
+        cache: scene.zone.size,
+        store: await Db.chunks.count()
+      });
+    }
   );
 };
 
@@ -205,5 +314,3 @@ camera.event
   .on('move', updateCameraStats)
   .on('zoom', updateCameraStats)
   .on('move', updateChunks);
-
-// await Db.delete();

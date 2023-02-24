@@ -1,6 +1,7 @@
 import {
   Table,
-  Dexie
+  Dexie,
+  PromiseExtended
 } from 'dexie';
 import {
   Chunk,
@@ -33,53 +34,63 @@ export const Db = new class Db extends Dexie {
       this.worlds.mapToClass(World);
     }
 
-    public async createChunk(
+    public createChunk(
         options: IChunk
-      ): Promise<Chunk> {
+      ): PromiseExtended<Chunk> {
 
       const { worldid, x, y } = options;
-      let chunk = await
-        this.chunks.get({ worldid, x, y });
 
-      if (! chunk) {
-        chunk = new Chunk(options);
-        await this.chunks.add(chunk);
-      }
-      return chunk;
+      return (
+        this.chunks
+          .get({ worldid, x, y })
+          .then(async (chunk) => {
+            if (! chunk) {
+              chunk = new Chunk(options);
+              await this.chunks.add(chunk);
+            }
+            return chunk;
+          })
+      );
     }
 
-    public async readChunk(
+    public readChunk(
         idOrOptions: number | IChunk
-      ): Promise<Chunk | undefined> {
-
-      let chunk: Chunk | undefined;
+      ): PromiseExtended<Chunk | undefined> {
 
       if (typeof idOrOptions === 'number') {
-        chunk = await
-          this.chunks.get(idOrOptions);
+        return this.chunks.get(idOrOptions);
 
       } else {
         const { worldid, x, y } = idOrOptions;
-        chunk = await
-          this.chunks.get({ worldid, x, y });
+        return this.chunks.get({ worldid, x, y });
       }
-
-      return chunk;
     }
 
-    public async updateChunk(chunk: Chunk) {
-      await this.chunks.put(chunk);
+    public updateChunk(
+        chunk: Chunk
+      ): PromiseExtended<Chunk> {
+
+      return (
+        this.chunks
+          .put(chunk)
+          .then(() => chunk)
+      );
     }
 
-    public async deleteChunk(
+    public deleteChunk(
         idOrOptions: number | IChunk
-      ) {
+      ): PromiseExtended<Chunk | undefined> {
 
-      const chunk = await
-        this.readChunk(idOrOptions);
-      if (chunk) {
-        await this.chunks.delete(chunk.id);
-      }
+      return (
+        this
+          .readChunk(idOrOptions)
+          .then(async (chunk) => {
+            if (chunk) {
+              await this.chunks.delete(chunk.id);
+            }
+            return chunk;
+          })
+      );
     }
   }();
 
