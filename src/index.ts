@@ -12,9 +12,7 @@ import { StatsPanel } from './panel';
 import { serialize } from './tool';
 import { WorldScene } from './scene/WorldScene';
 import { Vec2 } from './type/Vec2';
-import { Dexie } from 'dexie';
 import {
-  Chunk,
   Db,
   World
 } from './database';
@@ -113,7 +111,8 @@ const updateAppStats = () => {
     serialize({
       fps: Math.round(app.ticker.FPS),
       renderer: app.renderer.rendererLogId,
-      version: `0.0.6`
+      version: `0.0.6`,
+      chunks: scene.chunks.size
     })
     .replaceAll('"', '');
 };
@@ -137,9 +136,10 @@ const updateCameraStats = () => {
     .replaceAll('"', '');
 };
 
-const updateChunks = () => {
+const updateChunks = async () => {
   let { x: oldX, y: oldY } = scene._center;
   let { x: newX, y: newY } = camera;
+  const worldid = scene.view.id;
 
   newX = newX >> 5;
   newY = newY >> 5;
@@ -151,104 +151,35 @@ const updateChunks = () => {
   scene._center.x = newX;
   scene._center.y = newY;
 
-  const worldid = scene.view.id;
-
   Db.transaction(
     'readwrite',
-    Db.chunks,
+    [ Db.chunks ],
     async () => {
-      const newZone = new Map<symbol, Vec2>();
+      const newChunksPos = new Map<symbol, Vec2>();
+      const oldChunks = scene.chunks;
 
-      for (let x = newX - 3; x <= newX + 3; x++) {
-        for (let y = newY - 3; y <= newY + 3; y++) {
-          const v = new Vec2({ x, y });
-          newZone.set(v.symbol, v);
+      for (let x = newX - 7; x <= newX + 7; x++) {
+        for (let y = newY - 7; y <= newY + 7; y++) {
+          const vec = new Vec2({ x, y });
+          newChunksPos.set(vec.symbol, vec);
         }
       }
 
-      const loads = await
-        Dexie.Promise.all(
-          [...newZone].map(([ posSymbol, pos ]) => {
-            if (scene.zone.has(posSymbol)) {
-              return;
-            }
-
-            const { x, y } = pos;
-            return (
-              Db.readChunk(
-                { worldid, x, y }
-              )
-              .then((chunk) => {
-                return (
-                  (chunk) ?
-                  [posSymbol, chunk] :
-                  [
-                    posSymbol,
-                    Db.createChunk(
-                      { worldid, x, y }
-                    )
-                  ]
-                );
-              })
-            );
-          })
-        );
-
-      const unloads = await
-        Dexie.Promise.all(
-          [...scene.zone].map(([ posSymbol, chunk ]) => {
-            if (newZone.has(posSymbol)) {
-              return;
-            }
-
-            return (
-              Db.updateChunk(chunk)
-                .then(() => posSymbol)
-            );
-          })
-        );
-
-      for (const [posSymbol, chunk] of loads) {
-        scene.zone.set(posSymbol, chunk);
+      for (const [ key, chunk ] of oldChunks) {
+        if (! newChunksPos.has(key)) {
+          scene.chunks.delete(key);
+          await Db.updateChunk(chunk);
+        }
       }
 
-      for (const posSymbol of unloads) {
-        scene.zone.delete(posSymbol);
+      for (const [ key, { x, y } ] of newChunksPos) {
+        if (! oldChunks.has(key)) {
+          scene.chunks.set(
+            key,
+            await Db.getChunk({ worldid, x, y })
+          );
+        }
       }
-
-      ////////
-
-      // for (const [symbolPos, pos] of newZone) {
-      //   if (! scene.zone.has(symbolPos)) {
-      //     const { x, y } = pos;
-
-      //     let chunk = await
-      //       Db.readChunk({
-      //         worldid, x, y
-      //       });
-
-      //     if (! chunk) {
-      //       chunk = await
-      //         Db.createChunk({
-      //           worldid, x, y
-      //         });
-      //     }
-
-      //     scene.zone.set(symbolPos, chunk);
-      //   }
-      // }
-
-      // for (const [symbolPos, chunk] of scene.zone) {
-      //   if (! newZone.has(symbolPos)) {
-      //     await Db.updateChunk(chunk);
-      //     scene.zone.delete(symbolPos);
-      //   }
-      // }
-
-      console.log({
-        cache: scene.zone.size,
-        store: await Db.chunks.count()
-      });
     }
   );
 };

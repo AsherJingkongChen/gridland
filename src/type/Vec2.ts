@@ -8,7 +8,7 @@ export class Vec2 implements IVec2 {
   public y: number;
 
   public get symbol(): symbol {
-    return Symbol.for(`Vec2_${this.x}_${this.y}`);
+    return Symbol.for(`Vec2,${this.x},${this.y}`);
   }
 
   constructor(options?: Partial<IVec2>) {

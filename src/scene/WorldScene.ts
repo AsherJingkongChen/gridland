@@ -11,14 +11,14 @@ import {
 
 export class WorldScene extends Container {
   public view: World;
-  public zone: Map<symbol, Chunk>;
+  public chunks: Map<symbol, Chunk>;
   public _center: Vec2; // [TODO]
 
   constructor(view: World) {
     super();
 
     this.view = view;
-    this.zone = new Map();
+    this.chunks = new Map();
     this._center = new Vec2();
   }
 };
