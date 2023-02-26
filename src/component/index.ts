@@ -61,7 +61,7 @@ export const camera = new Camera();
 
 export const profiler = new Profiler();
 
-export const appInfo =
+export const appProfiles =
   new BitmapText(
     '',
     {
@@ -70,7 +70,7 @@ export const appInfo =
     }
   );
 
-export const cameraInfo =
+export const cameraProfiles =
   new BitmapText(
     '',
     {

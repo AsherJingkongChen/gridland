@@ -3,9 +3,9 @@ import {
 } from './database';
 import {
   app,
-  appInfo,
+  appProfiles,
   camera,
-  cameraInfo,
+  cameraProfiles,
   chunk,
   chunk2,
   profiler,
@@ -13,8 +13,8 @@ import {
 } from './component';
 import {
   resizeProfiler,
-  updateAppInfo,
-  updateCameraInfo,
+  updateAppProfiles,
+  updateCameraProfiles,
   updateChunks
 } from './script';
 
@@ -32,8 +32,8 @@ app.stage.addChild(
 );
 
 profiler.addChild(
-  appInfo,
-  cameraInfo
+  appProfiles,
+  cameraProfiles
 );
 
 zone.addChild( //
@@ -47,16 +47,16 @@ camera.y -= window.innerHeight / 2;
 
 chunk2.x = chunk.x - chunk2.width; // [TODO]
 
-updateAppInfo();
-updateCameraInfo();
+updateAppProfiles();
+updateCameraProfiles();
 resizeProfiler();
 
-cameraInfo.position.y = appInfo.height;
+cameraProfiles.position.y = appProfiles.height;
 
 camera.event
-.on('move', updateCameraInfo)
-.on('zoom', updateCameraInfo)
+.on('move', updateCameraProfiles)
+.on('zoom', updateCameraProfiles)
 .on('move', updateChunks);
 
 window.addEventListener('resize', resizeProfiler);
-app.ticker.add(updateAppInfo);
+app.ticker.add(updateAppProfiles);

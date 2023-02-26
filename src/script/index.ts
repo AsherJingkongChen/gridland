@@ -3,9 +3,9 @@ import {
 } from 'pixi.js';
 import {
   app,
-  appInfo,
+  appProfiles,
   camera,
-  cameraInfo,
+  cameraProfiles,
   profiler,
   zone,
 } from '../component';
@@ -26,8 +26,8 @@ export const resizeProfiler = () => {
   profiler.resize(innerWidth, innerHeight);
 };
 
-export const updateAppInfo = () => {
-  appInfo.text =
+export const updateAppProfiles = () => {
+  appProfiles.text =
     serialize({
       fps: Math.round(app.ticker.FPS),
       renderer: app.renderer.rendererLogId,
@@ -37,12 +37,12 @@ export const updateAppInfo = () => {
     .replaceAll('"', '');
 };
 
-export const updateCameraInfo = () => {
+export const updateCameraProfiles = () => {
   const { x, y, zoom } = camera;
   const { width: w, height: h } =
     camera.stage as Container;
 
-  cameraInfo.text =
+  cameraProfiles.text =
     serialize({
       camera: {
         stage: {
