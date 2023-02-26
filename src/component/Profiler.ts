@@ -3,7 +3,6 @@ import {
   KeyboardInputOption,
 } from '../input';
 import {
-  BitmapFont,
   Graphics,
   ISize
 } from "pixi.js";
@@ -17,17 +16,15 @@ import {
 windowPreventDefault('keydown');
 
 /**
- * View for statistics
+ * View for profiles
  */
-export class StatsPanel extends Graphics
+export class Profiler extends Graphics
 implements
     Attachable,
-    Eventable<StatsPanelEvents>,
+    Eventable<ProfilerEvents>,
     Resizable {
 
-  public static readonly DefaultFontName = 'Stats';
-
-  public event: EventEmitter<StatsPanelEvents>;
+  public event: EventEmitter<ProfilerEvents>;
   public toggleKIO: KeyboardInputOption;
 
   private _opacity: number;
@@ -82,7 +79,7 @@ implements
    * Alpha of background, by default it's 0.35
    * 
    * @param options.toggleKIO
-   * KIO to toggle StatsPanel to show or not, by default it's { F12 }
+   * KIO to toggle Profiler to show or not, by default it's { F12 }
    */
   constructor(
       options?: {
@@ -158,17 +155,6 @@ implements
   }
 };
 
-export interface StatsPanelEvents {
+export interface ProfilerEvents {
   resize: [size: ISize];
 };
-
-BitmapFont.from(
-  StatsPanel.DefaultFontName,
-  {
-    fontFamily: 'Monaco',
-    fontSize: 12,
-    fontWeight: 'normal',
-    fill: 0xffffff,
-  },
-  { chars: BitmapFont.ASCII }
-);

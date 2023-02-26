@@ -42,19 +42,19 @@ implements
   /**
    * Camera's target
    */
-  get scene(): DisplayObject | undefined {
+  get stage(): DisplayObject | undefined {
     return this._viewport.children[0];
   }
 
   /**
    * Camera's target
    */
-  set scene(scene: DisplayObject | undefined) {
+  set stage(stage: DisplayObject | undefined) {
     if (this._viewport.children.length === 1) {
       this._viewport.removeChildAt(0);
     }
-    if (scene !== undefined) {
-      this._viewport.addChildAt(scene, 0);
+    if (stage !== undefined) {
+      this._viewport.addChildAt(stage, 0);
     }
   }
 
@@ -108,7 +108,7 @@ implements
    * @param options.minzoom
    * Minimum of zoom, by default it's 0.1 (10%)
    * 
-   * @param options.scene
+   * @param options.stage
    * The Container inside Camera
    * 
    * @param options.zoominKIO
@@ -124,7 +124,7 @@ implements
       options?: {
         maxzoom?: number,
         minzoom?: number,
-        scene?: Container,
+        stage?: Container,
         zoominKIO?: KeyboardInputOption,
         zoomoutKIO?: KeyboardInputOption,
         zoomwheelKIO?: KeyboardInputOption
@@ -149,7 +149,7 @@ implements
     this.event = new EventEmitter();
     this.maxzoom = options?.maxzoom || 10;
     this.minzoom = options?.minzoom || .1;
-    this.scene = options?.scene;
+    this.stage = options?.stage;
 
     this.zoominKIO =
       options?.zoominKIO ||

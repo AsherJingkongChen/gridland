@@ -9,16 +9,16 @@ import {
   World
 } from '../database';
 
-export class WorldScene extends Container {
-  public view: World;
+export class Zone extends Container {
   public chunks: Map<symbol, Chunk>;
+  public world: World;
   public _center: Vec2; // [TODO]
 
-  constructor(view: World) {
+  constructor(world: World) {
     super();
 
-    this.view = view;
     this.chunks = new Map();
+    this.world = world;
     this._center = new Vec2();
   }
 };
