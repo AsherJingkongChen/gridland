@@ -7,14 +7,14 @@ import {
   camera,
   cameraInfo,
   profiler,
-  zone
+  zone,
 } from '../component';
 import {
   serialize,
 } from '../tool';
 import {
   Vec2,
-} from '../type';
+} from '../entity';
 import {
   Db,
 } from '../database';

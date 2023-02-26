@@ -1,6 +1,6 @@
 import {
   Vec2
-} from '../type/Vec2';
+} from '../entity';
 import {
   Container
 } from 'pixi.js';

@@ -1,19 +1,22 @@
 import {
   Attachable,
   Eventable,
-  EventEmitter
+  EventEmitter,
 } from '../design';
 import {
-  windowPreventDefault,
-  KeyboardInputOption
-} from '../input';
+  KeyboardInputOption,
+} from '../entity';
+
 import {
   Container,
   DisplayObject,
   FederatedMouseEvent,
   FederatedWheelEvent,
-  Point
+  Point,
 } from 'pixi.js';
+import {
+  windowPreventDefault,
+} from '../tool';
 
 windowPreventDefault('wheel');
 windowPreventDefault('keydown');

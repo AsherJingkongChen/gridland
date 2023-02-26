@@ -1,19 +1,25 @@
 import {
   Application,
   BitmapText,
-  TilingSprite
+  TilingSprite,
 } from "pixi.js";
-import { Zone } from './Zone';
 import {
   Db,
-  World
+  World,
 } from '../database';
 import {
   gridLightTexture,
-  uiFontName
-} from "../asset";
-import { Camera } from "./Camera";
-import { Profiler } from './Profiler';
+  uiFontName,
+} from "../resource";
+import {
+  Camera,
+} from "./Camera";
+import {
+  Profiler,
+} from './Profiler';
+import {
+  Zone,
+} from './Zone';
 
 export const app = new Application({
   autoDensity: true,

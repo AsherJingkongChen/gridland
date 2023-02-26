@@ -2,7 +2,7 @@ import {
   SCALE_MODES,
   MIPMAP_MODES,
   Texture,
-  BitmapFont
+  BitmapFont,
 } from "pixi.js";
 
 export const gridLightTexture =
@@ -26,4 +26,3 @@ BitmapFont.from(
   },
   { chars: BitmapFont.ASCII }
 );
-

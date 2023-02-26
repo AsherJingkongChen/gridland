@@ -1,7 +1,6 @@
 import {
-  windowPreventDefault,
   KeyboardInputOption,
-} from '../input';
+} from '../entity';
 import {
   Graphics,
   ISize
@@ -12,6 +11,9 @@ import {
   EventEmitter,
   Resizable
 } from '../design';
+import {
+  windowPreventDefault
+} from '../tool';
 
 windowPreventDefault('keydown');
 
