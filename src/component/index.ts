@@ -32,10 +32,9 @@ await Db.open();
 
 export const zone = // [TODO]
   new Zone((
-    await Db.worlds.get(
-      await
-      Db
-      .worlds
+    await Db.worlds
+    .get(
+      await Db.worlds
       .add(new World({
         name: Math.random().toString(36).substring(2, 8),
         chunkcount: 0

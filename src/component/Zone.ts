@@ -82,7 +82,6 @@ export class Zone extends Container {
           }
         );
 
-      chunkSprite.anchor.set(0.5);
       chunkSprite.position.set(
         chunk.x * PixelPerChunk,
         chunk.y * PixelPerChunk

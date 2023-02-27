@@ -1,4 +1,6 @@
 import { BitmapText } from 'pixi.js';
+import { uiFontName } from './resource';
+import { PixelPerChunk } from './tool/LengthUnit';
 import {
   app,
   appProfiles,
@@ -7,7 +9,6 @@ import {
   profiler,
   zone
 } from './component';
-import { uiFontName } from './resource';
 import {
   resizeProfiler,
   updateAppProfiles,
@@ -32,23 +33,27 @@ camera.y -= window.innerHeight / 2;
 
 await updateChunksAt(0, 0);
 
+// [TODO]
 const centerPivot =
   new BitmapText(
     '-X-',
     {
       fontName: uiFontName,
       align: 'left',
-      tint: 0xa09000,
+      tint: 0xccaa00,
       fontSize: 10
     }
   );
 
-zone // [TODO]
+zone
 .getChunkSprite({ x: 0, y: 0 })
 ?.addChild(centerPivot);
 
 centerPivot.anchor.set(0.5);
-// centerPivot.position.set()
+
+centerPivot.position
+.set(Math.trunc(PixelPerChunk / 2));
+// [TODO end]
 
 updateAppProfiles();
 updateCameraProfiles();
