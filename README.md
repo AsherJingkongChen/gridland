@@ -1,5 +1,5 @@
 # Gridland
-> PIXI.js (WebGL) render engine game
+> A game made with Pixi.js (WebGL) render engine
 
 ## [Demo](https://asherjingkongchen.github.io/gridland-demo/)
 
@@ -20,4 +20,4 @@
 
 ## [Version](doc/version.md)
 
-- current is [0.0.6](doc/version.md#006)
+- current is [0.0.7](doc/version.md#007)

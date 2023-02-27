@@ -1,7 +1,7 @@
 {
   "name": "gridland",
-  "description": "> PIXI.js (WebGL) render engine game",
-  "version": "0.0.6",
+  "description": "> A game made with Pixi.js (WebGL) render engine",
+  "version": "0.0.7",
   "main": "src/index.ts",
   "directories": {
     "doc": "doc"
