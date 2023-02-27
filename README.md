@@ -12,10 +12,11 @@
 
 ## Techstack
 
-- Typescript
-- Pixi.js
-- Webpack
+- Dexie
 - NPM
+- Pixi.js
+- Typescript
+- Webpack
 
 ## [Version](doc/version.md)
 

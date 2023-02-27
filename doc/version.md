@@ -42,3 +42,7 @@
   - GIF ![demo](../demo/v0.0.5.gif)
 
 ## 0.0.6
+  - Chunk Zone System is applied and simply tested
+  - Chunks can be stored in IndexedDB via Dexie API
+  - Refactored file hierarchy: Component, Entity, Script, ... Database, Tool
+  - GIF ![demo](../demo/v0.0.6.gif)
