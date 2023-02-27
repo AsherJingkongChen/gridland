@@ -1,14 +1,12 @@
 import {
   Application,
   BitmapText,
-  TilingSprite,
 } from "pixi.js";
 import {
   Db,
   World,
 } from '../database';
 import {
-  gridLightTexture,
   uiFontName,
 } from "../resource";
 import {
@@ -29,33 +27,21 @@ export const app = new Application({
   view: document.getElementById('stage') as HTMLCanvasElement
 });
 
+await Db.delete(); // [TODO]
+await Db.open();
+
 export const zone = // [TODO]
-  new Zone(
+  new Zone((
     await Db.worlds.get(
       await
       Db
       .worlds
-      .add(new World({ name: 'hachime' }))
-    ) as World
-  );
-
-export const chunk =
-  TilingSprite.from(
-    gridLightTexture,
-    {
-      width: 1 << 5 << 6,
-      height: 1 << 5 << 6,
-    }
-  );
-
-export const chunk2 =
-  TilingSprite.from(
-    gridLightTexture,
-    {
-      width: 1 << 5 << 6,
-      height: 1 << 5 << 6
-    }
-  );
+      .add(new World({
+        name: Math.random().toString(36).substring(2, 8),
+        chunkcount: 0
+      }))
+    )
+  )!);
 
 export const camera = new Camera();
 

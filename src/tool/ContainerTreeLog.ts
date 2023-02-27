@@ -1,24 +1,35 @@
 import { Container } from "pixi.js";
 
 export const containerTreeLog =
-  (root: Container, maxDepth = 3) => {
-    console.log(treelogHelper(root, maxDepth));
-  };
+  (
+    root: Container,
+    maxDepth = 3
+  ) => {
+
+  console.log(treelogHelper(root, maxDepth));
+};
 
 const treelogHelper =
-  (root: Container, maxDepth: number, depth = 0) => {
-    if (depth === maxDepth) { return ''; }
+  (
+    root: Container,
+    maxDepth: number,
+    depth = 0
+  ) => {
 
-    let result =
-      ' '.repeat(depth * 2) + root.constructor.name + '\n';
+  if (depth === maxDepth) {
+    return '';
+  }
 
-    for (const child of root.children) {
-      result +=
-        treelogHelper(
-          child as Container,
-          maxDepth,
-          depth + 1
-        );
-    }
-    return result;
-  };
+  let result =
+    ' '.repeat(depth * 2) + root.constructor.name + '\n';
+
+  for (const child of root.children) {
+    result +=
+      treelogHelper(
+        child as Container,
+        maxDepth,
+        depth + 1
+      );
+  }
+  return result;
+};

@@ -45,14 +45,14 @@ implements
   /**
    * Camera's target
    */
-  get stage(): DisplayObject | undefined {
-    return this._viewport.children[0];
+  public get stage(): DisplayObject | undefined {
+    return this._viewport.children[0] as DisplayObject;
   }
 
   /**
    * Camera's target
    */
-  set stage(stage: DisplayObject | undefined) {
+  public set stage(stage: DisplayObject | undefined) {
     if (this._viewport.children.length === 1) {
       this._viewport.removeChildAt(0);
     }
@@ -127,7 +127,7 @@ implements
       options?: {
         maxzoom?: number,
         minzoom?: number,
-        stage?: Container,
+        stage?: DisplayObject,
         zoominKIO?: KeyboardInputOption,
         zoomoutKIO?: KeyboardInputOption,
         zoomwheelKIO?: KeyboardInputOption

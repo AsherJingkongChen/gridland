@@ -1,8 +1,9 @@
 # Manual
 
+**No support for mobile devices**
+
 ## User Action
 
-- **No support for mobile devices**
 - Drag
   - Hold down the left button and move
 - Zoom

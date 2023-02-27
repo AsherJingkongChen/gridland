@@ -7,7 +7,8 @@ const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 module.exports = (env, argv) => {
   return ({
-    stats: (argv.mode === 'development') ? 'minimal' : undefined,
+    stats: (argv.mode === 'development') ? 
+           'minimal' : undefined,
     entry: './src/index.ts',
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -27,16 +28,19 @@ module.exports = (env, argv) => {
       port: 8080
     },
     performance: { hints: false },
-    devtool: (argv.mode === 'development') ? 'source-map' : undefined,
+    devtool: (argv.mode === 'development') ?
+             'source-map' : undefined,
     optimization: {
       minimize: argv.mode === 'production',
-      minimizer: [new TerserPlugin({
-        terserOptions: {
-          ecma: 6,
-          compress: { drop_console: true },
-          output: { comments: false, beautify: false },
-        },
-      })],
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            ecma: 6,
+            compress: { drop_console: true },
+            output: { comments: false, beautify: false },
+          }
+        })
+      ],
     },
     module: {
       rules: [

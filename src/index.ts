@@ -1,30 +1,20 @@
-import {
-  Db,
-} from './database';
+import { BitmapText } from 'pixi.js';
 import {
   app,
   appProfiles,
   camera,
   cameraProfiles,
-  chunk,
-  chunk2,
   profiler,
   zone
 } from './component';
+import { uiFontName } from './resource';
 import {
   resizeProfiler,
   updateAppProfiles,
   updateCameraProfiles,
-  updateChunks
+  updateChunks,
+  updateChunksAt,
 } from './script';
-
-// const inpixel = (grid: number) => grid << 5;
-
-// 2^15 = 2^(5 + 6 + 4); P/G, G/C, C/Z (7 + 1 + 7)
-
-// [TODO]
-await Db.delete();
-await Db.open();
 
 app.stage.addChild(
   camera,
@@ -36,16 +26,29 @@ profiler.addChild(
   cameraProfiles
 );
 
-zone.addChild( //
-  chunk,
-  chunk2
-);
-
 camera.stage = zone;
 camera.x -= window.innerWidth / 2;
 camera.y -= window.innerHeight / 2;
 
-chunk2.x = chunk.x - chunk2.width; // [TODO]
+await updateChunksAt(0, 0);
+
+const centerPivot =
+  new BitmapText(
+    '-X-',
+    {
+      fontName: uiFontName,
+      align: 'left',
+      tint: 0xa09000,
+      fontSize: 10
+    }
+  );
+
+zone // [TODO]
+.getChunkSprite({ x: 0, y: 0 })
+?.addChild(centerPivot);
+
+centerPivot.anchor.set(0.5);
+// centerPivot.position.set()
 
 updateAppProfiles();
 updateCameraProfiles();
