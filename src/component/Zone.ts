@@ -1,4 +1,9 @@
-import { IVec2, Vec2, Vec2Symbol, PixelPerChunk } from '../entity';
+import {
+  IVec2,
+  Vec2,
+  Vec2Symbol,
+  PixelPerChunk
+} from '../entity';
 import { Container, TilingSprite } from 'pixi.js';
 import { Chunk, World } from '../database';
 import { gridLightTexture } from '../resource';
@@ -23,15 +28,15 @@ export class Zone extends Container {
   public override destroy() {
     super.destroy({ children: true });
 
-    (this._center as any) = undefined;
+    (this._center as unknown) = undefined;
 
     this._chunks.clear();
-    (this._chunks as any) = undefined;
+    (this._chunks as unknown) = undefined;
 
     this._chunkSprites.clear();
-    (this._chunkSprites as any) = undefined;
+    (this._chunkSprites as unknown) = undefined;
 
-    (this.world as any) = undefined;
+    (this.world as unknown) = undefined;
   }
 
   /**
@@ -40,7 +45,10 @@ export class Zone extends Container {
    * @returns true if the center moves
    */
   public recenter(center: IVec2): boolean {
-    if (center.x === this._center.x && center.y === this._center.y) {
+    if (
+      center.x === this._center.x &&
+      center.y === this._center.y
+    ) {
       return false;
     }
 
@@ -53,7 +61,9 @@ export class Zone extends Container {
     return this._chunks;
   }
 
-  public getChunk(keyOrPos: Vec2Symbol | IVec2): Chunk | undefined {
+  public getChunk(
+    keyOrPos: Vec2Symbol | IVec2
+  ): Chunk | undefined {
     if (typeof keyOrPos === 'symbol') {
       return this._chunks.get(keyOrPos);
     } else {
@@ -66,17 +76,23 @@ export class Zone extends Container {
     this._chunks.set(key, chunk);
 
     if (!this._chunkSprites.has(key)) {
-      const chunkSprite = TilingSprite.from(gridLightTexture, {
-        width: PixelPerChunk,
-        height: PixelPerChunk
-      });
+      const chunkSprite = TilingSprite.from(
+        gridLightTexture,
+        {
+          width: PixelPerChunk,
+          height: PixelPerChunk
+        }
+      );
 
       chunkSprite.position.set(
         chunk.x * PixelPerChunk,
         chunk.y * PixelPerChunk
       );
 
-      this._chunkSprites.set(key, this.addChild(chunkSprite));
+      this._chunkSprites.set(
+        key,
+        this.addChild(chunkSprite)
+      );
     }
   }
 
@@ -84,7 +100,9 @@ export class Zone extends Container {
     const key = Vec2.Key(chunk);
 
     if (this._chunks.delete(key)) {
-      this.removeChild(this._chunkSprites.get(key)!);
+      this.removeChild(
+        this._chunkSprites.get(key) as TilingSprite
+      );
       return this._chunkSprites.delete(key);
     } else {
       return false;

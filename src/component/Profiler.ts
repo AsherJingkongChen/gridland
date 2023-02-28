@@ -15,7 +15,10 @@ windowPreventDefault('keydown');
  */
 export class Profiler
   extends Graphics
-  implements Attachable, Eventable<ProfilerEvents>, Resizable
+  implements
+    Attachable,
+    Eventable<ProfilerEvents>,
+    Resizable
 {
   public event: EventEmitter<ProfilerEvents>;
   public toggleKIO: KeyboardInputOption;
@@ -96,7 +99,8 @@ export class Profiler
     this.event = new EventEmitter();
 
     this.toggleKIO =
-      option?.toggleKIO || new KeyboardInputOption({ code: 'F12' });
+      option?.toggleKIO ||
+      new KeyboardInputOption({ code: 'F12' });
 
     this.on('added', this.attach)
       .once('added', this.detach)
@@ -112,13 +116,14 @@ export class Profiler
     window.removeEventListener('keydown', this._toggle);
 
     this._opacity = 0;
-    (this._size as any) = undefined;
-    (this._toggle as any) = undefined;
+
+    (this._size as unknown) = undefined;
+    (this._toggle as unknown) = undefined;
 
     this.event.removeAllListeners();
-    (this.event as any) = undefined;
+    (this.event as unknown) = undefined;
 
-    (this.toggleKIO as any) = undefined;
+    (this.toggleKIO as unknown) = undefined;
   }
 
   public attach() {

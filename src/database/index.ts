@@ -2,7 +2,10 @@ import { Table, Dexie } from 'dexie';
 import { Chunk, World } from './schema';
 
 export const Db = new (class Db extends Dexie {
-  public get chunks(): Table<Chunk, [number, number, number]> {
+  public get chunks(): Table<
+    Chunk,
+    [number, number, number]
+  > {
     return this.table(Chunk.name);
   }
 

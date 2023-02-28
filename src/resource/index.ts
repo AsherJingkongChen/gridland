@@ -5,10 +5,13 @@ import {
   BitmapFont
 } from 'pixi.js';
 
-export const gridLightTexture = Texture.from('grid_light.png', {
-  scaleMode: SCALE_MODES.NEAREST,
-  mipmap: MIPMAP_MODES.ON
-});
+export const gridLightTexture = Texture.from(
+  'grid_light.png',
+  {
+    scaleMode: SCALE_MODES.NEAREST,
+    mipmap: MIPMAP_MODES.ON
+  }
+);
 
 export const uiFontName = 'uifont';
 

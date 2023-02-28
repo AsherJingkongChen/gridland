@@ -72,7 +72,10 @@ export const updateChunks = async () => {
   });
 };
 
-export const updateChunksAt = async (cx: number, cy: number) => {
+export const updateChunksAt = async (
+  cx: number,
+  cy: number
+) => {
   const worldid = zone.world.id;
 
   const newChunksPos = new Map<Vec2Symbol, Vec2>();
@@ -97,9 +100,17 @@ export const updateChunksAt = async (cx: number, cy: number) => {
 
   for (const [key, { x, y }] of newChunksPos) {
     if (!oldChunks.has(key)) {
-      let chunk = await Chunk.Read({ worldid, x, y });
+      let chunk = await Chunk.Read({
+        worldid,
+        x,
+        y
+      });
       if (!chunk) {
-        chunk = await Chunk.Create({ worldid, x, y });
+        chunk = await Chunk.Create({
+          worldid,
+          x,
+          y
+        });
       }
 
       zone.setChunk(chunk);

@@ -1,4 +1,8 @@
-import { Attachable, Eventable, EventEmitter } from '../design';
+import {
+  Attachable,
+  Eventable,
+  EventEmitter
+} from '../design';
 import { KeyboardInputOption } from '../entity';
 import {
   Container,
@@ -141,11 +145,17 @@ export class Camera
 
     this.zoominKIO =
       option?.zoominKIO ||
-      new KeyboardInputOption({ ctrlKey: true, code: 'Equal' });
+      new KeyboardInputOption({
+        ctrlKey: true,
+        code: 'Equal'
+      });
 
     this.zoomoutKIO =
       option?.zoomoutKIO ||
-      new KeyboardInputOption({ ctrlKey: true, code: 'Minus' });
+      new KeyboardInputOption({
+        ctrlKey: true,
+        code: 'Minus'
+      });
 
     this.zoomwheelKIO =
       option?.zoomwheelKIO ||
@@ -153,29 +163,32 @@ export class Camera
 
     this.addChild(this._viewport);
 
-    this.on('added', this.attach).on('removed', this.detach);
+    this.on('added', this.attach).on(
+      'removed',
+      this.detach
+    );
   }
 
   public override destroy() {
     super.destroy();
     this.detach();
 
-    (this._client as any) = undefined;
+    (this._client as unknown) = undefined;
     this._dragging = false;
 
     this._viewport.destroy();
-    (this._viewport as any) = undefined;
+    (this._viewport as unknown) = undefined;
 
-    (this._zoominout as any) = undefined;
+    (this._zoominout as unknown) = undefined;
 
     this.event.removeAllListeners();
-    (this.event as any) = undefined;
+    (this.event as unknown) = undefined;
 
     this.maxzoom = Infinity;
     this.minzoom = 0;
-    (this.zoominKIO as any) = undefined;
-    (this.zoomoutKIO as any) = undefined;
-    (this.zoomwheelKIO as any) = undefined;
+    (this.zoominKIO as unknown) = undefined;
+    (this.zoomoutKIO as unknown) = undefined;
+    (this.zoomwheelKIO as unknown) = undefined;
   }
 
   public attach() {
@@ -250,8 +263,16 @@ export class Camera
   }
 
   private _moveOnWindow(client: Point) {
-    this._viewport.toLocal(client, undefined, this._viewport.pivot);
-    this.toLocal(client, undefined, this._viewport.position);
+    this._viewport.toLocal(
+      client,
+      undefined,
+      this._viewport.pivot
+    );
+    this.toLocal(
+      client,
+      undefined,
+      this._viewport.position
+    );
     this._client.copyFrom(client);
 
     this.event.emit('move', this);

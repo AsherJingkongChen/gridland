@@ -10,7 +10,9 @@ export const app = new Application({
   backgroundColor: 0x000000,
   resizeTo: window,
   resolution: window.devicePixelRatio || 1,
-  view: document.getElementById('stage') as HTMLCanvasElement
+  view: document.getElementById(
+    'stage'
+  ) as HTMLCanvasElement
 });
 
 await Db.delete(); // [TODO]
@@ -24,7 +26,7 @@ export const zone = // [TODO]
           name: Math.random().toString(36).substring(2, 8)
         })
       )
-    ))!
+    )) as World
   );
 
 export const camera = new Camera();

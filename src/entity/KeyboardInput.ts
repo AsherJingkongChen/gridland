@@ -4,7 +4,9 @@
  * Type to compare with types including
  * KeyboardEvent, MouseEvent and etc.
  */
-export class KeyboardInputOption implements IKeyboardInputOption {
+export class KeyboardInputOption
+  implements IKeyboardInputOption
+{
   public code?: KeyboardInputCodes;
   public altKey: boolean;
   public ctrlKey: boolean;
@@ -63,10 +65,14 @@ export class KeyboardInputOption implements IKeyboardInputOption {
   ): boolean {
     return (
       option1.code === option2.code &&
-      (option1.altKey || false) === (option2.altKey || false) &&
-      (option1.ctrlKey || false) === (option2.ctrlKey || false) &&
-      (option1.metaKey || false) === (option2.metaKey || false) &&
-      (option1.shiftKey || false) === (option2.shiftKey || false)
+      (option1.altKey || false) ===
+        (option2.altKey || false) &&
+      (option1.ctrlKey || false) ===
+        (option2.ctrlKey || false) &&
+      (option1.metaKey || false) ===
+        (option2.metaKey || false) &&
+      (option1.shiftKey || false) ===
+        (option2.shiftKey || false)
     );
   }
 
@@ -173,4 +179,5 @@ export const KeyboardInputCodes = {
 /**
  * Valid values of KeyboardEvent.code
  */
-export type KeyboardInputCodes = keyof typeof KeyboardInputCodes;
+export type KeyboardInputCodes =
+  keyof typeof KeyboardInputCodes;

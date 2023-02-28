@@ -8,6 +8,6 @@ export const windowPreventDefault = (
   });
 };
 
-const _preventDefault = (e: any) => {
+const _preventDefault = (e: Event) => {
   e.preventDefault();
 };
