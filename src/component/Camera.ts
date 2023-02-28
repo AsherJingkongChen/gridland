@@ -105,26 +105,26 @@ implements
   }
 
   /**
-   * @param options.maxzoom
+   * @param option.maxzoom
    * Maximum of zoom, by default it's 10.0 (1000%)
    * 
-   * @param options.minzoom
+   * @param option.minzoom
    * Minimum of zoom, by default it's 0.1 (10%)
    * 
-   * @param options.stage
+   * @param option.stage
    * The Container inside Camera
    * 
-   * @param options.zoominKIO
+   * @param option.zoominKIO
    * KIO to zoom in, by default it's { ctrlKey, Equal }
    * 
-   * @param options.zoomoutKIO
+   * @param option.zoomoutKIO
    * KIO to zoom out, by default it's { ctrlKey, Minus }
    * 
-   * @param options.zoomwheelKIO
+   * @param option.zoomwheelKIO
    * KIO to zoom with wheel, by default it's { ctrlKey }
    */
   constructor(
-      options?: {
+      option?: {
         maxzoom?: number,
         minzoom?: number,
         stage?: DisplayObject,
@@ -150,20 +150,20 @@ implements
     };
 
     this.event = new EventEmitter();
-    this.maxzoom = options?.maxzoom || 10;
-    this.minzoom = options?.minzoom || .1;
-    this.stage = options?.stage;
+    this.maxzoom = option?.maxzoom || 10;
+    this.minzoom = option?.minzoom || .1;
+    this.stage = option?.stage;
 
     this.zoominKIO =
-      options?.zoominKIO ||
+      option?.zoominKIO ||
       new KeyboardInputOption({ ctrlKey: true, code: 'Equal' });
 
     this.zoomoutKIO =
-      options?.zoomoutKIO ||
+      option?.zoomoutKIO ||
       new KeyboardInputOption({ ctrlKey: true, code: 'Minus' });
 
     this.zoomwheelKIO =
-      options?.zoomwheelKIO ||
+      option?.zoomwheelKIO ||
       new KeyboardInputOption({ ctrlKey: true });
 
     this.addChild(this._viewport);
@@ -179,12 +179,15 @@ implements
 
     (this._client as any) = undefined;
     this._dragging = false;
+
     this._viewport.destroy();
     (this._viewport as any) = undefined;
+
     (this._zoominout as any) = undefined;
 
     this.event.removeAllListeners();
     (this.event as any) = undefined;
+
     this.maxzoom = Infinity;
     this.minzoom = 0;
     (this.zoominKIO as any) = undefined;

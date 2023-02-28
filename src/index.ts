@@ -1,6 +1,9 @@
-import { BitmapText } from 'pixi.js';
-import { uiFontName } from './resource';
-import { PixelPerChunk } from './tool/LengthUnit';
+import {
+  BitmapText,
+} from 'pixi.js';
+import {
+  uiFontName,
+} from './resource';
 import {
   app,
   appProfiles,
@@ -40,7 +43,7 @@ const centerPivot =
     {
       fontName: uiFontName,
       align: 'left',
-      tint: 0xccaa00,
+      tint: 0xa44444,
       fontSize: 10
     }
   );
@@ -51,8 +54,6 @@ zone
 
 centerPivot.anchor.set(0.5);
 
-centerPivot.position
-.set(Math.trunc(PixelPerChunk / 2));
 // [TODO end]
 
 updateAppProfiles();

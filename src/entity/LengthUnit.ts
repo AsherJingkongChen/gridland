@@ -1,15 +1,15 @@
 export const PixelPerGrid = 32;
-export const GridPerChunk = 2;
-export const ChunkPerZone = 5;
+export const GridPerChunk = 64;
+export const ChunkPerZone = 16;
 
 /**
- * 64
+ * 2048
  */
 export const PixelPerChunk =
   PixelPerGrid * GridPerChunk;
 
 /**
- * 2
+ * 8
  */
 export const HalfChunkPerZone =
   Math.trunc(ChunkPerZone / 2);

@@ -2,6 +2,7 @@ import {
   IVec2,
   Vec2,
   Vec2Symbol,
+  PixelPerChunk,
 } from '../entity';
 import {
   Container,
@@ -14,9 +15,6 @@ import {
 import {
   gridLightTexture,
 } from '../resource';
-import {
-  PixelPerChunk,
-} from '../tool';
 
 export class Zone extends Container {
   public world: World;
@@ -33,6 +31,20 @@ export class Zone extends Container {
     this._center = new Vec2();
     this._chunks = new Map();
     this._chunkSprites = new Map();
+  }
+
+  public override destroy() {
+    super.destroy({ children: true });
+
+    (this._center as any) = undefined;
+
+    this._chunks.clear();
+    (this._chunks as any) = undefined;
+
+    this._chunkSprites.clear();
+    (this._chunkSprites as any) = undefined;
+
+    (this.world as any) = undefined;
   }
 
   /**

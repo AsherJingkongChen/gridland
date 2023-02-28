@@ -10,15 +10,15 @@ import {
   zone,
 } from '../component';
 import {
-  ChunkPerZone,
-  HalfChunkPerZone,
-  PixelPerChunk,
-  PixelPerGrid,
   serialize,
 } from '../tool';
 import {
   Vec2,
   Vec2Symbol,
+  ChunkPerZone,
+  HalfChunkPerZone,
+  PixelPerChunk,
+  PixelPerGrid,
 } from '../entity';
 import {
   Chunk,
@@ -45,7 +45,7 @@ const lengthLiteral = (pixel: number) => {
   return (
     `{ ` +
     `${Math.floor(pixel)}P, ` +
-    `${(pixel / PixelPerGrid).toFixed(1)}G, ` +
+    `${Math.floor(pixel / PixelPerGrid)}G, ` +
     `${(pixel / PixelPerChunk).toFixed(1)}C` +
     ` }`
   );
@@ -113,9 +113,12 @@ export const updateChunksAt =
 
     for (const [ key, { x, y } ] of newChunksPos) {
       if (! oldChunks.has(key)) {
-        zone.setChunk(
-          await Chunk.Get({ worldid, x, y })
-        );
+        let chunk = await Chunk.Read({ worldid, x, y });
+        if (! chunk) {
+          chunk = await Chunk.Create({ worldid, x, y });
+        }
+
+        zone.setChunk(chunk);
       }
     }
   };

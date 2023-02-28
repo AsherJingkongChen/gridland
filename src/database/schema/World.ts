@@ -1,25 +1,22 @@
-import { ISchema } from './ISchema';
-
 export interface IWorld {
-  chunkcount: number;
   name: string;
 };
 
-export class World implements IWorld, ISchema {
+export class World implements IWorld {
   public static readonly Indexes =
     '++&id, ' +
+    'chunkcount, ' +
     'createdate, ' +
-    'name, ' +
-    'chunkcount';
+    'name';
 
   public readonly id!: number;
-  public readonly createdate: Date;
   public chunkcount: number;
+  public readonly createdate: Date;
   public name: string;
 
-  constructor(options: IWorld) {
-    this.createdate = new Date();
+  constructor(option: IWorld) {
     this.chunkcount = 0;
-    this.name = options.name;
+    this.createdate = new Date();
+    this.name = option.name;
   }
 };

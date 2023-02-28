@@ -77,14 +77,14 @@ implements
   }
 
   /**
-   * @param options.opacity
+   * @param option.opacity
    * Alpha of background, by default it's 0.35
    * 
-   * @param options.toggleKIO
+   * @param option.toggleKIO
    * KIO to toggle Profiler to show or not, by default it's { F12 }
    */
   constructor(
-      options?: {
+      option?: {
         opacity?: number,
         toggleKIO?: KeyboardInputOption
       }
@@ -92,7 +92,7 @@ implements
 
     super();
 
-    this._opacity = options?.opacity || 0.35;
+    this._opacity = option?.opacity || 0.35;
     this._size = { width: 0, height: 0 };
 
     this._toggle = (e) => {
@@ -108,7 +108,7 @@ implements
     this.event = new EventEmitter();
 
     this.toggleKIO =
-      options?.toggleKIO ||
+      option?.toggleKIO ||
       new KeyboardInputOption({ code: 'F12' });
 
     this
@@ -120,7 +120,8 @@ implements
   }
 
   public override destroy() {
-    super.destroy();
+    super.destroy({ children: true });
+
     this.detach();
     window.removeEventListener('keydown', this._toggle);
 
@@ -130,6 +131,7 @@ implements
 
     this.event.removeAllListeners();
     (this.event as any) = undefined;
+
     (this.toggleKIO as any) = undefined;
   }
 

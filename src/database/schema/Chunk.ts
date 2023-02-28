@@ -1,5 +1,4 @@
 import { Db } from '..';
-import { ISchema } from './ISchema';
 
 export interface IChunk {
   worldid: number;
@@ -7,50 +6,42 @@ export interface IChunk {
   y: number;
 };
 
-export class Chunk implements IChunk, ISchema {
+export class Chunk implements IChunk {
   public static readonly Indexes =
-    '++&id, ' +
+    '[worldid+x+y], ' +
     'createdate, ' +
-    'worldid, ' +
-    '[worldid+x+y]';
+    'worldid';
 
-  public readonly id!: number;
   public readonly createdate: Date;
-  public worldid: number;
-  public x: number;
-  public y: number;
+  public readonly worldid: number;
+  public readonly x: number;
+  public readonly y: number;
 
-  constructor(options: IChunk) {
+  constructor(option: IChunk) {
     this.createdate = new Date();
-    this.worldid = options.worldid;
-    this.x = options.x;
-    this.y = options.y;
+    this.worldid = option.worldid;
+    this.x = option.x;
+    this.y = option.y;
   }
 
-  public static async Get(
-      options: IChunk
+  /**
+   * Throws `ConstraintError` if the chunk exists
+   */
+  public static async Create(
+      chunk: IChunk
     ): Promise<Chunk> {
 
-    const oldChunk = await this.Read(options);
-    if (oldChunk) { return oldChunk; }
-
-    const newChunk = new Chunk(options);
+    const newChunk = new Chunk(chunk);
     await Db.chunks.add(newChunk);
-
     return newChunk;
   }
 
   public static async Read(
-      idOrOptions: number | IChunk
+      chunk: IChunk
     ): Promise<Chunk | undefined> {
 
-    if (typeof idOrOptions === 'number') {
-      return Db.chunks.get(idOrOptions);
-
-    } else {
-      const { worldid, x, y } = idOrOptions;
-      return Db.chunks.get({ worldid, x, y });
-    }
+    const { worldid, x, y } = chunk;
+    return Db.chunks.get([ worldid, x, y ]);
   }
 
   public static async Update(
@@ -62,13 +53,10 @@ export class Chunk implements IChunk, ISchema {
   }
 
   public static async Delete(
-      idOrOptions: number | IChunk
-    ): Promise<Chunk | undefined> {
+      chunk: IChunk
+    ): Promise<void> {
 
-    const chunk = await this.Read(idOrOptions);
-    if (! chunk) { return; }
-
-    await Db.chunks.delete(chunk.id);
-    return chunk;
+    const { worldid, x, y } = chunk;
+    await Db.chunks.delete([ worldid, x, y ]);
   }
 };

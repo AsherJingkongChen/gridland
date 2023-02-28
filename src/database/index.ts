@@ -8,7 +8,9 @@ import {
 } from './schema';
 
 export const Db = new class Db extends Dexie {
-  public get chunks(): Table<Chunk, number> {
+  public get chunks():
+      Table<Chunk, [number, number, number]> {
+
     return this.table(Chunk.name);
   }
 

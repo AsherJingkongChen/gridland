@@ -14,13 +14,13 @@ implements IKeyboardInputOption {
   public shiftKey: boolean;
 
   /**
-   * Build a KeyboardInputOption object from `options`
+   * Build a KeyboardInputOption object from `option`
    * 
-   * @param options.code
+   * @param option.code
    * must be one of KeyboardInputCodes
    */
   constructor(
-      options?: {
+      option?: {
         code?: KeyboardInputCodes,
         altKey?: boolean,
         ctrlKey?: boolean,
@@ -29,33 +29,33 @@ implements IKeyboardInputOption {
       }
     ) {
 
-    this.code = options?.code;
-    this.altKey = options?.altKey || false;
-    this.ctrlKey = options?.ctrlKey || false;
-    this.metaKey = options?.metaKey || false;
-    this.shiftKey = options?.shiftKey || false;
+    this.code = option?.code;
+    this.altKey = option?.altKey || false;
+    this.ctrlKey = option?.ctrlKey || false;
+    this.metaKey = option?.metaKey || false;
+    this.shiftKey = option?.shiftKey || false;
   }
 
   /**
    * Build a KeyboardInputOption object
    * from an IKeyboardInputOption onject
    * 
-   * @param other.code
+   * @param option.code
    * must be one of KeyboardInputCodes,
    * otherwise KeyboardInputOption.code will be undefined
    */
   public static From(
-      other?: IKeyboardInputOption
+      option?: IKeyboardInputOption
     ): KeyboardInputOption {
 
     return (
       new KeyboardInputOption({
-        code: (other?.code as string in KeyboardInputCodes)?
-              (other?.code as KeyboardInputCodes): (undefined),
-        altKey: other?.altKey,
-        ctrlKey: other?.ctrlKey,
-        metaKey: other?.metaKey,
-        shiftKey: other?.shiftKey
+        code: (option?.code as string in KeyboardInputCodes)?
+              (option?.code as KeyboardInputCodes): (undefined),
+        altKey: option?.altKey,
+        ctrlKey: option?.ctrlKey,
+        metaKey: option?.metaKey,
+        shiftKey: option?.shiftKey
       })
     );
   }
@@ -64,23 +64,23 @@ implements IKeyboardInputOption {
    * Compare two IKeyboardInputOption objects
    */
   public static Equal(
-      other: IKeyboardInputOption,
-      another: IKeyboardInputOption): boolean {
+      option1: IKeyboardInputOption,
+      option2: IKeyboardInputOption): boolean {
 
     return (
-      (other.code === another.code) &&
-      ((other.altKey || false) === (another.altKey || false)) &&
-      ((other.ctrlKey || false) === (another.ctrlKey || false)) &&
-      ((other.metaKey || false) === (another.metaKey || false)) &&
-      ((other.shiftKey || false) === (another.shiftKey || false))
+      (option1.code === option2.code) &&
+      ((option1.altKey || false) === (option2.altKey || false)) &&
+      ((option1.ctrlKey || false) === (option2.ctrlKey || false)) &&
+      ((option1.metaKey || false) === (option2.metaKey || false)) &&
+      ((option1.shiftKey || false) === (option2.shiftKey || false))
     );
   }
 
   /**
    * Compare to the other IKeyboardInputOption object
    */
-  public equal(other: IKeyboardInputOption): boolean {
-    return KeyboardInputOption.Equal(this, other);
+  public equal(option: IKeyboardInputOption): boolean {
+    return KeyboardInputOption.Equal(this, option);
   }
 };
 
