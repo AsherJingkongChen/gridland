@@ -1,12 +1,10 @@
 /**
  * KIO
- * 
+ *
  * Type to compare with types including
  * KeyboardEvent, MouseEvent and etc.
  */
-export class KeyboardInputOption
-implements IKeyboardInputOption {
-
+export class KeyboardInputOption implements IKeyboardInputOption {
   public code?: KeyboardInputCodes;
   public altKey: boolean;
   public ctrlKey: boolean;
@@ -15,20 +13,17 @@ implements IKeyboardInputOption {
 
   /**
    * Build a KeyboardInputOption object from `option`
-   * 
+   *
    * @param option.code
    * must be one of KeyboardInputCodes
    */
-  constructor(
-      option?: {
-        code?: KeyboardInputCodes,
-        altKey?: boolean,
-        ctrlKey?: boolean,
-        metaKey?: boolean,
-        shiftKey?: boolean
-      }
-    ) {
-
+  constructor(option?: {
+    code?: KeyboardInputCodes;
+    altKey?: boolean;
+    ctrlKey?: boolean;
+    metaKey?: boolean;
+    shiftKey?: boolean;
+  }) {
     this.code = option?.code;
     this.altKey = option?.altKey || false;
     this.ctrlKey = option?.ctrlKey || false;
@@ -39,40 +34,39 @@ implements IKeyboardInputOption {
   /**
    * Build a KeyboardInputOption object
    * from an IKeyboardInputOption onject
-   * 
+   *
    * @param option.code
    * must be one of KeyboardInputCodes,
    * otherwise KeyboardInputOption.code will be undefined
    */
   public static From(
-      option?: IKeyboardInputOption
-    ): KeyboardInputOption {
-
-    return (
-      new KeyboardInputOption({
-        code: (option?.code as string in KeyboardInputCodes)?
-              (option?.code as KeyboardInputCodes): (undefined),
-        altKey: option?.altKey,
-        ctrlKey: option?.ctrlKey,
-        metaKey: option?.metaKey,
-        shiftKey: option?.shiftKey
-      })
-    );
+    option?: IKeyboardInputOption
+  ): KeyboardInputOption {
+    return new KeyboardInputOption({
+      code:
+        (option?.code as string) in KeyboardInputCodes
+          ? (option?.code as KeyboardInputCodes)
+          : undefined,
+      altKey: option?.altKey,
+      ctrlKey: option?.ctrlKey,
+      metaKey: option?.metaKey,
+      shiftKey: option?.shiftKey
+    });
   }
 
   /**
    * Compare two IKeyboardInputOption objects
    */
   public static Equal(
-      option1: IKeyboardInputOption,
-      option2: IKeyboardInputOption): boolean {
-
+    option1: IKeyboardInputOption,
+    option2: IKeyboardInputOption
+  ): boolean {
     return (
-      (option1.code === option2.code) &&
-      ((option1.altKey || false) === (option2.altKey || false)) &&
-      ((option1.ctrlKey || false) === (option2.ctrlKey || false)) &&
-      ((option1.metaKey || false) === (option2.metaKey || false)) &&
-      ((option1.shiftKey || false) === (option2.shiftKey || false))
+      option1.code === option2.code &&
+      (option1.altKey || false) === (option2.altKey || false) &&
+      (option1.ctrlKey || false) === (option2.ctrlKey || false) &&
+      (option1.metaKey || false) === (option2.metaKey || false) &&
+      (option1.shiftKey || false) === (option2.shiftKey || false)
     );
   }
 
@@ -82,11 +76,11 @@ implements IKeyboardInputOption {
   public equal(option: IKeyboardInputOption): boolean {
     return KeyboardInputOption.Equal(this, option);
   }
-};
+}
 
 /**
  * IKIO
- * 
+ *
  * Interface that is compatible to types including
  * KeyboardEvent, MouseEvent and etc.
  */
@@ -96,7 +90,7 @@ export interface IKeyboardInputOption {
   ctrlKey?: boolean;
   metaKey?: boolean;
   shiftKey?: boolean;
-};
+}
 
 /**
  * Valid values of KeyboardEvent.code
@@ -179,5 +173,4 @@ export const KeyboardInputCodes = {
 /**
  * Valid values of KeyboardEvent.code
  */
-export type KeyboardInputCodes =
-  keyof typeof KeyboardInputCodes;
+export type KeyboardInputCodes = keyof typeof KeyboardInputCodes;

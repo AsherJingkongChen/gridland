@@ -1,20 +1,7 @@
-import {
-  IVec2,
-  Vec2,
-  Vec2Symbol,
-  PixelPerChunk,
-} from '../entity';
-import {
-  Container,
-  TilingSprite,
-} from 'pixi.js';
-import {
-  Chunk,
-  World,
-} from '../database';
-import {
-  gridLightTexture,
-} from '../resource';
+import { IVec2, Vec2, Vec2Symbol, PixelPerChunk } from '../entity';
+import { Container, TilingSprite } from 'pixi.js';
+import { Chunk, World } from '../database';
+import { gridLightTexture } from '../resource';
 
 export class Zone extends Container {
   public world: World;
@@ -49,13 +36,11 @@ export class Zone extends Container {
 
   /**
    * Move center in chunk coordinates system
-   * 
+   *
    * @returns true if the center moves
    */
   public recenter(center: IVec2): boolean {
-    if (center.x === this._center.x &&
-        center.y === this._center.y) {
-
+    if (center.x === this._center.x && center.y === this._center.y) {
       return false;
     }
 
@@ -68,13 +53,9 @@ export class Zone extends Container {
     return this._chunks;
   }
 
-  public getChunk(
-      keyOrPos: Vec2Symbol | IVec2
-    ): Chunk | undefined {
-
+  public getChunk(keyOrPos: Vec2Symbol | IVec2): Chunk | undefined {
     if (typeof keyOrPos === 'symbol') {
       return this._chunks.get(keyOrPos);
-
     } else {
       return this._chunks.get(Vec2.Key(keyOrPos));
     }
@@ -84,25 +65,18 @@ export class Zone extends Container {
     const key = Vec2.Key(chunk);
     this._chunks.set(key, chunk);
 
-    if (! this._chunkSprites.has(key)) {
-      const chunkSprite =
-        TilingSprite.from(
-          gridLightTexture,
-          {
-            width: PixelPerChunk,
-            height: PixelPerChunk,
-          }
-        );
+    if (!this._chunkSprites.has(key)) {
+      const chunkSprite = TilingSprite.from(gridLightTexture, {
+        width: PixelPerChunk,
+        height: PixelPerChunk
+      });
 
       chunkSprite.position.set(
         chunk.x * PixelPerChunk,
         chunk.y * PixelPerChunk
       );
 
-      this._chunkSprites.set(
-        key,
-        this.addChild(chunkSprite)
-      );
+      this._chunkSprites.set(key, this.addChild(chunkSprite));
     }
   }
 
@@ -110,25 +84,20 @@ export class Zone extends Container {
     const key = Vec2.Key(chunk);
 
     if (this._chunks.delete(key)) {
-      this.removeChild(
-        this._chunkSprites.get(key)!
-      );
+      this.removeChild(this._chunkSprites.get(key)!);
       return this._chunkSprites.delete(key);
-
     } else {
       return false;
     }
   }
 
   public getChunkSprite(
-      keyOrPos: Vec2Symbol | IVec2
-    ): TilingSprite | undefined {
-
+    keyOrPos: Vec2Symbol | IVec2
+  ): TilingSprite | undefined {
     if (typeof keyOrPos === 'symbol') {
       return this._chunkSprites.get(keyOrPos);
-
     } else {
       return this._chunkSprites.get(Vec2.Key(keyOrPos));
     }
   }
-};
+}

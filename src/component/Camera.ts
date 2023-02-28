@@ -1,22 +1,13 @@
-import {
-  Attachable,
-  Eventable,
-  EventEmitter,
-} from '../design';
-import {
-  KeyboardInputOption,
-} from '../entity';
-
+import { Attachable, Eventable, EventEmitter } from '../design';
+import { KeyboardInputOption } from '../entity';
 import {
   Container,
   DisplayObject,
   FederatedMouseEvent,
   FederatedWheelEvent,
-  Point,
+  Point
 } from 'pixi.js';
-import {
-  windowPreventDefault,
-} from '../tool';
+import { windowPreventDefault } from '../tool';
 
 windowPreventDefault('wheel');
 windowPreventDefault('keydown');
@@ -25,11 +16,9 @@ windowPreventDefault('keydown');
  * Simple auto camera, moves via x and y, zooms via zoom
  */
 export class Camera
-extends Container
-implements
-    Attachable,
-    Eventable<CameraEvents> {
-
+  extends Container
+  implements Attachable, Eventable<CameraEvents>
+{
   public event: EventEmitter<CameraEvents>;
   public maxzoom: number;
   public minzoom: number;
@@ -107,33 +96,30 @@ implements
   /**
    * @param option.maxzoom
    * Maximum of zoom, by default it's 10.0 (1000%)
-   * 
+   *
    * @param option.minzoom
    * Minimum of zoom, by default it's 0.1 (10%)
-   * 
+   *
    * @param option.stage
    * The Container inside Camera
-   * 
+   *
    * @param option.zoominKIO
    * KIO to zoom in, by default it's { ctrlKey, Equal }
-   * 
+   *
    * @param option.zoomoutKIO
    * KIO to zoom out, by default it's { ctrlKey, Minus }
-   * 
+   *
    * @param option.zoomwheelKIO
    * KIO to zoom with wheel, by default it's { ctrlKey }
    */
-  constructor(
-      option?: {
-        maxzoom?: number,
-        minzoom?: number,
-        stage?: DisplayObject,
-        zoominKIO?: KeyboardInputOption,
-        zoomoutKIO?: KeyboardInputOption,
-        zoomwheelKIO?: KeyboardInputOption
-      }
-    ) {
-
+  constructor(option?: {
+    maxzoom?: number;
+    minzoom?: number;
+    stage?: DisplayObject;
+    zoominKIO?: KeyboardInputOption;
+    zoomoutKIO?: KeyboardInputOption;
+    zoomwheelKIO?: KeyboardInputOption;
+  }) {
     super();
 
     this._client = new Point();
@@ -143,7 +129,6 @@ implements
     this._zoominout = (e) => {
       if (this.zoominKIO.equal(e)) {
         this._zoomOnWindow(+10);
-
       } else if (this.zoomoutKIO.equal(e)) {
         this._zoomOnWindow(-10);
       }
@@ -151,7 +136,7 @@ implements
 
     this.event = new EventEmitter();
     this.maxzoom = option?.maxzoom || 10;
-    this.minzoom = option?.minzoom || .1;
+    this.minzoom = option?.minzoom || 0.1;
     this.stage = option?.stage;
 
     this.zoominKIO =
@@ -168,9 +153,7 @@ implements
 
     this.addChild(this._viewport);
 
-    this
-    .on('added', this.attach)
-    .on('removed', this.detach);
+    this.on('added', this.attach).on('removed', this.detach);
   }
 
   public override destroy() {
@@ -201,12 +184,11 @@ implements
     this.interactive = true;
     this.visible = true;
 
-    this
-    .on('mousedown', this._onmousedown)
-    .on('mousemove', this._onmousemove)
-    .on('mouseup', this._onmouseup)
-    .on('mouseupoutside', this._onmouseupoutside)
-    .on('wheel', this._onwheel);
+    this.on('mousedown', this._onmousedown)
+      .on('mousemove', this._onmousemove)
+      .on('mouseup', this._onmouseup)
+      .on('mouseupoutside', this._onmouseupoutside)
+      .on('wheel', this._onwheel);
 
     window.addEventListener('keydown', this._zoominout);
   }
@@ -215,12 +197,11 @@ implements
     this.interactive = false;
     this.visible = false;
 
-    this
-    .off('mousedown', this._onmousedown)
-    .off('mousemove', this._onmousemove)
-    .off('mouseup', this._onmouseup)
-    .off('mouseupoutside', this._onmouseupoutside)
-    .off('wheel', this._onwheel);
+    this.off('mousedown', this._onmousedown)
+      .off('mousemove', this._onmousemove)
+      .off('mouseup', this._onmouseup)
+      .off('mouseupoutside', this._onmouseupoutside)
+      .off('wheel', this._onwheel);
 
     window.removeEventListener('keydown', this._zoominout);
   }
@@ -281,15 +262,20 @@ implements
    */
   private _zoomOnWindow(delta: number) {
     if (delta >= 0) {
-      this.zoom =
-        Math.min(this.maxzoom, this.zoom * (1 + delta / 50));
+      this.zoom = Math.min(
+        this.maxzoom,
+        this.zoom * (1 + delta / 50)
+      );
     } else {
-      this.zoom =
-        Math.max(this.minzoom, this.zoom / (1 + -delta / 50));
+      this.zoom = Math.max(
+        this.minzoom,
+        this.zoom / (1 + -delta / 50)
+      );
     }
+
     this.event.emit('zoom', this);
   }
-};
+}
 
 export interface CameraEvents {
   drag: [camera: Camera];

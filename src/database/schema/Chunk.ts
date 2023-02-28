@@ -47,7 +47,7 @@ export class Chunk implements IChunk {
   public static async Update(
       chunk: Chunk
     ): Promise<Chunk> {
-
+ 
     await Db.chunks.put(chunk);
     return chunk;
   }
