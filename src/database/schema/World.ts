@@ -1,13 +1,10 @@
 export interface IWorld {
   name: string;
-};
+}
 
 export class World implements IWorld {
   public static readonly Indexes =
-    '++&id, ' +
-    'chunkcount, ' +
-    'createdate, ' +
-    'name';
+    '++&id, ' + 'chunkcount, ' + 'createdate, ' + 'name';
 
   public readonly id!: number;
   public chunkcount: number;
@@ -19,4 +16,4 @@ export class World implements IWorld {
     this.createdate = new Date();
     this.name = option.name;
   }
-};
+}

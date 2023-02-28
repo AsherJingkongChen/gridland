@@ -1,9 +1,5 @@
-import {
-  BitmapText,
-} from 'pixi.js';
-import {
-  uiFontName,
-} from './resource';
+import { BitmapText } from 'pixi.js';
+import { uiFontName } from './resource';
 import {
   app,
   appProfiles,
@@ -17,18 +13,12 @@ import {
   updateAppProfiles,
   updateCameraProfiles,
   updateChunks,
-  updateChunksAt,
+  updateChunksAt
 } from './script';
 
-app.stage.addChild(
-  camera,
-  profiler
-);
+app.stage.addChild(camera, profiler);
 
-profiler.addChild(
-  appProfiles,
-  cameraProfiles
-);
+profiler.addChild(appProfiles, cameraProfiles);
 
 camera.stage = zone;
 camera.x -= window.innerWidth / 2;
@@ -37,20 +27,14 @@ camera.y -= window.innerHeight / 2;
 await updateChunksAt(0, 0);
 
 // [TODO]
-const centerPivot =
-  new BitmapText(
-    '-X-',
-    {
-      fontName: uiFontName,
-      align: 'left',
-      tint: 0xa44444,
-      fontSize: 10
-    }
-  );
+const centerPivot = new BitmapText('-X-', {
+  fontName: uiFontName,
+  align: 'left',
+  tint: 0xa44444,
+  fontSize: 10
+});
 
-zone
-.getChunkSprite({ x: 0, y: 0 })
-?.addChild(centerPivot);
+zone.getChunkSprite({ x: 0, y: 0 })?.addChild(centerPivot);
 
 centerPivot.anchor.set(0.5);
 
@@ -63,9 +47,9 @@ resizeProfiler();
 cameraProfiles.position.y = appProfiles.height;
 
 camera.event
-.on('move', updateCameraProfiles)
-.on('zoom', updateCameraProfiles)
-.on('move', updateChunks);
+  .on('move', updateCameraProfiles)
+  .on('zoom', updateCameraProfiles)
+  .on('move', updateChunks);
 
 window.addEventListener('resize', resizeProfiler);
 app.ticker.add(updateAppProfiles);
