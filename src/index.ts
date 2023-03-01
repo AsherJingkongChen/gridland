@@ -24,8 +24,6 @@ camera.stage = zone;
 camera.x -= window.innerWidth / 2;
 camera.y -= window.innerHeight / 2;
 
-await updateChunksAt(0, 0);
-
 // [TODO]
 const centerPivot = new BitmapText('-X-', {
   fontName: uiFontName,
@@ -34,9 +32,12 @@ const centerPivot = new BitmapText('-X-', {
   fontSize: 10
 });
 
-zone.getChunkSprite({ x: 0, y: 0 })?.addChild(centerPivot);
+await updateChunksAt(0, 0);
 
-centerPivot.anchor.set(0.5);
+zone
+  .getChunkSprite({ x: 0, y: 0 })
+  ?.addChild(centerPivot)
+  .anchor.set(0.5);
 
 // [TODO end]
 

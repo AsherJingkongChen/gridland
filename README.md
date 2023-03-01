@@ -9,14 +9,16 @@
 
 - For development: `npm run dev`
 - For production: `npm run build`
+- For linting & formatting: `npm run lint`
 
 ## Techstack
 
-- Dexie
-- NPM
-- Pixi.js
-- Typescript
-- Webpack
+- Database - `Dexie`
+- Package Management - `NPM`
+- Rendering Engine - `Pixi.js`
+- Code Formatter - `Prettier`
+- First Language - `Typescript`
+- Bundler - `Webpack`
 
 ## [Version](doc/version.md)
 

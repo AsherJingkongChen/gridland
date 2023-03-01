@@ -1,5 +1,6 @@
 import { Container } from 'pixi.js';
 
+/* eslint-disable no-console */
 export const containerTreeLog = (
   root: Container,
   maxDepth = 3
@@ -28,3 +29,4 @@ const treelogHelper = (
   }
   return result;
 };
+/* eslint-enable no-console */

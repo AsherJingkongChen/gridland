@@ -28,6 +28,4 @@ export const Db = new (class Db extends Dexie {
   }
 })();
 
-console.log(Db); // [LOG]
-
 export * from './schema';
