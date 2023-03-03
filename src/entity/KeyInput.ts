@@ -1,31 +1,43 @@
 /**
- * KIO
+ * Interface that is compatible to types including
+ * KeyboardEvent, MouseEvent and etc.
+ */
+export interface IKeyInput {
+  code?: string;
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+}
+
+export interface OKeyInput {
+  code?: KeyInputCodes;
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+}
+
+/**
+ * KeyInput a.k.a. KI
  *
  * Type to compare with types including
  * KeyboardEvent, MouseEvent and etc.
  */
-export class KeyboardInputOption
-  implements IKeyboardInputOption
-{
-  public code?: KeyboardInputCodes;
+export class KeyInput implements IKeyInput {
+  public code?: KeyInputCodes;
   public altKey: boolean;
   public ctrlKey: boolean;
   public metaKey: boolean;
   public shiftKey: boolean;
 
   /**
-   * Build a KeyboardInputOption object from `option`
+   * Build a KeyInput object from `option`
    *
    * @param option.code
-   * must be one of KeyboardInputCodes
+   * must be one of KeyInputCodes
    */
-  constructor(option?: {
-    code?: KeyboardInputCodes;
-    altKey?: boolean;
-    ctrlKey?: boolean;
-    metaKey?: boolean;
-    shiftKey?: boolean;
-  }) {
+  constructor(option?: OKeyInput) {
     this.code = option?.code;
     this.altKey = option?.altKey || false;
     this.ctrlKey = option?.ctrlKey || false;
@@ -34,74 +46,58 @@ export class KeyboardInputOption
   }
 
   /**
-   * Build a KeyboardInputOption object
-   * from an IKeyboardInputOption onject
+   * Build a KeyInput object
+   * from an IKeyInput onject
    *
-   * @param option.code
-   * must be one of KeyboardInputCodes,
-   * otherwise KeyboardInputOption.code will be undefined
+   * @param input.code
+   * must be one of KeyInputCodes,
+   * otherwise KeyInput.code will be undefined
    */
-  public static From(
-    option?: IKeyboardInputOption
-  ): KeyboardInputOption {
-    return new KeyboardInputOption({
+  public static From(input?: IKeyInput): KeyInput {
+    return new KeyInput({
       code:
-        (option?.code as string) in KeyboardInputCodes
-          ? (option?.code as KeyboardInputCodes)
+        (input?.code as string) in KeyInputCodes
+          ? (input?.code as KeyInputCodes)
           : undefined,
-      altKey: option?.altKey,
-      ctrlKey: option?.ctrlKey,
-      metaKey: option?.metaKey,
-      shiftKey: option?.shiftKey
+      altKey: input?.altKey,
+      ctrlKey: input?.ctrlKey,
+      metaKey: input?.metaKey,
+      shiftKey: input?.shiftKey
     });
   }
 
   /**
-   * Compare two IKeyboardInputOption objects
+   * Compare two IKeyInput objects
    */
   public static Equal(
-    option1: IKeyboardInputOption,
-    option2: IKeyboardInputOption
+    input1: IKeyInput,
+    input2: IKeyInput
   ): boolean {
     return (
-      option1.code === option2.code &&
-      (option1.altKey || false) ===
-        (option2.altKey || false) &&
-      (option1.ctrlKey || false) ===
-        (option2.ctrlKey || false) &&
-      (option1.metaKey || false) ===
-        (option2.metaKey || false) &&
-      (option1.shiftKey || false) ===
-        (option2.shiftKey || false)
+      input1.code === input2.code &&
+      (input1.altKey || false) ===
+        (input2.altKey || false) &&
+      (input1.ctrlKey || false) ===
+        (input2.ctrlKey || false) &&
+      (input1.metaKey || false) ===
+        (input2.metaKey || false) &&
+      (input1.shiftKey || false) ===
+        (input2.shiftKey || false)
     );
   }
 
   /**
-   * Compare to the other IKeyboardInputOption object
+   * Compare to the other IKeyInput object
    */
-  public equal(option: IKeyboardInputOption): boolean {
-    return KeyboardInputOption.Equal(this, option);
+  public equal(input: IKeyInput): boolean {
+    return KeyInput.Equal(this, input);
   }
-}
-
-/**
- * IKIO
- *
- * Interface that is compatible to types including
- * KeyboardEvent, MouseEvent and etc.
- */
-export interface IKeyboardInputOption {
-  code?: string;
-  altKey?: boolean;
-  ctrlKey?: boolean;
-  metaKey?: boolean;
-  shiftKey?: boolean;
 }
 
 /**
  * Valid values of KeyboardEvent.code
  */
-export const KeyboardInputCodes = {
+export const KeyInputCodes = {
   Backquote: undefined,
   Digit1: undefined,
   Digit2: undefined,
@@ -179,5 +175,4 @@ export const KeyboardInputCodes = {
 /**
  * Valid values of KeyboardEvent.code
  */
-export type KeyboardInputCodes =
-  keyof typeof KeyboardInputCodes;
+export type KeyInputCodes = keyof typeof KeyInputCodes;

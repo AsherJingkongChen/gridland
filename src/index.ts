@@ -1,56 +1,38 @@
-import { BitmapText } from 'pixi.js';
-import { uiFontName } from './resource';
+import { render } from 'solid-js/web';
 import {
-  app,
-  appProfiles,
-  camera,
-  cameraProfiles,
-  profiler,
-  zone
-} from './component';
+  updateFps,
+  onCameraMove,
+  onCameraZoom
+} from './script/index';
+import { app, camera, profiler, zone } from './component';
 import {
-  resizeProfiler,
-  updateAppProfiles,
-  updateCameraProfiles,
+  closeApp,
   updateChunks,
-  updateChunksAt
+  updateChunksHelper
 } from './script';
 
-app.stage.addChild(camera, profiler);
-
-profiler.addChild(appProfiles, cameraProfiles);
+app.stage.addChild(camera);
 
 camera.stage = zone;
 camera.x -= window.innerWidth / 2;
 camera.y -= window.innerHeight / 2;
 
-// [TODO]
-const centerPivot = new BitmapText('-X-', {
-  fontName: uiFontName,
-  align: 'left',
-  tint: 0xa44444,
-  fontSize: 10
-});
-
-await updateChunksAt(0, 0);
-
-zone
-  .getChunkSprite({ x: 0, y: 0 })
-  ?.addChild(centerPivot)
-  .anchor.set(0.5);
+await updateChunksHelper();
+onCameraMove();
+onCameraZoom();
 
 // [TODO end]
 
-updateAppProfiles();
-updateCameraProfiles();
-resizeProfiler();
-
-cameraProfiles.position.y = appProfiles.height;
-
+app.ticker.add(updateFps);
 camera.event
-  .on('move', updateCameraProfiles)
-  .on('zoom', updateCameraProfiles)
+  .on('move', onCameraMove)
+  .on('zoom', onCameraZoom)
   .on('move', updateChunks);
+window.addEventListener('beforeunload', closeApp, {
+  once: true
+});
 
-window.addEventListener('resize', resizeProfiler);
-app.ticker.add(updateAppProfiles);
+render(
+  profiler.render,
+  document.getElementById('overstage') as HTMLDivElement
+);

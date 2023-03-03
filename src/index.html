@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>GridLand</title>
+  <meta name="viewport"
+  content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <link rel="icon" type="image/x-icon" href="./asset/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/monaco">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000000FF;
+    }
+    #stage, #overstage {
+      position: absolute;
+    }
+    #overstage {
+      pointer-events: none;
+    }
+    #profiler {
+      padding-top: 8px;
+      padding-left: 10px;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: #00000055
+    }
+    .UILight {
+      font-family:
+        Monaco,
+        'Lucida Console',
+        Courier,
+        monospace;
+      font-weight: 400;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="stage"></canvas>
+  <div id="overstage"></div>
+</body>
+
+</html>

@@ -1,7 +1,9 @@
 import { Table, Dexie } from 'dexie';
 import { Chunk, World } from './schema';
 
-export const Db = new (class Db extends Dexie {
+export * from './schema';
+
+export const db = new (class db extends Dexie {
   public get chunks(): Table<
     Chunk,
     [number, number, number]
@@ -14,7 +16,7 @@ export const Db = new (class Db extends Dexie {
   }
 
   constructor() {
-    super('Db');
+    super('db');
 
     this.version(1).stores(
       Object.fromEntries([
@@ -27,5 +29,3 @@ export const Db = new (class Db extends Dexie {
     this.worlds.mapToClass(World);
   }
 })();
-
-export * from './schema';

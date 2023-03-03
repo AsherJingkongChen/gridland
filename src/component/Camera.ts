@@ -3,7 +3,7 @@ import {
   Eventable,
   EventEmitter
 } from '../design';
-import { KeyboardInputOption } from '../entity';
+import { KeyInput } from '../entity';
 import {
   Container,
   DisplayObject,
@@ -13,8 +13,8 @@ import {
 } from 'pixi.js';
 import { windowPreventDefault } from '../tool';
 
-windowPreventDefault('wheel');
 windowPreventDefault('keydown');
+windowPreventDefault('wheel');
 
 /**
  * Simple auto camera, moves via x and y, zooms via zoom
@@ -26,9 +26,9 @@ export class Camera
   public event: EventEmitter<CameraEvents>;
   public maxzoom: number;
   public minzoom: number;
-  public zoominKIO: KeyboardInputOption;
-  public zoomoutKIO: KeyboardInputOption;
-  public zoomwheelKIO: KeyboardInputOption;
+  public zoominKI: KeyInput;
+  public zoomoutKI: KeyInput;
+  public zoomwheelKI: KeyInput;
 
   private _client: Point;
   private _dragging: boolean;
@@ -55,28 +55,28 @@ export class Camera
   }
 
   /**
-   * Local x
+   * x of the local position
    */
   public override get x(): number {
     return this._viewport.pivot.x;
   }
 
   /**
-   * Local x
+   * x of the local position
    */
   public override set x(x: number) {
     this._viewport.pivot.x = x;
   }
 
   /**
-   * Local y
+   * y of the local position
    */
   public override get y(): number {
     return this._viewport.pivot.y;
   }
 
   /**
-   * Local y
+   * y of the local position
    */
   public override set y(y: number) {
     this._viewport.pivot.y = y;
@@ -107,22 +107,22 @@ export class Camera
    * @param option.stage
    * The Container inside Camera
    *
-   * @param option.zoominKIO
-   * KIO to zoom in, by default it's { ctrlKey, Equal }
+   * @param option.zoominKI
+   * KI to zoom in, by default it's { ctrlKey, Equal }
    *
-   * @param option.zoomoutKIO
-   * KIO to zoom out, by default it's { ctrlKey, Minus }
+   * @param option.zoomoutKI
+   * KI to zoom out, by default it's { ctrlKey, Minus }
    *
-   * @param option.zoomwheelKIO
-   * KIO to zoom with wheel, by default it's { ctrlKey }
+   * @param option.zoomwheelKI
+   * KI to zoom with wheel, by default it's { ctrlKey }
    */
   constructor(option?: {
     maxzoom?: number;
     minzoom?: number;
     stage?: DisplayObject;
-    zoominKIO?: KeyboardInputOption;
-    zoomoutKIO?: KeyboardInputOption;
-    zoomwheelKIO?: KeyboardInputOption;
+    zoominKI?: KeyInput;
+    zoomoutKI?: KeyInput;
+    zoomwheelKI?: KeyInput;
   }) {
     super();
 
@@ -131,9 +131,9 @@ export class Camera
     this._viewport = new Container();
 
     this._zoominout = (e) => {
-      if (this.zoominKIO.equal(e)) {
+      if (this.zoominKI.equal(e)) {
         this._zoomOnWindow(+10);
-      } else if (this.zoomoutKIO.equal(e)) {
+      } else if (this.zoomoutKI.equal(e)) {
         this._zoomOnWindow(-10);
       }
     };
@@ -143,23 +143,23 @@ export class Camera
     this.minzoom = option?.minzoom || 0.1;
     this.stage = option?.stage;
 
-    this.zoominKIO =
-      option?.zoominKIO ||
-      new KeyboardInputOption({
+    this.zoominKI =
+      option?.zoominKI ||
+      new KeyInput({
         ctrlKey: true,
         code: 'Equal'
       });
 
-    this.zoomoutKIO =
-      option?.zoomoutKIO ||
-      new KeyboardInputOption({
+    this.zoomoutKI =
+      option?.zoomoutKI ||
+      new KeyInput({
         ctrlKey: true,
         code: 'Minus'
       });
 
-    this.zoomwheelKIO =
-      option?.zoomwheelKIO ||
-      new KeyboardInputOption({ ctrlKey: true });
+    this.zoomwheelKI =
+      option?.zoomwheelKI ||
+      new KeyInput({ ctrlKey: true });
 
     this.addChild(this._viewport);
 
@@ -186,9 +186,9 @@ export class Camera
 
     this.maxzoom = Infinity;
     this.minzoom = 0;
-    (this.zoominKIO as unknown) = undefined;
-    (this.zoomoutKIO as unknown) = undefined;
-    (this.zoomwheelKIO as unknown) = undefined;
+    (this.zoominKI as unknown) = undefined;
+    (this.zoomoutKI as unknown) = undefined;
+    (this.zoomwheelKI as unknown) = undefined;
   }
 
   public attach() {
@@ -247,7 +247,7 @@ export class Camera
   }
 
   private _onwheel(e: FederatedWheelEvent) {
-    if (this.zoomwheelKIO.equal(e)) {
+    if (this.zoomwheelKI.equal(e)) {
       this._zoomOnWindow(-e.deltaY);
     }
   }
@@ -258,7 +258,6 @@ export class Camera
     this._viewport.position.x += newX - oldX;
     this._viewport.position.y += newY - oldY;
     this._client.copyFrom(client);
-
     this.event.emit('drag', this);
   }
 
@@ -274,7 +273,6 @@ export class Camera
       this._viewport.position
     );
     this._client.copyFrom(client);
-
     this.event.emit('move', this);
   }
 
@@ -293,7 +291,6 @@ export class Camera
         this.zoom / (1 + -delta / 50)
       );
     }
-
     this.event.emit('zoom', this);
   }
 }

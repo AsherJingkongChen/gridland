@@ -1,26 +1,21 @@
-import {
-  IVec2,
-  Vec2,
-  Vec2Symbol,
-  PixelPerChunk
-} from '../entity';
+import { IVec2, Vec2, PixelPerChunk } from '../entity';
 import { Container, TilingSprite } from 'pixi.js';
 import { Chunk, World } from '../database';
 import { gridLightTexture } from '../resource';
 
 export class Zone extends Container {
   public world: World;
+  public center: Vec2; // [TODO]
 
-  private _center: Vec2; // [TODO]
-  private _chunks: Map<Vec2Symbol, Chunk>;
-  private _chunkSprites: Map<Vec2Symbol, TilingSprite>;
+  private _chunks: Map<string, Chunk>;
+  private _chunkSprites: Map<string, TilingSprite>;
 
   constructor(world: World) {
     super();
 
     this.world = world;
 
-    this._center = new Vec2();
+    this.center = new Vec2();
     this._chunks = new Map();
     this._chunkSprites = new Map();
   }
@@ -28,7 +23,7 @@ export class Zone extends Container {
   public override destroy() {
     super.destroy({ children: true });
 
-    (this._center as unknown) = undefined;
+    (this.center as unknown) = undefined;
 
     this._chunks.clear();
     (this._chunks as unknown) = undefined;
@@ -39,32 +34,14 @@ export class Zone extends Container {
     (this.world as unknown) = undefined;
   }
 
-  /**
-   * Move center in chunk coordinates system
-   *
-   * @returns true if the center moves
-   */
-  public recenter(center: IVec2): boolean {
-    if (
-      center.x === this._center.x &&
-      center.y === this._center.y
-    ) {
-      return false;
-    }
-
-    this._center.x = center.x;
-    this._center.y = center.y;
-    return true;
-  }
-
-  public getChunks(): Map<Vec2Symbol, Chunk> {
+  public getChunks(): Map<string, Chunk> {
     return this._chunks;
   }
 
   public getChunk(
-    keyOrPos: Vec2Symbol | IVec2
+    keyOrPos: string | IVec2
   ): Chunk | undefined {
-    if (typeof keyOrPos === 'symbol') {
+    if (typeof keyOrPos === 'string') {
       return this._chunks.get(keyOrPos);
     } else {
       return this._chunks.get(Vec2.Key(keyOrPos));
@@ -98,21 +75,21 @@ export class Zone extends Container {
 
   public deleteChunk(chunk: Chunk): boolean {
     const key = Vec2.Key(chunk);
+    const exist = this._chunks.delete(key);
 
-    if (this._chunks.delete(key)) {
+    if (exist) {
       this.removeChild(
         this._chunkSprites.get(key) as TilingSprite
       );
-      return this._chunkSprites.delete(key);
-    } else {
-      return false;
+      this._chunkSprites.delete(key);
     }
+    return exist;
   }
 
   public getChunkSprite(
-    keyOrPos: Vec2Symbol | IVec2
+    keyOrPos: string | IVec2
   ): TilingSprite | undefined {
-    if (typeof keyOrPos === 'symbol') {
+    if (typeof keyOrPos === 'string') {
       return this._chunkSprites.get(keyOrPos);
     } else {
       return this._chunkSprites.get(Vec2.Key(keyOrPos));

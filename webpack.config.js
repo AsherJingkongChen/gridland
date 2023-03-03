@@ -4,11 +4,14 @@ const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
+const HtmlMinimizerPlugin = require('html-minimizer-webpack-plugin');
 
 module.exports = (env, argv) => {
-  return ({
-    stats: (argv.mode === 'development') ? 
-           'minimal' : undefined,
+  return {
+    stats:
+      argv.mode === 'development'
+        ? 'minimal'
+        : undefined,
     entry: './src/index.ts',
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -18,18 +21,20 @@ module.exports = (env, argv) => {
       compress: true,
       static: false,
       client: {
-        logging: "warn",
+        logging: 'warn',
         overlay: {
           errors: true,
-          warnings: true,
+          warnings: true
         },
-        progress: true,
+        progress: true
       },
       port: 8080
     },
     performance: { hints: false },
-    devtool: (argv.mode === 'development') ?
-             'source-map' : undefined,
+    devtool:
+      argv.mode === 'development'
+        ? 'source-map'
+        : undefined,
     optimization: {
       minimize: argv.mode === 'production',
       minimizer: [
@@ -37,38 +42,50 @@ module.exports = (env, argv) => {
           terserOptions: {
             ecma: 6,
             compress: { drop_console: true },
-            output: { comments: false, beautify: false },
+            output: {
+              comments: false,
+              beautify: false
+            }
           }
-        })
-      ],
+        }),
+        new HtmlMinimizerPlugin()
+      ]
     },
     module: {
       rules: [
         {
-          test: /\.ts(x)?$/,
-          loader: 'ts-loader',
-          exclude: /node_modules/
+          test: /\.tsx?$/,
+          exclude: /node_modules/,
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [ 'solid' ]
+              }
+            },
+            {
+              loader: 'ts-loader'
+            }
+          ]
         }
       ]
     },
     resolve: {
-      extensions: [
-        '.tsx',
-        '.ts',
-        '.js'
-      ]
+      extensions: ['.tsx', '.ts', '.jsx', '.js']
     },
     plugins: [
       // Copy our static assets to the final build
       new CopyPlugin({
-        patterns: [{ from: 'static/' }],
+        patterns: [
+          { from: './asset/', to: './asset/' }
+        ]
       }),
 
       // Make an index.html from the template
       new HtmlWebpackPlugin({
-        template: 'src/index.ejs',
+        template: './src/index.html',
         hash: true,
-        minify: false
+        minify: argv.mode === 'production'
       }),
 
       new SpeedMeasurePlugin({
@@ -78,5 +95,5 @@ module.exports = (env, argv) => {
     experiments: {
       topLevelAwait: true
     }
-  });
-}
+  };
+};

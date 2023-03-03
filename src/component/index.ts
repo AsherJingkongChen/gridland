@@ -1,6 +1,11 @@
-import { Application, BitmapText } from 'pixi.js';
-import { Db, World } from '../database';
-import { uiFontName } from '../resource';
+import {
+  PixelPerZone,
+  GridPerZone,
+  ChunkPerZone
+} from '../entity/LengthUnit';
+import { Application } from 'pixi.js';
+import { createSignal } from 'solid-js';
+import { db, World } from '../database';
 import { Camera } from './Camera';
 import { Profiler } from './Profiler';
 import { Zone } from './Zone';
@@ -15,13 +20,13 @@ export const app = new Application({
   ) as HTMLCanvasElement
 });
 
-await Db.delete(); // [TODO]
-await Db.open();
+await db.delete(); // [TODO]
+await db.open();
 
 export const zone = // [TODO]
   new Zone(
-    (await Db.worlds.get(
-      await Db.worlds.add(
+    (await db.worlds.get(
+      await db.worlds.add(
         new World({
           name: Math.random().toString(36).substring(2, 8)
         })
@@ -31,14 +36,43 @@ export const zone = // [TODO]
 
 export const camera = new Camera();
 
-export const profiler = new Profiler();
+const [_lengthUnit] = createSignal(
+  `${PixelPerZone} Pixels / ` +
+    `${GridPerZone} Grids / ` +
+    `${ChunkPerZone} Chunks / ` +
+    `1 Zone`
+);
+const [_renderer] = createSignal(
+  app.renderer.rendererLogId
+);
+const [_version] = createSignal('0.0.7');
+const [_chunks, _setChunks] = createSignal(0);
+const [_fps, _setFps] = createSignal('');
+const [_x, _setX] = createSignal('');
+const [_y, _setY] = createSignal('');
+const [_zoom, _setZoom] = createSignal('');
 
-export const appProfiles = new BitmapText('', {
-  fontName: uiFontName,
-  align: 'left'
-});
+export const profiles = {
+  get: {
+    lengthUnit: _lengthUnit,
+    renderer: _renderer,
+    version: _version,
+    '': () => '',
+    chunks: _chunks,
+    fps: _fps,
+    x: _x,
+    y: _y,
+    zoom: _zoom
+  },
+  set: {
+    chunks: _setChunks,
+    fps: _setFps,
+    x: _setX,
+    y: _setY,
+    zoom: _setZoom
+  }
+};
 
-export const cameraProfiles = new BitmapText('', {
-  fontName: uiFontName,
-  align: 'left'
-});
+export const profiler = new Profiler(
+  Object.entries(profiles.get)
+);

@@ -23,26 +23,34 @@
   "scripts": {
     "dev": "webpack serve --mode=development",
     "build": "webpack --mode=production",
-    "clear": "rm -rf dist",
+    "clear": "rm -rf dist/*",
     "test": "jest --coverage",
-    "lint": "eslint src/**/*.ts src/index.ts && prettier --write src/**/*.ts src/index.ts"
+    "lint": "prettier --write './src/**/*.{ts,tsx,js,jsx}' && eslint './src/**/*.{ts,tsx,js,jsx}'"
   },
   "lint-staged": {
     "./src/**/*.{ts,tsx,js,jsx}": [
+      "prettier --write",
+      "eslint"
+    ],
+    "./*.js": [
       "prettier --write",
       "eslint"
     ]
   },
   "dependencies": {
     "dexie": "^3.2.3",
-    "pixi.js": "^7.1.1"
+    "pixi.js": "^7.1.1",
+    "solid-js": "^1.6.11"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "babel-loader": "^9.1.2",
+    "babel-preset-solid": "^1.6.10",
     "copy-webpack-plugin": "^11.0.0",
     "eslint": "^8.35.0",
     "eslint-config-prettier": "^8.6.0",
+    "html-minimizer-webpack-plugin": "^4.3.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^8.0.3",
     "jest": "^29.4.2",

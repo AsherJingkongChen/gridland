@@ -1,6 +1,12 @@
-import { Db } from '..';
+import { db } from '..';
 
 export interface IChunk {
+  worldid: number;
+  x: number;
+  y: number;
+}
+
+export interface OChunk {
   worldid: number;
   x: number;
   y: number;
@@ -15,7 +21,7 @@ export class Chunk implements IChunk {
   public readonly x: number;
   public readonly y: number;
 
-  constructor(option: IChunk) {
+  constructor(option: OChunk) {
     this.createdate = new Date();
     this.worldid = option.worldid;
     this.x = option.x;
@@ -25,26 +31,32 @@ export class Chunk implements IChunk {
   /**
    * Throws `ConstraintError` if the chunk exists
    */
-  public static async Create(chunk: IChunk): Promise<Chunk> {
+  public static async Create(
+    chunk: OChunk
+  ): Promise<Chunk> {
     const newChunk = new Chunk(chunk);
-    await Db.chunks.add(newChunk);
+    await db.chunks.add(newChunk);
     return newChunk;
   }
 
-  public static async Read(
-    chunk: IChunk
-  ): Promise<Chunk | undefined> {
-    const { worldid, x, y } = chunk;
-    return Db.chunks.get([worldid, x, y]);
+  public static async Read({
+    worldid,
+    x,
+    y
+  }: OChunk): Promise<Chunk | undefined> {
+    return db.chunks.get([worldid, x, y]);
   }
 
   public static async Update(chunk: Chunk): Promise<Chunk> {
-    await Db.chunks.put(chunk);
+    await db.chunks.put(chunk);
     return chunk;
   }
 
-  public static async Delete(chunk: IChunk): Promise<void> {
-    const { worldid, x, y } = chunk;
-    await Db.chunks.delete([worldid, x, y]);
+  public static async Delete({
+    worldid,
+    x,
+    y
+  }: OChunk): Promise<void> {
+    await db.chunks.delete([worldid, x, y]);
   }
 }
