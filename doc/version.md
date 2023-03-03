@@ -48,3 +48,7 @@
   - GIF ![demo](../demo/v0.0.6.gif)
 
 ## 0.0.7
+  - Rewrite StatsPanel to Profiler with SolidJS UI Library, now each profile is a `Signal<string | number | boolean>`
+  - UI is seperated from PixiJS (WebGL)
+  - ESLint and Prettier is applied as code checker
+  - GIF ![demo](../demo/v0.0.7.gif)

@@ -15,11 +15,9 @@ camera.stage = zone;
 camera.x -= window.innerWidth / 2;
 camera.y -= window.innerHeight / 2;
 
-await updateChunksHelper();
+await updateChunksHelper(); // [TODO]
 onCameraMove();
 onCameraZoom();
-
-// [TODO end]
 
 app.ticker.add(updateFps);
 camera.event

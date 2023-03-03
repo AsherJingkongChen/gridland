@@ -23,16 +23,15 @@ export const app = new Application({
 await db.delete(); // [TODO]
 await db.open();
 
-export const zone = // [TODO]
-  new Zone(
-    (await db.worlds.get(
-      await db.worlds.add(
-        new World({
-          name: Math.random().toString(36).substring(2, 8)
-        })
-      )
-    )) as World
-  );
+export const zone = new Zone(
+  (await db.worlds.get(
+    await db.worlds.add(
+      new World({
+        name: Math.random().toString(36).substring(2, 8) // [TODO]
+      })
+    )
+  )) as World
+);
 
 export const camera = new Camera();
 

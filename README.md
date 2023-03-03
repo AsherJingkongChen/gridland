@@ -13,10 +13,11 @@
 
 ## Techstack
 
-- Database - `Dexie`
+- Database / IndexedDB - `Dexie`
 - Package Management - `NPM`
-- Rendering Engine - `Pixi.js`
+- Rendering Engine / WebGL - `Pixi.js`
 - Code Formatter - `Prettier`
+- User Interface / JSX - `SolidJS`
 - First Language - `Typescript`
 - Bundler - `Webpack`
 

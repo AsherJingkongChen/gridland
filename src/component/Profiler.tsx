@@ -54,7 +54,7 @@ export class Profiler
           class="UILight"
           style={{
             'font-size': 'small',
-            visibility: this.visibility()
+            visibility: this.visibility() // [TODO] Resize, text wrapping
           }}
         >
           <Show when={this.visibility() === 'visible'}>
