@@ -1,14 +1,12 @@
 import { render } from 'solid-js/web';
-import {
-  updateFps,
-  onCameraMove,
-  onCameraZoom
-} from './script/index';
 import { app, camera, profiler, zone } from './component';
 import {
   closeApp,
   updateChunks,
-  updateChunksHelper
+  updateChunksHelper,
+  updateFps,
+  onCameraMove,
+  onCameraZoom
 } from './script';
 
 app.stage.addChild(camera);

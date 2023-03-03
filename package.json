@@ -31,10 +31,6 @@
     "./src/**/*.{ts,tsx,js,jsx}": [
       "prettier --write",
       "eslint"
-    ],
-    "./*.js": [
-      "prettier --write",
-      "eslint"
     ]
   },
   "dependencies": {
