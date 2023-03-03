@@ -52,3 +52,5 @@
   - UI is seperated from PixiJS (WebGL)
   - ESLint and Prettier is applied as code checker
   - GIF ![demo](../demo/v0.0.7.gif)
+
+## 0.0.8
