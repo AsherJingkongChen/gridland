@@ -8,12 +8,13 @@ import {
 } from 'solid-js';
 import { KeyInput } from '../entity';
 import { windowPreventDefault } from '../tool';
-import { Attachable } from '../design/Attachable';
+import { Attachable } from '../design';
 import { Accessor } from 'solid-js';
 import {
   Eventable,
   EventEmitter
 } from '../design/Eventable';
+import { CSSClass } from '../entity/CSSClass';
 
 windowPreventDefault('keydown');
 
@@ -28,11 +29,16 @@ export class Profiler
 
   private _toggle: (e: KeyboardEvent) => void;
 
+  /**
+   * @param profileBlocks
+   * Blocks of profiles, each profile is a pair of [string, Accessor],
+   * and the bottom of each block has a <br/> tag
+   */
   constructor(
-    profiles: [
+    profileBlocks: [
       string,
       Accessor<string | number | boolean>
-    ][]
+    ][][]
   ) {
     this._toggle = (e: KeyboardEvent) => {
       if (this.toggleKI.equal(e)) {
@@ -49,21 +55,35 @@ export class Profiler
       onCleanup(() => this.detach());
 
       return (
-        <div
-          id="profiler"
-          class="UILight"
-          style={{
-            'font-size': 'small',
-            visibility: this.visibility() // [TODO] Resize, text wrapping
-          }}
-        >
-          <Show when={this.visibility() === 'visible'}>
-            <For each={profiles}>
-              {([key, profile]) => (
-                <div>{`${key}: ${profile()}`}</div>
-              )}
-            </For>
-          </Show>
+        <div class={CSSClass.NoPointerEvents}>
+          <div
+            id="profiler"
+            class={
+              `${CSSClass.RegularText} ` +
+              (true
+                ? CSSClass.LightProfiler
+                : CSSClass.DarkProfiler)
+            }
+            style={{
+              'font-size': '0.8rem',
+              visibility: this.visibility() // [TODO] Resize, text wrapping
+            }}
+          >
+            <Show when={this.visibility() === 'visible'}>
+              <For each={profileBlocks}>
+                {(profiles) => (
+                  <>
+                    <For each={profiles}>
+                      {([key, profile]) => (
+                        <div>{`${key}: ${profile()}`}</div>
+                      )}
+                    </For>
+                    <br />
+                  </>
+                )}
+              </For>
+            </Show>
+          </div>
         </div>
       );
     };

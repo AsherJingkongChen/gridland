@@ -1,30 +1,32 @@
-/**
- * Interface that is compatible to types including
- * KeyboardEvent, MouseEvent and etc.
- */
-export interface IKeyInput {
-  code?: string;
-  altKey?: boolean;
-  ctrlKey?: boolean;
-  metaKey?: boolean;
-  shiftKey?: boolean;
-}
-
-export interface OKeyInput {
+export type KeyInputCreateOption = {
   code?: KeyInputCodes;
   altKey?: boolean;
   ctrlKey?: boolean;
   metaKey?: boolean;
   shiftKey?: boolean;
-}
+};
+
+/**
+ * It's compatible to types including
+ * KeyboardEvent, MouseEvent and etc.
+ */
+export type KeyInputReadOption = {
+  code?: string;
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+};
 
 /**
  * KeyInput a.k.a. KI
  *
- * Type to compare with types including
+ * It's comparable with types including
  * KeyboardEvent, MouseEvent and etc.
  */
-export class KeyInput implements IKeyInput {
+export class KeyInput
+  implements KeyInputCreateOption, KeyInputReadOption
+{
   public code?: KeyInputCodes;
   public altKey: boolean;
   public ctrlKey: boolean;
@@ -32,70 +34,71 @@ export class KeyInput implements IKeyInput {
   public shiftKey: boolean;
 
   /**
-   * Build a KeyInput object from `option`
+   * Build from a KeyInputCreateOption
    *
    * @param option.code
    * must be one of KeyInputCodes
    */
-  constructor(option?: OKeyInput) {
+  constructor(option?: KeyInputCreateOption) {
     this.code = option?.code;
-    this.altKey = option?.altKey || false;
-    this.ctrlKey = option?.ctrlKey || false;
-    this.metaKey = option?.metaKey || false;
-    this.shiftKey = option?.shiftKey || false;
+    this.altKey = option?.altKey ?? false;
+    this.ctrlKey = option?.ctrlKey ?? false;
+    this.metaKey = option?.metaKey ?? false;
+    this.shiftKey = option?.shiftKey ?? false;
   }
 
   /**
-   * Build a KeyInput object
-   * from an IKeyInput onject
+   * Build from a KeyInputReadOption
    *
-   * @param input.code
+   * @param option.code
    * must be one of KeyInputCodes,
    * otherwise KeyInput.code will be undefined
    */
-  public static From(input?: IKeyInput): KeyInput {
+  public static From(
+    option?: KeyInputReadOption
+  ): KeyInput {
     return new KeyInput({
       code:
-        (input?.code as string) in KeyInputCodes
-          ? (input?.code as KeyInputCodes)
+        (option?.code as string) in KeyInputCodes
+          ? (option?.code as KeyInputCodes)
           : undefined,
-      altKey: input?.altKey,
-      ctrlKey: input?.ctrlKey,
-      metaKey: input?.metaKey,
-      shiftKey: input?.shiftKey
+      altKey: option?.altKey,
+      ctrlKey: option?.ctrlKey,
+      metaKey: option?.metaKey,
+      shiftKey: option?.shiftKey
     });
   }
 
   /**
-   * Compare two IKeyInput objects
+   * Compare two KeyInputReadOptions
    */
   public static Equal(
-    input1: IKeyInput,
-    input2: IKeyInput
+    input1: KeyInputReadOption,
+    input2: KeyInputReadOption
   ): boolean {
     return (
       input1.code === input2.code &&
-      (input1.altKey || false) ===
-        (input2.altKey || false) &&
-      (input1.ctrlKey || false) ===
-        (input2.ctrlKey || false) &&
-      (input1.metaKey || false) ===
-        (input2.metaKey || false) &&
-      (input1.shiftKey || false) ===
-        (input2.shiftKey || false)
+      (input1.altKey ?? false) ===
+        (input2.altKey ?? false) &&
+      (input1.ctrlKey ?? false) ===
+        (input2.ctrlKey ?? false) &&
+      (input1.metaKey ?? false) ===
+        (input2.metaKey ?? false) &&
+      (input1.shiftKey ?? false) ===
+        (input2.shiftKey ?? false)
     );
   }
 
   /**
-   * Compare to the other IKeyInput object
+   * Compare to the other KeyInputReadOption
    */
-  public equal(input: IKeyInput): boolean {
+  public equal(input: KeyInputReadOption): boolean {
     return KeyInput.Equal(this, input);
   }
 }
 
 /**
- * Valid values of KeyboardEvent.code
+ * A set of Valid values for KeyboardEvent.code
  */
 export const KeyInputCodes = {
   Backquote: undefined,

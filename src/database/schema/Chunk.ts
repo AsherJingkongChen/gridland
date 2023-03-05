@@ -1,27 +1,26 @@
 import { db } from '..';
 
-export interface IChunk {
+export type ChunkCreateOption = {
   worldid: number;
   x: number;
   y: number;
-}
+};
 
-export interface OChunk {
+export type ChunkReadOption = {
   worldid: number;
   x: number;
   y: number;
-}
+};
 
-export class Chunk implements IChunk {
-  public static readonly Indexes =
-    '[worldid+x+y], ' + 'createdate, ' + 'worldid';
+export class Chunk {
+  public static readonly Indexes = '[worldid+x+y]';
 
   public readonly createdate: Date;
   public readonly worldid: number;
   public readonly x: number;
   public readonly y: number;
 
-  constructor(option: OChunk) {
+  constructor(option: ChunkCreateOption) {
     this.createdate = new Date();
     this.worldid = option.worldid;
     this.x = option.x;
@@ -29,22 +28,24 @@ export class Chunk implements IChunk {
   }
 
   /**
-   * Throws `ConstraintError` if the chunk exists
+   * Throws `ConstraintError` by Dexie if exists
    */
   public static async Create(
-    chunk: OChunk
+    option: ChunkCreateOption
   ): Promise<Chunk> {
-    const newChunk = new Chunk(chunk);
+    const newChunk = new Chunk(option);
     await db.chunks.add(newChunk);
     return newChunk;
   }
 
-  public static async Read({
-    worldid,
-    x,
-    y
-  }: OChunk): Promise<Chunk | undefined> {
-    return db.chunks.get([worldid, x, y]);
+  public static async Read(
+    option: ChunkReadOption
+  ): Promise<Chunk | undefined> {
+    return db.chunks.get([
+      option.worldid,
+      option.x,
+      option.y
+    ]);
   }
 
   public static async Update(chunk: Chunk): Promise<Chunk> {
@@ -52,11 +53,13 @@ export class Chunk implements IChunk {
     return chunk;
   }
 
-  public static async Delete({
-    worldid,
-    x,
-    y
-  }: OChunk): Promise<void> {
-    await db.chunks.delete([worldid, x, y]);
+  public static async Delete(
+    option: ChunkReadOption
+  ): Promise<void> {
+    return db.chunks.delete([
+      option.worldid,
+      option.x,
+      option.y
+    ]);
   }
 }

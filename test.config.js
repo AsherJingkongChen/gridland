@@ -2,21 +2,15 @@ import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import CopyPlugin from 'copy-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import TerserPlugin from 'terser-webpack-plugin';
-import SpeedMeasurePlugin from 'speed-measure-webpack-plugin';
-import HtmlMinimizerPlugin from 'html-minimizer-webpack-plugin';
 
-export default (_env, argv) => {
+export default (_env, _argv) => {
   return {
-    stats:
-      argv.mode === 'development'
-        ? 'minimal'
-        : undefined,
-    entry: './src/index.ts',
+    stats: 'minimal',
+    entry: './test/index.ts',
     output: {
       path: resolve(
         dirname(fileURLToPath(import.meta.url)),
-        'dist'
+        'test/dist'
       ),
       filename: 'bundle.js'
     },
@@ -31,29 +25,10 @@ export default (_env, argv) => {
         },
         progress: true
       },
-      port: 8080
+      port: 4040
     },
     performance: { hints: false },
-    devtool:
-      argv.mode === 'development'
-        ? 'source-map'
-        : undefined,
-    optimization: {
-      minimize: argv.mode === 'production',
-      minimizer: [
-        new TerserPlugin({
-          terserOptions: {
-            ecma: 6,
-            compress: { drop_console: true },
-            output: {
-              comments: false,
-              beautify: false
-            }
-          }
-        }),
-        new HtmlMinimizerPlugin()
-      ]
-    },
+    devtool: 'source-map',
     module: {
       rules: [
         {
@@ -84,13 +59,9 @@ export default (_env, argv) => {
 
       // Make an index.html from the template
       new HtmlWebpackPlugin({
-        template: './src/index.html',
+        template: './test/index.html',
         hash: true,
-        minify: argv.mode === 'production'
-      }),
-
-      new SpeedMeasurePlugin({
-        disable: argv.mode === 'development'
+        minify: false
       })
     ],
     experiments: {

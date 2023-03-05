@@ -1,8 +1,4 @@
-import {
-  PixelPerZone,
-  GridPerZone,
-  ChunkPerZone
-} from '../entity/LengthUnit';
+import { LengthUnit } from '../entity/Unit';
 import { Application } from 'pixi.js';
 import { createSignal } from 'solid-js';
 import { db, World } from '../database';
@@ -24,21 +20,25 @@ await db.delete(); // [TODO]
 await db.open();
 
 export const zone = new Zone(
-  (await db.worlds.get(
-    await db.worlds.add(
-      new World({
-        name: Math.random().toString(36).substring(2, 8) // [TODO]
-      })
-    )
-  )) as World
+  (
+    (await db.worlds.get(
+      await db.worlds.add(
+        new World({
+          name: Math.random().toString(36).substring(2, 8) // [TODO]
+        })
+      )
+    )) as World
+  ).id
 );
 
-export const camera = new Camera();
+export const camera = new Camera({
+  stage: zone
+});
 
 const [_lengthUnit] = createSignal(
-  `${PixelPerZone} Pixels / ` +
-    `${GridPerZone} Grids / ` +
-    `${ChunkPerZone} Chunks / ` +
+  `${LengthUnit.PixelPerZone} Pixels / ` +
+    `${LengthUnit.GridPerZone} Grids / ` +
+    `${LengthUnit.ChunkPerZone} Chunks / ` +
     `1 Zone`
 );
 const [_renderer] = createSignal(
@@ -56,7 +56,6 @@ export const profiles = {
     lengthUnit: _lengthUnit,
     renderer: _renderer,
     version: _version,
-    '': () => '',
     chunks: _chunks,
     fps: _fps,
     x: _x,
@@ -72,6 +71,17 @@ export const profiles = {
   }
 };
 
-export const profiler = new Profiler(
-  Object.entries(profiles.get)
-);
+export const profiler = new Profiler([
+  [
+    ['LengthUnit', _lengthUnit],
+    ['Renderer', _renderer],
+    ['Version', _version]
+  ],
+  [
+    ['chunks', _chunks],
+    ['fps', _fps],
+    ['x', _x],
+    ['y', _y],
+    ['zoom', _zoom]
+  ]
+]);

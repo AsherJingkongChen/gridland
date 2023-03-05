@@ -1,9 +1,9 @@
 import { camera, profiles } from '../component';
-import { PixelPerChunk, PixelPerGrid } from '../entity';
+import { LengthUnit } from '../entity';
 
 const _lengthFormatter = (pixel: number) =>
-  `${Math.floor(pixel / PixelPerGrid)} Grid, ` +
-  `${(pixel / PixelPerChunk).toFixed(2)} Chunk`;
+  `${Math.floor(pixel * LengthUnit.GridPerPixel)} Grid, ` +
+  `${(pixel * LengthUnit.ChunkPerPixel).toFixed(2)} Chunk`;
 
 export const onCameraMove = () => {
   profiles.set.x(_lengthFormatter(camera.x));

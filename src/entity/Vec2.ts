@@ -12,11 +12,11 @@ export class Vec2 implements IVec2 {
   }
 
   constructor(option?: Partial<IVec2>) {
-    this.x = option?.x || 0;
-    this.y = option?.y || 0;
+    this.x = option?.x ?? 0;
+    this.y = option?.y ?? 0;
   }
 
   public static Key(option?: Partial<IVec2>): string {
-    return `Vec2,${option?.x || 0},${option?.y || 0}`;
+    return `Vec2,${option?.x ?? 0},${option?.y ?? 0}`;
   }
 }

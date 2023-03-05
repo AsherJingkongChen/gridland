@@ -32,5 +32,5 @@
   "include": [
     "./src/**/*",
     "./test/**/*"
-, "src/component/.Profiler.ts"  ],
+  ],
 }

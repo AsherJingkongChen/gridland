@@ -1,15 +1,14 @@
 import { camera, profiles, zone } from '../component';
 import { Chunk, db } from '../database';
-import {
-  ChunkPerZone,
-  HalfChunkPerZone,
-  PixelPerChunk,
-  Vec2
-} from '../entity';
+import { Vec2, LengthUnit } from '../entity';
 
 export const updateChunks = async () => {
-  const newCX = Math.floor(camera.x / PixelPerChunk);
-  const newCY = Math.floor(camera.y / PixelPerChunk);
+  const newCX = Math.floor(
+    camera.x * LengthUnit.ChunkPerPixel
+  );
+  const newCY = Math.floor(
+    camera.y * LengthUnit.ChunkPerPixel
+  );
 
   if (newCX === zone.center.x && newCY === zone.center.y) {
     return;
@@ -26,14 +25,14 @@ export const updateChunks = async () => {
 };
 
 export const updateChunksHelper = async () => {
-  const worldid = zone.world.id;
+  const worldid = zone.worldid;
   const newChunksPos = new Map<string, Vec2>();
   const oldChunks = zone.getChunks();
 
-  const xmin = zone.center.x - HalfChunkPerZone;
-  const ymin = zone.center.y - HalfChunkPerZone;
-  const xmax = xmin + ChunkPerZone - 1;
-  const ymax = ymin + ChunkPerZone - 1;
+  const xmin = zone.center.x - LengthUnit.HalfChunkPerZone;
+  const ymin = zone.center.y - LengthUnit.HalfChunkPerZone;
+  const xmax = xmin + LengthUnit.ChunkPerZone - 1;
+  const ymax = ymin + LengthUnit.ChunkPerZone - 1;
 
   for (let x = xmin; x <= xmax; x++) {
     for (let y = ymin; y <= ymax; y++) {

@@ -9,6 +9,7 @@ import {
   DisplayObject,
   FederatedMouseEvent,
   FederatedWheelEvent,
+  IPointData,
   Point
 } from 'pixi.js';
 import { windowPreventDefault } from '../tool';
@@ -26,6 +27,7 @@ export class Camera
   public event: EventEmitter<CameraEvents>;
   public maxzoom: number;
   public minzoom: number;
+  public swipeKI: KeyInput;
   public zoominKI: KeyInput;
   public zoomoutKI: KeyInput;
   public zoomwheelKI: KeyInput;
@@ -49,7 +51,7 @@ export class Camera
     if (this._viewport.children.length === 1) {
       this._viewport.removeChildAt(0);
     }
-    if (stage !== undefined) {
+    if (stage) {
       this._viewport.addChildAt(stage, 0);
     }
   }
@@ -99,19 +101,22 @@ export class Camera
 
   /**
    * @param option.maxzoom
-   * Maximum of zoom, by default it's 10.0 (1000%)
+   * Maximum of zoom, by default it's 15.0 (1500%)
    *
    * @param option.minzoom
-   * Minimum of zoom, by default it's 0.1 (10%)
+   * Minimum of zoom, by default it's 0.25 (25%)
    *
    * @param option.stage
    * The Container inside Camera
    *
+   * @param option.swipeKI
+   * KI to swipe, by default it's {}
+   *
    * @param option.zoominKI
-   * KI to zoom in, by default it's { ctrlKey, Equal }
+   * KI to zoom in, by default it's { Equal }
    *
    * @param option.zoomoutKI
-   * KI to zoom out, by default it's { ctrlKey, Minus }
+   * KI to zoom out, by default it's { Minus }
    *
    * @param option.zoomwheelKI
    * KI to zoom with wheel, by default it's { ctrlKey }
@@ -120,6 +125,7 @@ export class Camera
     maxzoom?: number;
     minzoom?: number;
     stage?: DisplayObject;
+    swipeKI?: KeyInput;
     zoominKI?: KeyInput;
     zoomoutKI?: KeyInput;
     zoomwheelKI?: KeyInput;
@@ -132,33 +138,33 @@ export class Camera
 
     this._zoominout = (e) => {
       if (this.zoominKI.equal(e)) {
-        this._zoomOnWindow(+10);
+        this._zoomOnWindow(+16);
       } else if (this.zoomoutKI.equal(e)) {
-        this._zoomOnWindow(-10);
+        this._zoomOnWindow(-16);
       }
     };
 
     this.event = new EventEmitter();
-    this.maxzoom = option?.maxzoom || 10;
-    this.minzoom = option?.minzoom || 0.1;
+    this.maxzoom = option?.maxzoom ?? 15.0;
+    this.minzoom = option?.minzoom ?? 0.25;
     this.stage = option?.stage;
 
+    this.swipeKI = option?.swipeKI ?? new KeyInput();
+
     this.zoominKI =
-      option?.zoominKI ||
+      option?.zoominKI ??
       new KeyInput({
-        ctrlKey: true,
         code: 'Equal'
       });
 
     this.zoomoutKI =
-      option?.zoomoutKI ||
+      option?.zoomoutKI ??
       new KeyInput({
-        ctrlKey: true,
         code: 'Minus'
       });
 
     this.zoomwheelKI =
-      option?.zoomwheelKI ||
+      option?.zoomwheelKI ??
       new KeyInput({ ctrlKey: true });
 
     this.addChild(this._viewport);
@@ -197,11 +203,11 @@ export class Camera
     this.interactive = true;
     this.visible = true;
 
-    this.on('mousedown', this._onmousedown)
-      .on('mousemove', this._onmousemove)
-      .on('mouseup', this._onmouseup)
-      .on('mouseupoutside', this._onmouseupoutside)
-      .on('wheel', this._onwheel);
+    this.on('mousedown', this._onMousedown)
+      .on('mousemove', this._onMousemove)
+      .on('mouseup', this._onMouseup)
+      .on('mouseupoutside', this._onMouseupoutside)
+      .on('wheel', this._onWheel);
 
     window.addEventListener('keydown', this._zoominout);
   }
@@ -210,22 +216,22 @@ export class Camera
     this.interactive = false;
     this.visible = false;
 
-    this.off('mousedown', this._onmousedown)
-      .off('mousemove', this._onmousemove)
-      .off('mouseup', this._onmouseup)
-      .off('mouseupoutside', this._onmouseupoutside)
-      .off('wheel', this._onwheel);
+    this.off('mousedown', this._onMousedown)
+      .off('mousemove', this._onMousemove)
+      .off('mouseup', this._onMouseup)
+      .off('mouseupoutside', this._onMouseupoutside)
+      .off('wheel', this._onWheel);
 
     window.removeEventListener('keydown', this._zoominout);
   }
 
-  private _onmousedown(e: FederatedMouseEvent) {
+  private _onMousedown(e: FederatedMouseEvent) {
     if (e.button == 0) {
       this._dragging = true;
     }
   }
 
-  private _onmousemove(e: FederatedMouseEvent) {
+  private _onMousemove(e: FederatedMouseEvent) {
     if (this._dragging) {
       this._dragOnWindow(e.client);
     } else {
@@ -233,26 +239,33 @@ export class Camera
     }
   }
 
-  private _onmouseup() {
+  private _onMouseup() {
     if (this._dragging) {
       this._dragging = false;
     }
   }
 
-  private _onmouseupoutside(e: FederatedMouseEvent) {
+  private _onMouseupoutside(e: FederatedMouseEvent) {
     if (this._dragging) {
       this._dragOnWindow(e.client);
       this._dragging = false;
     }
   }
 
-  private _onwheel(e: FederatedWheelEvent) {
+  private _onWheel(e: FederatedWheelEvent) {
     if (this.zoomwheelKI.equal(e)) {
       this._zoomOnWindow(-e.deltaY);
+    } else if (this.swipeKI.equal(e)) {
+      const { x, y } = this._client;
+      this._dragOnWindow({
+        x: x - e.deltaX,
+        y: y - e.deltaY
+      });
+      this._moveOnWindow({ x, y });
     }
   }
 
-  private _dragOnWindow(client: Point) {
+  private _dragOnWindow(client: IPointData) {
     const { x: newX, y: newY } = this.toLocal(client);
     const { x: oldX, y: oldY } = this.toLocal(this._client);
     this._viewport.position.x += newX - oldX;
@@ -261,7 +274,7 @@ export class Camera
     this.event.emit('drag', this);
   }
 
-  private _moveOnWindow(client: Point) {
+  private _moveOnWindow(client: IPointData) {
     this._viewport.toLocal(
       client,
       undefined,

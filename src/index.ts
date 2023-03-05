@@ -1,5 +1,5 @@
 import { render } from 'solid-js/web';
-import { app, camera, profiler, zone } from './component';
+import { app, camera, profiler } from './component';
 import {
   closeApp,
   updateChunks,
@@ -11,7 +11,6 @@ import {
 
 app.stage.addChild(camera);
 
-camera.stage = zone;
 camera.x -= window.innerWidth / 2;
 camera.y -= window.innerHeight / 2;
 
@@ -30,5 +29,5 @@ window.addEventListener('beforeunload', closeApp, {
 
 render(
   profiler.render,
-  document.getElementById('overstage') as HTMLDivElement
+  document.getElementById('ui') as HTMLDivElement
 );

@@ -2,6 +2,7 @@
 .obsidian
 .DS_Store
 .private
+.npmrc
 
 *.dSYM
 *.o

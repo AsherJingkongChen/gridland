@@ -1,19 +1,19 @@
-import { IVec2, Vec2, PixelPerChunk } from '../entity';
+import { IVec2, Vec2, LengthUnit } from '../entity';
 import { Container, TilingSprite } from 'pixi.js';
-import { Chunk, World } from '../database';
+import { Chunk } from '../database';
 import { gridLightTexture } from '../resource';
 
 export class Zone extends Container {
-  public world: World;
+  public worldid: number;
   public center: Vec2; // [TODO]
 
   private _chunks: Map<string, Chunk>;
   private _chunkSprites: Map<string, TilingSprite>;
 
-  constructor(world: World) {
+  constructor(worldid: number) {
     super();
 
-    this.world = world;
+    this.worldid = worldid;
 
     this.center = new Vec2();
     this._chunks = new Map();
@@ -31,13 +31,15 @@ export class Zone extends Container {
     this._chunkSprites.clear();
     (this._chunkSprites as unknown) = undefined;
 
-    (this.world as unknown) = undefined;
+    (this.worldid as unknown) = undefined;
   }
 
   public getChunks(): Map<string, Chunk> {
     return this._chunks;
   }
 
+  public getChunk(key: string): Chunk | undefined;
+  public getChunk(pos: IVec2): Chunk | undefined;
   public getChunk(
     keyOrPos: string | IVec2
   ): Chunk | undefined {
@@ -56,14 +58,14 @@ export class Zone extends Container {
       const chunkSprite = TilingSprite.from(
         gridLightTexture,
         {
-          width: PixelPerChunk,
-          height: PixelPerChunk
+          width: LengthUnit.PixelPerChunk,
+          height: LengthUnit.PixelPerChunk
         }
       );
 
       chunkSprite.position.set(
-        chunk.x * PixelPerChunk,
-        chunk.y * PixelPerChunk
+        chunk.x * LengthUnit.PixelPerChunk,
+        chunk.y * LengthUnit.PixelPerChunk
       );
 
       this._chunkSprites.set(
@@ -84,15 +86,5 @@ export class Zone extends Container {
       this._chunkSprites.delete(key);
     }
     return exist;
-  }
-
-  public getChunkSprite(
-    keyOrPos: string | IVec2
-  ): TilingSprite | undefined {
-    if (typeof keyOrPos === 'string') {
-      return this._chunkSprites.get(keyOrPos);
-    } else {
-      return this._chunkSprites.get(Vec2.Key(keyOrPos));
-    }
   }
 }
