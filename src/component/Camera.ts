@@ -13,6 +13,8 @@ import {
   Point
 } from 'pixi.js';
 import { windowPreventDefault } from '../tool';
+import { Destroyable } from '../design/Destroyable';
+import { IDestroyOptions } from 'pixi.js';
 
 windowPreventDefault('keydown');
 windowPreventDefault('wheel');
@@ -22,9 +24,12 @@ windowPreventDefault('wheel');
  */
 export class Camera
   extends Container
-  implements Attachable, Eventable<CameraEvents>
+  implements
+    Attachable,
+    Destroyable,
+    Eventable<_CameraEvents>
 {
-  public event: EventEmitter<CameraEvents>;
+  public readonly event: EventEmitter<_CameraEvents>;
   public maxzoom: number;
   public minzoom: number;
   public swipeKI: KeyInput;
@@ -175,26 +180,28 @@ export class Camera
     );
   }
 
-  public override destroy() {
-    super.destroy();
-    this.detach();
+  public override destroy(
+    options?: IDestroyOptions | boolean
+  ): void {
+    if (!this.destroyed) {
+      super.destroy(options);
+      this.detach();
 
-    (this._client as unknown) = undefined;
-    this._dragging = false;
+      (this._client as unknown) = undefined;
+      (this._dragging as unknown) = undefined;
+      this._viewport.destroy(options);
+      (this._viewport as unknown) = undefined;
+      (this._zoominout as unknown) = undefined;
 
-    this._viewport.destroy();
-    (this._viewport as unknown) = undefined;
-
-    (this._zoominout as unknown) = undefined;
-
-    this.event.removeAllListeners();
-    (this.event as unknown) = undefined;
-
-    this.maxzoom = Infinity;
-    this.minzoom = 0;
-    (this.zoominKI as unknown) = undefined;
-    (this.zoomoutKI as unknown) = undefined;
-    (this.zoomwheelKI as unknown) = undefined;
+      this.event.removeAllListeners();
+      (this.event as unknown) = undefined;
+      (this.maxzoom as unknown) = undefined;
+      (this.minzoom as unknown) = undefined;
+      (this.swipeKI as unknown) = undefined;
+      (this.zoominKI as unknown) = undefined;
+      (this.zoomoutKI as unknown) = undefined;
+      (this.zoomwheelKI as unknown) = undefined;
+    }
   }
 
   public attach() {
@@ -308,7 +315,7 @@ export class Camera
   }
 }
 
-export interface CameraEvents {
+interface _CameraEvents {
   drag: [camera: Camera];
   move: [camera: Camera];
   zoom: [camera: Camera];

@@ -6,7 +6,7 @@ export interface Eventable<
     | symbol,
   Context = unknown
 > {
-  event: EventEmitter<EventTypes, Context>;
+  readonly event: EventEmitter<EventTypes, Context>;
 }
 
 export { EventEmitter } from '@pixi/utils';

@@ -1,8 +1,9 @@
 export const CSSClass = {
-  NoPointerEvents: 'NoPointerEvents',
-  LightProfiler: 'LightProfiler',
+  BoldText: 'BoldText',
   DarkProfiler: 'DarkProfiler',
-  ThinText: 'ThinText',
+  FullScreen: 'FullScreen',
+  LightProfiler: 'LightProfiler',
+  NoPointerEvents: 'NoPointerEvents',
   RegularText: 'RegularText',
-  BoldText: 'BoldText'
+  ThinText: 'ThinText'
 } as const;

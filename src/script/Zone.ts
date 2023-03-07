@@ -1,38 +1,54 @@
-import { camera, profiles, zone } from '../component';
 import { Chunk, db } from '../database';
-import { Vec2, LengthUnit } from '../entity';
+import { Vec2 } from '../entity';
+import { Component, Camera } from '../component';
 
-export const updateChunks = async () => {
-  const newCX = Math.floor(
-    camera.x * LengthUnit.ChunkPerPixel
+export const updateChunks = async (camera: Camera) => {
+  if (!Component.zone) {
+    return;
+  }
+  const zone = Component.zone;
+  const {
+    pixelPerGridHorizontal,
+    pixelPerGridVertical,
+    gridPerChunk
+  } = zone;
+
+  const newCenterX = Math.floor(
+    camera.x / pixelPerGridHorizontal / gridPerChunk
   );
-  const newCY = Math.floor(
-    camera.y * LengthUnit.ChunkPerPixel
+  const newCenterY = Math.floor(
+    camera.y / pixelPerGridVertical / gridPerChunk
   );
 
-  if (newCX === zone.center.x && newCY === zone.center.y) {
+  if (
+    newCenterX === zone.center.x &&
+    newCenterY === zone.center.y
+  ) {
     return;
   }
 
-  zone.center.x = newCX;
-  zone.center.y = newCY;
+  zone.center.x = newCenterX;
+  zone.center.y = newCenterY;
 
-  db.transaction(
-    'readwrite',
-    db.chunks,
-    updateChunksHelper
-  );
+  db.transaction('readwrite', db.chunks, _updateChunks);
 };
 
-export const updateChunksHelper = async () => {
+const _updateChunks = async () => {
+  if (!Component.zone) {
+    return;
+  }
+  const zone = Component.zone;
+
   const worldid = zone.worldid;
   const newChunksPos = new Map<string, Vec2>();
-  const oldChunks = zone.getChunks();
+  const oldChunks = zone.chunks;
 
-  const xmin = zone.center.x - LengthUnit.HalfChunkPerZone;
-  const ymin = zone.center.y - LengthUnit.HalfChunkPerZone;
-  const xmax = xmin + LengthUnit.ChunkPerZone - 1;
-  const ymax = ymin + LengthUnit.ChunkPerZone - 1;
+  const xmin =
+    zone.center.x - Math.floor(zone.chunkPerZone / 2);
+  const ymin =
+    zone.center.y - Math.floor(zone.chunkPerZone / 2);
+  const xmax = xmin + zone.chunkPerZone - 1;
+  const ymax = ymin + zone.chunkPerZone - 1;
 
   for (let x = xmin; x <= xmax; x++) {
     for (let y = ymin; y <= ymax; y++) {
@@ -44,7 +60,10 @@ export const updateChunksHelper = async () => {
   for (const [key, chunk] of oldChunks) {
     if (!newChunksPos.has(key)) {
       zone.deleteChunk(await Chunk.Update(chunk));
-      profiles.set.chunks(zone.getChunks().size);
+
+      Component.profiler?.list['chunks'][1](
+        zone.chunks.size.toString()
+      );
     }
   }
 
@@ -57,7 +76,10 @@ export const updateChunksHelper = async () => {
       }
 
       zone.setChunk(chunk);
-      profiles.set.chunks(zone.getChunks().size);
+
+      Component.profiler?.list['chunks'][1](
+        zone.chunks.size.toString()
+      );
     }
   }
 };

@@ -1,15 +1,40 @@
-import { camera, profiles } from '../component';
-import { LengthUnit } from '../entity';
+import { Component, Camera } from '../component';
 
-const _lengthFormatter = (pixel: number) =>
-  `${Math.floor(pixel * LengthUnit.GridPerPixel)} Grid, ` +
-  `${(pixel * LengthUnit.ChunkPerPixel).toFixed(2)} Chunk`;
+export const onCameraMove = (camera: Camera) => {
+  if (!Component.zone) {
+    return;
+  }
 
-export const onCameraMove = () => {
-  profiles.set.x(_lengthFormatter(camera.x));
-  profiles.set.y(_lengthFormatter(camera.y));
+  const {
+    pixelPerGridHorizontal,
+    pixelPerGridVertical,
+    gridPerChunk
+  } = Component.zone;
+
+  Component.profiler?.list['x'][1](
+    `${Math.floor(
+      camera.x / pixelPerGridHorizontal
+    )} Grid / ` +
+      `${(
+        camera.x /
+        pixelPerGridHorizontal /
+        gridPerChunk
+      ).toFixed(2)} Chunk`
+  );
+  Component.profiler?.list['y'][1](
+    `${Math.floor(
+      camera.y / pixelPerGridVertical
+    )} Grid / ` +
+      `${(
+        camera.y /
+        pixelPerGridVertical /
+        gridPerChunk
+      ).toFixed(2)} Chunk`
+  );
 };
 
-export const onCameraZoom = () => {
-  profiles.set.zoom(camera.zoom.toFixed(3));
+export const onCameraZoom = (camera: Camera) => {
+  Component.profiler?.list['zoom'][1](
+    camera.zoom.toFixed(3)
+  );
 };

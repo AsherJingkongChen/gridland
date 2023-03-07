@@ -1,41 +1,64 @@
-import { IVec2, Vec2, LengthUnit } from '../entity';
-import { Container, TilingSprite } from 'pixi.js';
+import { IVec2, Vec2 } from '../entity';
+import {
+  Container,
+  IDestroyOptions,
+  Texture,
+  TilingSprite
+} from 'pixi.js';
 import { Chunk } from '../database';
-import { gridLightTexture } from '../resource';
+import { Destroyable } from '../design/Destroyable';
 
-export class Zone extends Container {
-  public worldid: number;
+export class Zone extends Container implements Destroyable {
   public center: Vec2; // [TODO]
+  public readonly chunks: Map<string, Chunk>;
+  public readonly chunkPerZone: number;
+  public readonly gridPerChunk: number;
+  public readonly gridTexture: Texture; // [TODO]
+  public readonly pixelPerGridHorizontal: number;
+  public readonly pixelPerGridVertical: number;
+  public readonly worldid: number;
 
-  private _chunks: Map<string, Chunk>;
   private _chunkSprites: Map<string, TilingSprite>;
 
-  constructor(worldid: number) {
+  constructor(option: {
+    chunkPerZone: number;
+    gridPerChunk: number;
+    gridTexture: Texture;
+    worldid: number;
+  }) {
     super();
 
-    this.worldid = worldid;
+    this._chunkSprites = new Map();
 
     this.center = new Vec2();
-    this._chunks = new Map();
-    this._chunkSprites = new Map();
+    this.chunks = new Map();
+    this.chunkPerZone = option.chunkPerZone;
+    this.gridPerChunk = option.gridPerChunk;
+    this.pixelPerGridHorizontal = 32;
+    this.pixelPerGridVertical = 32; // [TODO]
+    this.gridTexture = option.gridTexture;
+    this.worldid = option.worldid;
   }
 
-  public override destroy() {
-    super.destroy({ children: true });
+  public override destroy(
+    options?: IDestroyOptions | boolean
+  ): void {
+    if (!this.destroyed) {
+      super.destroy(options ?? { children: true });
 
-    (this.center as unknown) = undefined;
+      this._chunkSprites.clear();
+      (this._chunkSprites as unknown) = undefined;
 
-    this._chunks.clear();
-    (this._chunks as unknown) = undefined;
-
-    this._chunkSprites.clear();
-    (this._chunkSprites as unknown) = undefined;
-
-    (this.worldid as unknown) = undefined;
-  }
-
-  public getChunks(): Map<string, Chunk> {
-    return this._chunks;
+      (this.center as unknown) = undefined;
+      this.chunks.clear();
+      (this.chunks as unknown) = undefined;
+      (this.chunkPerZone as unknown) = undefined;
+      (this.gridPerChunk as unknown) = undefined;
+      (this.pixelPerGridHorizontal as unknown) = undefined;
+      (this.pixelPerGridVertical as unknown) = undefined;
+      (this.gridTexture as unknown) = undefined;
+      (this.worldid as unknown) = undefined;
+    }
   }
 
   public getChunk(key: string): Chunk | undefined;
@@ -44,28 +67,26 @@ export class Zone extends Container {
     keyOrPos: string | IVec2
   ): Chunk | undefined {
     if (typeof keyOrPos === 'string') {
-      return this._chunks.get(keyOrPos);
+      return this.chunks.get(keyOrPos);
     } else {
-      return this._chunks.get(Vec2.Key(keyOrPos));
+      return this.chunks.get(Vec2.Key(keyOrPos));
     }
   }
 
   public setChunk(chunk: Chunk) {
     const key = Vec2.Key(chunk);
-    this._chunks.set(key, chunk);
+    this.chunks.set(key, chunk);
 
     if (!this._chunkSprites.has(key)) {
-      const chunkSprite = TilingSprite.from(
-        gridLightTexture,
-        {
-          width: LengthUnit.PixelPerChunk,
-          height: LengthUnit.PixelPerChunk
-        }
+      const chunkSprite = new TilingSprite(
+        this.gridTexture,
+        this.pixelPerGridHorizontal * this.gridPerChunk,
+        this.pixelPerGridVertical * this.gridPerChunk
       );
 
       chunkSprite.position.set(
-        chunk.x * LengthUnit.PixelPerChunk,
-        chunk.y * LengthUnit.PixelPerChunk
+        chunk.x * chunkSprite.width,
+        chunk.y * chunkSprite.height
       );
 
       this._chunkSprites.set(
@@ -77,7 +98,7 @@ export class Zone extends Container {
 
   public deleteChunk(chunk: Chunk): boolean {
     const key = Vec2.Key(chunk);
-    const exist = this._chunks.delete(key);
+    const exist = this.chunks.delete(key);
 
     if (exist) {
       this.removeChild(

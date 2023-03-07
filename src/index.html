@@ -17,29 +17,19 @@
       overflow: hidden;
       background-color: #000000FF;
     }
-    #stage, #ui {
+    #canvas, #overcanvas {
       position: absolute;
     }
-    .NoPointerEvents {
-      position: absolute;
-      pointer-events: none;
-    }
-
-    .ThinText {
-      font-family: 'Noto Sans Mono', monospace;
-      font-weight: 200;
-    }
-    .RegularText {
-      font-family: 'Noto Sans Mono', monospace;
-      font-weight: 400;
-    }
+    
     .BoldText {
       font-family: 'Noto Sans Mono', monospace;
       font-weight: 700;
     }
-
-    #profiler {
-      padding: 0.5rem;
+    .DarkProfiler {
+      color: black;
+      background-color: #FFFFFF60;
+    }
+    .FullScreen {
       width: 100vw;
       height: 100vh;
     }
@@ -47,16 +37,26 @@
       color: white;
       background-color: #00000060;
     }
-    .DarkProfiler {
-      color: black;
-      background-color: #FFFFFF60;
+    .NoPointerEvents {
+      position: absolute;
+      pointer-events: none;
+    }
+    .RegularText {
+      font-family: 'Noto Sans Mono', monospace;
+      font-weight: 400;
+    }
+    .ThinText {
+      font-family: 'Noto Sans Mono', monospace;
+      font-weight: 200;
     }
   </style>
 </head>
 
 <body>
-  <canvas id="stage"></canvas>
-  <div id="ui"></div>
+  <canvas id="canvas"></canvas>
+  <div id="overcanvas">
+    <div id="overprofiler"></div>
+  </div>
 </body>
 
 </html>

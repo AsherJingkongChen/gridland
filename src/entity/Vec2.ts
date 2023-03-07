@@ -1,7 +1,7 @@
-export interface IVec2 {
+export type IVec2 = {
   x: number;
   y: number;
-}
+};
 
 export class Vec2 implements IVec2 {
   public x: number;

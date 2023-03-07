@@ -1,10 +1,10 @@
 import {
   createSignal,
   For,
-  JSX,
   onCleanup,
   Setter,
-  Show
+  Show,
+  Signal
 } from 'solid-js';
 import { KeyInput } from '../entity';
 import { windowPreventDefault } from '../tool';
@@ -15,31 +15,46 @@ import {
   EventEmitter
 } from '../design/Eventable';
 import { CSSClass } from '../entity/CSSClass';
+import { MountableElement, render } from 'solid-js/web';
+import { Destroyable } from '../design/Destroyable';
 
 windowPreventDefault('keydown');
 
 export class Profiler
-  implements Attachable, Eventable<ProfilerEvents>
+  implements
+    Attachable,
+    Destroyable,
+    Eventable<_ProfilerEvents>
 {
-  public event: EventEmitter<ProfilerEvents>;
-  public readonly render: () => JSX.Element;
+  public readonly event: EventEmitter<_ProfilerEvents>;
+  public list: Record<string, Signal<string>>;
   public toggleKI: KeyInput;
   public readonly visibility: Accessor<DocumentVisibilityState>;
   public readonly setVisibility: Setter<DocumentVisibilityState>;
 
-  private _toggle: (e: KeyboardEvent) => void;
+  private _destroyed: boolean;
+  private readonly _dispose: () => void;
+  private readonly _toggle: (e: KeyboardEvent) => void;
+
+  public get destroyed(): boolean {
+    return this._destroyed;
+  }
 
   /**
-   * @param profileBlocks
-   * Blocks of profiles, each profile is a pair of [string, Accessor],
-   * and the bottom of each block has a <br/> tag
+   * @param option.parentElement
+   * The element to render under, by default it's document.body
+   *
+   * @param option.profileKeys
+   * Each profile key is a string.
+   * Profiles can be accessed with these keys.
+   * By default it's []
    */
-  constructor(
-    profileBlocks: [
-      string,
-      Accessor<string | number | boolean>
-    ][][]
-  ) {
+  constructor(option: {
+    parentElement: MountableElement;
+    profileKeys?: string[];
+  }) {
+    this._destroyed = false;
+
     this._toggle = (e: KeyboardEvent) => {
       if (this.toggleKI.equal(e)) {
         const on = this.visibility() === 'hidden';
@@ -50,61 +65,79 @@ export class Profiler
 
     this.event = new EventEmitter();
 
-    this.render = () => {
+    this.list = {};
+    for (const key of option?.profileKeys ?? []) {
+      this.list[key] = createSignal('');
+    }
+
+    this.toggleKI = new KeyInput({ code: 'F12' });
+
+    [this.visibility, this.setVisibility] =
+      createSignal('hidden');
+
+    this._dispose = render(() => {
       this.attach();
       onCleanup(() => this.detach());
 
       return (
         <div class={CSSClass.NoPointerEvents}>
           <div
-            id="profiler"
             class={
               `${CSSClass.RegularText} ` +
+              `${CSSClass.FullScreen} ` +
               (true
                 ? CSSClass.LightProfiler
                 : CSSClass.DarkProfiler)
             }
             style={{
               'font-size': '0.8rem',
-              visibility: this.visibility() // [TODO] Resize, text wrapping
+              padding: '0.5rem',
+              visibility: this.visibility()
             }}
           >
             <Show when={this.visibility() === 'visible'}>
-              <For each={profileBlocks}>
-                {(profiles) => (
-                  <>
-                    <For each={profiles}>
-                      {([key, profile]) => (
-                        <div>{`${key}: ${profile()}`}</div>
-                      )}
-                    </For>
-                    <br />
-                  </>
+              <For each={Object.entries(this.list)}>
+                {([key, profile]) => (
+                  <div>{`${key}: ${profile[0]()}`}</div>
                 )}
               </For>
             </Show>
           </div>
         </div>
       );
-    };
-
-    this.toggleKI = new KeyInput({ code: 'F12' });
-
-    [this.visibility, this.setVisibility] =
-      createSignal('hidden');
+    }, option.parentElement);
   }
 
-  public attach() {
+  public destroy(): void {
+    if (!this.destroyed) {
+      this._destroyed = true;
+      this._dispose();
+      (this._dispose as unknown) = undefined;
+      (this._toggle as unknown) = undefined;
+
+      this.event.removeAllListeners();
+      (this.event as unknown) = undefined;
+      for (const key in this.list) {
+        delete this.list[key];
+      }
+      (this.list as unknown) = undefined;
+      (this.toggleKI as unknown) = undefined;
+      (this.visibility as unknown) = undefined;
+      (this.setVisibility as unknown) = undefined;
+    }
+  }
+
+  public attach(): void {
     this.detach();
 
     window.addEventListener('keydown', this._toggle);
   }
 
-  public detach() {
+  public detach(): void {
     window.removeEventListener('keydown', this._toggle);
   }
 }
 
-export interface ProfilerEvents {
+interface _ProfilerEvents {
   toggle: [on: boolean];
 }
