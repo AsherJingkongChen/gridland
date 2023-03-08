@@ -1,7 +1,7 @@
-import { Component, Camera } from '../component';
+import { app, Camera } from '../component';
 
 export const onCameraMove = (camera: Camera) => {
-  if (!Component.zone) {
+  if (!app.zone) {
     return;
   }
 
@@ -9,9 +9,9 @@ export const onCameraMove = (camera: Camera) => {
     pixelPerGridHorizontal,
     pixelPerGridVertical,
     gridPerChunk
-  } = Component.zone;
+  } = app.zone;
 
-  Component.profiler?.list['x'][1](
+  app.profiler?.list['x'][1](
     `${Math.floor(
       camera.x / pixelPerGridHorizontal
     )} Grid / ` +
@@ -21,7 +21,7 @@ export const onCameraMove = (camera: Camera) => {
         gridPerChunk
       ).toFixed(2)} Chunk`
   );
-  Component.profiler?.list['y'][1](
+  app.profiler?.list['y'][1](
     `${Math.floor(
       camera.y / pixelPerGridVertical
     )} Grid / ` +
@@ -34,7 +34,5 @@ export const onCameraMove = (camera: Camera) => {
 };
 
 export const onCameraZoom = (camera: Camera) => {
-  Component.profiler?.list['zoom'][1](
-    camera.zoom.toFixed(3)
-  );
+  app.profiler?.list['zoom'][1](camera.zoom.toFixed(3));
 };

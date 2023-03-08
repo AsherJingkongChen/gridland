@@ -1,12 +1,12 @@
 import { Chunk, db } from '../database';
 import { Vec2 } from '../entity';
-import { Component, Camera } from '../component';
+import { app, Camera } from '../component';
 
 export const updateChunks = async (camera: Camera) => {
-  if (!Component.zone) {
+  if (!app.zone) {
     return;
   }
-  const zone = Component.zone;
+  const zone = app.zone;
   const {
     pixelPerGridHorizontal,
     pixelPerGridVertical,
@@ -34,10 +34,10 @@ export const updateChunks = async (camera: Camera) => {
 };
 
 const _updateChunks = async () => {
-  if (!Component.zone) {
+  if (!app.zone) {
     return;
   }
-  const zone = Component.zone;
+  const zone = app.zone;
 
   const worldid = zone.worldid;
   const newChunksPos = new Map<string, Vec2>();
@@ -61,7 +61,7 @@ const _updateChunks = async () => {
     if (!newChunksPos.has(key)) {
       zone.deleteChunk(await Chunk.Update(chunk));
 
-      Component.profiler?.list['chunks'][1](
+      app.profiler?.list['chunks'][1](
         zone.chunks.size.toString()
       );
     }
@@ -77,7 +77,7 @@ const _updateChunks = async () => {
 
       zone.setChunk(chunk);
 
-      Component.profiler?.list['chunks'][1](
+      app.profiler?.list['chunks'][1](
         zone.chunks.size.toString()
       );
     }

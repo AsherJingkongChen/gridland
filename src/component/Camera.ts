@@ -1,322 +1,453 @@
-import {
-  Attachable,
-  Eventable,
-  EventEmitter
-} from '../design';
-import { KeyInput } from '../entity';
-import {
-  Container,
-  DisplayObject,
-  FederatedMouseEvent,
-  FederatedWheelEvent,
-  IPointData,
-  Point
-} from 'pixi.js';
-import { windowPreventDefault } from '../tool';
-import { Destroyable } from '../design/Destroyable';
-import { IDestroyOptions } from 'pixi.js';
+// import { EventEmitter } from 'eventemitter3';
+// import {
+//   createOptionalSignal,
+//   KeyInput,
+//   OptionalAccessor,
+//   OptionalSetter,
+//   Accessor,
+//   createSignal,
+//   Setter
+// } from '../entity';
+// import {
+//   Container,
+//   DisplayObject,
+//   FederatedMouseEvent,
+//   FederatedWheelEvent,
+//   IPointData,
+//   Point
+// } from 'pixi.js';
+// import { windowPreventDefault } from '../tool';
 
-windowPreventDefault('keydown');
-windowPreventDefault('wheel');
+// windowPreventDefault('keydown');
+// windowPreventDefault('wheel');
 
-/**
- * Simple auto camera, moves via x and y, zooms via zoom
- */
-export class Camera
-  extends Container
-  implements
-    Attachable,
-    Destroyable,
-    Eventable<_CameraEvents>
-{
-  public readonly event: EventEmitter<_CameraEvents>;
-  public maxzoom: number;
-  public minzoom: number;
-  public swipeKI: KeyInput;
-  public zoominKI: KeyInput;
-  public zoomoutKI: KeyInput;
-  public zoomwheelKI: KeyInput;
+// export const createCamera = (option?: {
+//   maxZoom?: number;
+//   minZoom?: number;
+//   stage?: DisplayObject;
+//   swipeKeyInput?: KeyInput;
+//   zoominKeyInput?: KeyInput;
+//   zoomoutKeyInput?: KeyInput;
+//   zoomWheelKeyInput?: KeyInput;
+// }) => {
+//   const [dragging, setDragging] =
+//     createSignal(false);
 
-  private _client: Point;
-  private _dragging: boolean;
-  private _viewport: Container;
-  private readonly _zoominout: (e: KeyboardEvent) => void;
+//   const [event, setEvent] = createSignal(
+//     new EventEmitter()
+//   );
 
-  /**
-   * Camera's target
-   */
-  public get stage(): DisplayObject | undefined {
-    return this._viewport.children[0] as DisplayObject;
-  }
+//   const [maxZoom, setMaxZoom] = createSignal(
+//     option?.maxZoom ?? 15.0
+//   );
 
-  /**
-   * Camera's target
-   */
-  public set stage(stage: DisplayObject | undefined) {
-    if (this._viewport.children.length === 1) {
-      this._viewport.removeChildAt(0);
-    }
-    if (stage) {
-      this._viewport.addChildAt(stage, 0);
-    }
-  }
+//   const [minZoom, setMinZoom] = createSignal(
+//     option?.minZoom ?? 0.25
+//   );
 
-  /**
-   * x of the local position
-   */
-  public override get x(): number {
-    return this._viewport.pivot.x;
-  }
+//   const [pointer, setPointer] =
+//     createSignal(new Point());
 
-  /**
-   * x of the local position
-   */
-  public override set x(x: number) {
-    this._viewport.pivot.x = x;
-  }
+//   const [swipeKeyInput, setSwipeKeyInput] =
+//     createOptionalSignal(new KeyInput());
 
-  /**
-   * y of the local position
-   */
-  public override get y(): number {
-    return this._viewport.pivot.y;
-  }
+//   const [zoomInKeyInput, setZoomInKeyInput] =
+//     createOptionalSignal(new KeyInput({ code: 'Equal' }));
 
-  /**
-   * y of the local position
-   */
-  public override set y(y: number) {
-    this._viewport.pivot.y = y;
-  }
+//   const [zoomOutKeyInput, setZoomOutKeyInput] =
+//     createOptionalSignal(new KeyInput({ code: 'Minus' }));
 
-  /**
-   * Scale
-   */
-  public get zoom(): number {
-    return this._viewport.scale.x;
-  }
+//   const [zoomWheelKeyInput, setZoomWheelKeyInput] =
+//     createOptionalSignal(new KeyInput({ ctrlKey: true }));
 
-  /**
-   * Scale
-   */
-  public set zoom(zoom: number) {
-    this._viewport.scale.x = zoom;
-    this._viewport.scale.y = zoom;
-  }
+//   this._viewport = new Container();
+//   this._zoomWheel = (e) => {
+//     if (this.zoomInKeyInput()?.equal(e) === true) {
+//       this._zoomOnWindow(+16);
+//     } else if (this.zoomOutKeyInput()?.equal(e) === true) {
+//       this._zoomOnWindow(-16);
+//     }
+//   };
 
-  /**
-   * @param option.maxzoom
-   * Maximum of zoom, by default it's 15.0 (1500%)
-   *
-   * @param option.minzoom
-   * Minimum of zoom, by default it's 0.25 (25%)
-   *
-   * @param option.stage
-   * The Container inside Camera
-   *
-   * @param option.swipeKI
-   * KI to swipe, by default it's {}
-   *
-   * @param option.zoominKI
-   * KI to zoom in, by default it's { Equal }
-   *
-   * @param option.zoomoutKI
-   * KI to zoom out, by default it's { Minus }
-   *
-   * @param option.zoomwheelKI
-   * KI to zoom with wheel, by default it's { ctrlKey }
-   */
-  constructor(option?: {
-    maxzoom?: number;
-    minzoom?: number;
-    stage?: DisplayObject;
-    swipeKI?: KeyInput;
-    zoominKI?: KeyInput;
-    zoomoutKI?: KeyInput;
-    zoomwheelKI?: KeyInput;
-  }) {
-    super();
+//   this.addChild(this._viewport);
+//   this.stage = option?.stage;
 
-    this._client = new Point();
-    this._dragging = false;
-    this._viewport = new Container();
+//   this.on('added', this.attach).on('removed', this.detach);
+//   //   const [accessor, setter] = createSignal(...);
+//   //
+//   //   const [mount, clean] = createLifecycle(() => {
+//   //     onMount(() => {
+//   //       // init
+//   //     });
+//   //
+//   //     onCleanup(() => {
+//   //       // deinit
+//   //     });
+//   //
+//   //     return (
+//   //       <!-- JSX.Element -->
+//   //     );
+//   //   });
+//   //
+//   //   return {
+//   //     mount,
+//   //     clean,
+//   //
+//   //     accessor,
+//   //     setter
+//   //   };
+// };
 
-    this._zoominout = (e) => {
-      if (this.zoominKI.equal(e)) {
-        this._zoomOnWindow(+16);
-      } else if (this.zoomoutKI.equal(e)) {
-        this._zoomOnWindow(-16);
-      }
-    };
+// /**
+//  * Simple auto camera, moves via x and y, zooms via zoom
+//  */
+// export class Camera extends Container {
+//   public readonly dragging: Accessor<boolean>;
+//   public readonly setDragging: Setter<boolean>;
 
-    this.event = new EventEmitter();
-    this.maxzoom = option?.maxzoom ?? 15.0;
-    this.minzoom = option?.minzoom ?? 0.25;
-    this.stage = option?.stage;
+//   public readonly event: Accessor<
+//     EventEmitter<_CameraEvents>
+//   >;
+//   public readonly setEvent: Setter<
+//     EventEmitter<_CameraEvents>
+//   >;
 
-    this.swipeKI = option?.swipeKI ?? new KeyInput();
+//   public readonly maxZoom: Accessor<number>;
+//   public readonly setMaxZoom: Setter<number>;
 
-    this.zoominKI =
-      option?.zoominKI ??
-      new KeyInput({
-        code: 'Equal'
-      });
+//   public readonly minZoom: Accessor<number>;
+//   public readonly setMinZoom: Setter<number>;
 
-    this.zoomoutKI =
-      option?.zoomoutKI ??
-      new KeyInput({
-        code: 'Minus'
-      });
+//   public readonly pointer: Accessor<IPointData>;
+//   public readonly setPointer: Setter<IPointData>;
 
-    this.zoomwheelKI =
-      option?.zoomwheelKI ??
-      new KeyInput({ ctrlKey: true });
+//   public readonly swipeKeyInput: OptionalAccessor<KeyInput>;
+//   public readonly setSwipeKeyInput: OptionalSetter<KeyInput>;
 
-    this.addChild(this._viewport);
+//   public readonly zoomInKeyInput: OptionalAccessor<KeyInput>;
+//   public readonly setZoomInKeyInput: OptionalSetter<KeyInput>;
 
-    this.on('added', this.attach).on(
-      'removed',
-      this.detach
-    );
-  }
+//   public readonly zoomOutKeyInput: OptionalAccessor<KeyInput>;
+//   public readonly setZoomOutKeyInput: OptionalSetter<KeyInput>;
 
-  public override destroy(
-    options?: IDestroyOptions | boolean
-  ): void {
-    if (!this.destroyed) {
-      super.destroy(options);
-      this.detach();
+//   public readonly zoomWheelKeyInput: OptionalAccessor<KeyInput>;
+//   public readonly setZoomWheelKeyInput: OptionalSetter<KeyInput>;
 
-      (this._client as unknown) = undefined;
-      (this._dragging as unknown) = undefined;
-      this._viewport.destroy(options);
-      (this._viewport as unknown) = undefined;
-      (this._zoominout as unknown) = undefined;
+//   private _viewport: Container;
+//   private _zoomWheel?: (e: KeyboardEvent) => void;
 
-      this.event.removeAllListeners();
-      (this.event as unknown) = undefined;
-      (this.maxzoom as unknown) = undefined;
-      (this.minzoom as unknown) = undefined;
-      (this.swipeKI as unknown) = undefined;
-      (this.zoominKI as unknown) = undefined;
-      (this.zoomoutKI as unknown) = undefined;
-      (this.zoomwheelKI as unknown) = undefined;
-    }
-  }
+//   /**
+//    * Camera's target DisplayObject
+//    */
+//   public get stage(): DisplayObject | undefined {
+//     return this._viewport?.children[0];
+//   }
 
-  public attach() {
-    this.detach();
+//   /**
+//    * Camera's target DisplayObject
+//    */
+//   public set stage(stage: DisplayObject | undefined) {
+//     if (this._viewport?.children.length === 1) {
+//       this._viewport.removeChildAt(0);
+//     }
+//     if (stage !== undefined) {
+//       this._viewport?.addChildAt(stage, 0);
+//     }
+//   }
 
-    this.interactive = true;
-    this.visible = true;
+//   /**
+//    * x of the local position
+//    */
+//   public override get x(): number {
+//     return this._viewport?.pivot.x ?? 0;
+//   }
 
-    this.on('mousedown', this._onMousedown)
-      .on('mousemove', this._onMousemove)
-      .on('mouseup', this._onMouseup)
-      .on('mouseupoutside', this._onMouseupoutside)
-      .on('wheel', this._onWheel);
+//   /**
+//    * x of the local position
+//    */
+//   public override set x(x: number) {
+//     if (this._viewport === undefined) {
+//       return;
+//     }
+//     this._viewport.pivot.x = x;
+//   }
 
-    window.addEventListener('keydown', this._zoominout);
-  }
+//   /**
+//    * y of the local position
+//    */
+//   public override get y(): number {
+//     return this._viewport?.pivot.y ?? 0;
+//   }
 
-  public detach() {
-    this.interactive = false;
-    this.visible = false;
+//   /**
+//    * y of the local position
+//    */
+//   public override set y(y: number) {
+//     if (this._viewport === undefined) {
+//       return;
+//     }
+//     this._viewport.pivot.y = y;
+//   }
 
-    this.off('mousedown', this._onMousedown)
-      .off('mousemove', this._onMousemove)
-      .off('mouseup', this._onMouseup)
-      .off('mouseupoutside', this._onMouseupoutside)
-      .off('wheel', this._onWheel);
+//   /**
+//    * Scale
+//    */
+//   public get zoom(): number {
+//     return this._viewport?.scale.x ?? 0;
+//   }
 
-    window.removeEventListener('keydown', this._zoominout);
-  }
+//   /**
+//    * Scale
+//    */
+//   public set zoom(zoom: number) {
+//     if (this._viewport === undefined) {
+//       return;
+//     }
+//     this._viewport.scale.x = zoom;
+//     this._viewport.scale.y = zoom;
+//   }
 
-  private _onMousedown(e: FederatedMouseEvent) {
-    if (e.button == 0) {
-      this._dragging = true;
-    }
-  }
+//   /**
+//    * @param option.maxZoom
+//    * Maximum of zoom, by default it's 15.0 (1500%)
+//    *
+//    * @param option.minZoom
+//    * Minimum of zoom, by default it's 0.25 (25%)
+//    *
+//    * @param option.stage
+//    * The Container inside Camera
+//    *
+//    * @param option.swipeKeyInput
+//    * The KeyInput to swipe, by default it's {}
+//    *
+//    * @param option.zoominKeyInput
+//    * The KeyInput to zoom in, by default it's { Equal }
+//    *
+//    * @param option.zoomoutKeyInput
+//    * The KeyInput to zoom out, by default it's { Minus }
+//    *
+//    * @param option.zoomWheelKeyInput
+//    * The KeyInput to zoom with wheel, by default it's { ctrlKey }
+//    */
+//   constructor(option?: {
+//     maxZoom?: number;
+//     minZoom?: number;
+//     stage?: DisplayObject;
+//     swipeKeyInput?: KeyInput;
+//     zoominKeyInput?: KeyInput;
+//     zoomoutKeyInput?: KeyInput;
+//     zoomWheelKeyInput?: KeyInput;
+//   }) {
+//     super();
 
-  private _onMousemove(e: FederatedMouseEvent) {
-    if (this._dragging) {
-      this._dragOnWindow(e.client);
-    } else {
-      this._moveOnWindow(e.client);
-    }
-  }
+//     [this.pointer, this.setPointer] =
+//       createOptionalSignal(undefined);
 
-  private _onMouseup() {
-    if (this._dragging) {
-      this._dragging = false;
-    }
-  }
+//     [this.dragging, this.setDragging] = createSignal(false);
 
-  private _onMouseupoutside(e: FederatedMouseEvent) {
-    if (this._dragging) {
-      this._dragOnWindow(e.client);
-      this._dragging = false;
-    }
-  }
+//     [this.event, this.setEvent] = createOptionalSignal(
+//       new EventEmitter()
+//     );
 
-  private _onWheel(e: FederatedWheelEvent) {
-    if (this.zoomwheelKI.equal(e)) {
-      this._zoomOnWindow(-e.deltaY);
-    } else if (this.swipeKI.equal(e)) {
-      const { x, y } = this._client;
-      this._dragOnWindow({
-        x: x - e.deltaX,
-        y: y - e.deltaY
-      });
-      this._moveOnWindow({ x, y });
-    }
-  }
+//     [this.maxZoom, this.setMaxZoom] = createSignal(
+//       option?.maxZoom ?? 15.0
+//     );
 
-  private _dragOnWindow(client: IPointData) {
-    const { x: newX, y: newY } = this.toLocal(client);
-    const { x: oldX, y: oldY } = this.toLocal(this._client);
-    this._viewport.position.x += newX - oldX;
-    this._viewport.position.y += newY - oldY;
-    this._client.copyFrom(client);
-    this.event.emit('drag', this);
-  }
+//     [this.minZoom, this.setMinZoom] = createSignal(
+//       option?.minZoom ?? 0.25
+//     );
 
-  private _moveOnWindow(client: IPointData) {
-    this._viewport.toLocal(
-      client,
-      undefined,
-      this._viewport.pivot
-    );
-    this.toLocal(
-      client,
-      undefined,
-      this._viewport.position
-    );
-    this._client.copyFrom(client);
-    this.event.emit('move', this);
-  }
+//     [this.swipeKeyInput, this.setSwipeKeyInput] =
+//       createOptionalSignal(new KeyInput());
 
-  /**
-   * zoom by approximation
-   */
-  private _zoomOnWindow(delta: number) {
-    if (delta >= 0) {
-      this.zoom = Math.min(
-        this.maxzoom,
-        this.zoom * (1 + delta / 50)
-      );
-    } else {
-      this.zoom = Math.max(
-        this.minzoom,
-        this.zoom / (1 + -delta / 50)
-      );
-    }
-    this.event.emit('zoom', this);
-  }
-}
+//     [this.zoomInKeyInput, this.setZoomInKeyInput] =
+//       createOptionalSignal(new KeyInput({ code: 'Equal' }));
 
-interface _CameraEvents {
-  drag: [camera: Camera];
-  move: [camera: Camera];
-  zoom: [camera: Camera];
-}
+//     [this.zoomOutKeyInput, this.setZoomOutKeyInput] =
+//       createOptionalSignal(new KeyInput({ code: 'Minus' }));
+
+//     [this.zoomWheelKeyInput, this.setZoomWheelKeyInput] =
+//       createOptionalSignal(new KeyInput({ ctrlKey: true }));
+
+//     this._viewport = new Container();
+//     this._zoomWheel = (e) => {
+//       if (this.zoomInKeyInput()?.equal(e) === true) {
+//         this._zoomOnWindow(+16);
+//       } else if (
+//         this.zoomOutKeyInput()?.equal(e) === true
+//       ) {
+//         this._zoomOnWindow(-16);
+//       }
+//     };
+
+//     this.addChild(this._viewport);
+//     this.stage = option?.stage;
+
+//     this.on('added', this.attach).on(
+//       'removed',
+//       this.detach
+//     );
+//   }
+
+//   public override destroy(): void {
+//     if (this.destroyed === true) {
+//       return;
+//     }
+//     super.destroy();
+
+//     this.setPointer(undefined);
+
+//     this.event()?.removeAllListeners();
+//     this.setEvent(undefined);
+
+//     this.setMaxZoom(1);
+
+//     this.setMinZoom(1);
+
+//     this.setSwipeKeyInput(undefined);
+
+//     this.setZoomInKeyInput(undefined);
+
+//     this.setZoomOutKeyInput(undefined);
+
+//     this.setZoomWheelKeyInput(undefined);
+
+//     this._viewport?.destroy();
+//     this._viewport = undefined;
+
+//     this._zoomWheel = undefined;
+
+//     this.detach();
+//   }
+
+//   public attach() {
+//     this.detach();
+
+//     this.interactive = true;
+//     this.visible = true;
+
+//     this.on('mousedown', this._onMousedown)
+//       .on('mousemove', this._onMousemove)
+//       .on('mouseup', this._onMouseup)
+//       .on('mouseupoutside', this._onMouseupoutside)
+//       .on('wheel', this._onWheel);
+
+//     if (this._zoomWheel !== undefined) {
+//       window.addEventListener('keydown', this._zoomWheel);
+//     }
+//   }
+
+//   public detach() {
+//     this.interactive = false;
+//     this.visible = false;
+
+//     this.off('mousedown', this._onMousedown)
+//       .off('mousemove', this._onMousemove)
+//       .off('mouseup', this._onMouseup)
+//       .off('mouseupoutside', this._onMouseupoutside)
+//       .off('wheel', this._onWheel);
+
+//     if (this._zoomWheel !== undefined) {
+//       window.removeEventListener(
+//         'keydown',
+//         this._zoomWheel
+//       );
+//     }
+//   }
+
+//   public dragOnWindow(pointer: IPointData) {
+//     if (this.pointer() === undefined) {
+//       return;
+//     }
+
+//     const { x: newX, y: newY } = this.toLocal(pointer);
+//     const { x: oldX, y: oldY } = this.toLocal(
+//       this.pointer()
+//     );
+//     this._viewport?.position.set(
+//       this._viewport.position.x - oldX + newX,
+//       this._viewport.position.y - oldY + newY
+//     );
+//     this.pointer()?.copyFrom(pointer);
+//     this.event()?.emit('drag', this);
+//   }
+
+//   public moveOnWindow(pointer: IPointData) {
+//     this._viewport?.toLocal(
+//       pointer,
+//       undefined,
+//       this._viewport.pivot
+//     );
+//     this.toLocal(
+//       pointer,
+//       undefined,
+//       this._viewport?.position
+//     );
+//     this.pointer()?.copyFrom(pointer);
+//     this.event()?.emit('move', this);
+//   }
+
+//   private _onMousedown(e: FederatedMouseEvent) {
+//     if (e.button == 0) {
+//       this.setDragging(true);
+//     }
+//   }
+
+//   private _onMousemove(e: FederatedMouseEvent) {
+//     if (this.dragging()) {
+//       this.dragOnWindow(e.client);
+//     } else {
+//       this.moveOnWindow(e.client);
+//     }
+//   }
+
+//   private _onMouseup() {
+//     if (this.dragging()) {
+//       this.setDragging(false);
+//     }
+//   }
+
+//   private _onMouseupoutside(e: FederatedMouseEvent) {
+//     if (this.dragging()) {
+//       this.dragOnWindow(e.client);
+//       this.setDragging(false);
+//     }
+//   }
+
+//   private _onWheel(e: FederatedWheelEvent) {
+//     if (this.zoomWheelKeyInput()?.equal(e)) {
+//       this._zoomOnWindow(-e.deltaY);
+//     } else if (this.swipeKeyInput()?.equal(e)) {
+//       const { x, y } = this.pointer()!;
+//       this.dragOnWindow({
+//         x: x - e.deltaX,
+//         y: y - e.deltaY
+//       });
+//       this.moveOnWindow({ x, y });
+//     }
+//   }
+
+//   /**
+//    * zoom by approximation
+//    */
+//   private _zoomOnWindow(delta: number) {
+//     if (delta >= 0) {
+//       this.zoom = Math.min(
+//         this.maxZoom(),
+//         this.zoom * (1 + delta / 50)
+//       );
+//     } else {
+//       this.zoom = Math.max(
+//         this.minZoom(),
+//         this.zoom / (1 + -delta / 50)
+//       );
+//     }
+//     this.event()?.emit('zoom', this);
+//   }
+// }
+
+// interface _CameraEvents {
+//   drag: [pointer: IPointData];
+//   move: [pointer: IPointData, x: number, y: number];
+//   zoom: [zoom: number];
+// }

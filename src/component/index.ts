@@ -1,9 +1,8 @@
-import { Camera } from './Camera';
-import { Profiler } from './Profiler';
-import { Zone } from './Zone';
-import { Application } from 'pixi.js';
+import { AppV1 } from './App';
 
-export const web = new Web();
-export * from './Camera';
+export const app = new AppV1();
+
+export * from './App';
+// export * from './Camera';
 export * from './Profiler';
 export * from './Zone';

@@ -1,11 +1,11 @@
-import { Component } from '../component';
+import { app } from '../component';
 
 export const updateFps = () => {
-  if (!Component.canvas) {
+  if (!app.canvas) {
     return;
   }
 
-  Component.profiler?.list['fps'][1](
-    Component.canvas.ticker.FPS.toFixed(0)
+  app.profiler?.list['fps'][1](
+    app.canvas.ticker.FPS.toFixed(0)
   );
 };

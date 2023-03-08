@@ -1,4 +1,5 @@
 import { db } from '..';
+import { TilingSprite } from 'pixi.js';
 
 export type ChunkCreateOption = {
   worldid: number;
@@ -6,21 +7,30 @@ export type ChunkCreateOption = {
   y: number;
 };
 
-export type ChunkReadOption = {
-  worldid: number;
-  x: number;
-  y: number;
-};
+export type ChunkReadOption =
+  | {
+      id: number;
+      worldid?: number;
+      x?: number;
+      y?: number;
+    }
+  | {
+      id?: number;
+      worldid: number;
+      x: number;
+      y: number;
+    };
 
 export class Chunk {
-  public static readonly Indexes = '[worldid+x+y]';
+  public static readonly Indexes = '++&id, &[worldid+x+y]';
 
   public readonly createdate: Date;
+  public readonly id!: number;
   public readonly worldid: number;
   public readonly x: number;
   public readonly y: number;
 
-  constructor(option: ChunkCreateOption) {
+  private constructor(option: ChunkCreateOption) {
     this.createdate = new Date();
     this.worldid = option.worldid;
     this.x = option.x;
@@ -41,11 +51,17 @@ export class Chunk {
   public static async Read(
     option: ChunkReadOption
   ): Promise<Chunk | undefined> {
-    return db.chunks.get([
-      option.worldid,
-      option.x,
-      option.y
-    ]);
+    const { id, worldid, x, y } = option;
+    if (id !== undefined) {
+      return db.chunks.get(id);
+    } else if (
+      worldid !== undefined &&
+      x !== undefined &&
+      y !== undefined
+    ) {
+      return db.chunks.get({ worldid, x, y });
+    }
+    return;
   }
 
   public static async Update(chunk: Chunk): Promise<Chunk> {
@@ -56,10 +72,29 @@ export class Chunk {
   public static async Delete(
     option: ChunkReadOption
   ): Promise<void> {
-    return db.chunks.delete([
-      option.worldid,
-      option.x,
-      option.y
-    ]);
+    const { id, worldid, x, y } = option;
+    if (id !== undefined) {
+      return db.chunks.delete(id);
+    } else if (
+      worldid !== undefined &&
+      x !== undefined &&
+      y !== undefined
+    ) {
+      await db.chunks.where({ worldid, x, y }).delete();
+    }
+    return;
+  }
+}
+
+export class ChunkView {
+  public readonly data: Chunk;
+  public sprite: TilingSprite;
+
+  constructor(option: {
+    data: Chunk;
+    sprite: TilingSprite;
+  }) {
+    this.data = option.data;
+    this.sprite = option.sprite;
   }
 }

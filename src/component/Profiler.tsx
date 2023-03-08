@@ -1,143 +1,146 @@
+import { For, onCleanup, onMount, Show } from 'solid-js';
 import {
+  CSSClass,
+  KeyInput,
   createSignal,
-  For,
-  onCleanup,
-  Setter,
-  Show,
-  Signal
-} from 'solid-js';
-import { KeyInput } from '../entity';
-import { windowPreventDefault } from '../tool';
-import { Attachable } from '../design';
-import { Accessor } from 'solid-js';
-import {
-  Eventable,
-  EventEmitter
-} from '../design/Eventable';
-import { CSSClass } from '../entity/CSSClass';
-import { MountableElement, render } from 'solid-js/web';
-import { Destroyable } from '../design/Destroyable';
+  Signal,
+  createLifecycle
+} from '../entity';
+import { EventEmitter } from 'eventemitter3';
 
-windowPreventDefault('keydown');
+//
+// [Reactive Component Style for JSX]
+//
+// export const createComponent = (option?) => {
+//   const [accessor, setter] = createSignal(...);
+//
+//   const [mount, clean] = createLifecycle(() => {
+//     onMount(() => {
+//       // init
+//     });
+//
+//     onCleanup(() => {
+//       // deinit
+//     });
+//
+//     return (
+//       <!-- JSX.Element -->
+//     );
+//   });
+//
+//   return {
+//     mount,
+//     clean,
+//
+//     accessor,
+//     setter
+//   };
+// };
+//
 
-export class Profiler
-  implements
-    Attachable,
-    Destroyable,
-    Eventable<_ProfilerEvents>
-{
-  public readonly event: EventEmitter<_ProfilerEvents>;
-  public list: Record<string, Signal<string>>;
-  public toggleKI: KeyInput;
-  public readonly visibility: Accessor<DocumentVisibilityState>;
-  public readonly setVisibility: Setter<DocumentVisibilityState>;
+/**
+ * @param option.keys
+ * String keys to access the corresponding profile in `list`
+ * By default it's []
+ *
+ * @param option.toggleKeyInput
+ * The KeyInput to toggle on/off, by default it's { F12 }
+ */
+export const createProfiler = (option?: {
+  keys?: string[];
+  toggleKeyInput?: KeyInput;
+}) => {
+  const [event] = createSignal(
+    new EventEmitter<_ProfilerEvents>()
+  );
 
-  private _destroyed: boolean;
-  private readonly _dispose: () => void;
-  private readonly _toggle: (e: KeyboardEvent) => void;
+  const [list, setList] = createSignal(
+    new Map<string, Signal<string>>(
+      (option?.keys ?? []).map((key) => [
+        key,
+        createSignal('')
+      ])
+    )
+  );
 
-  public get destroyed(): boolean {
-    return this._destroyed;
-  }
+  const [toggleKeyInput, setToggleKeyInput] = createSignal(
+    option?.toggleKeyInput ?? new KeyInput({ code: 'F12' })
+  );
 
-  /**
-   * @param option.parentElement
-   * The element to render under, by default it's document.body
-   *
-   * @param option.profileKeys
-   * Each profile key is a string.
-   * Profiles can be accessed with these keys.
-   * By default it's []
-   */
-  constructor(option: {
-    parentElement: MountableElement;
-    profileKeys?: string[];
-  }) {
-    this._destroyed = false;
+  const [visibility, setVisibility] = createSignal(
+    'hidden' as DocumentVisibilityState
+  );
 
-    this._toggle = (e: KeyboardEvent) => {
-      if (this.toggleKI.equal(e)) {
-        const on = this.visibility() === 'hidden';
-        this.setVisibility(on ? 'visible' : 'hidden');
-        this.event.emit('toggle', on);
-      }
-    };
-
-    this.event = new EventEmitter();
-
-    this.list = {};
-    for (const key of option?.profileKeys ?? []) {
-      this.list[key] = createSignal('');
-    }
-
-    this.toggleKI = new KeyInput({ code: 'F12' });
-
-    [this.visibility, this.setVisibility] =
-      createSignal('hidden');
-
-    this._dispose = render(() => {
-      this.attach();
-      onCleanup(() => this.detach());
-
-      return (
-        <div class={CSSClass.NoPointerEvents}>
-          <div
-            class={
-              `${CSSClass.RegularText} ` +
-              `${CSSClass.FullScreen} ` +
-              (true
-                ? CSSClass.LightProfiler
-                : CSSClass.DarkProfiler)
-            }
-            style={{
-              'font-size': '0.8rem',
-              padding: '0.5rem',
-              visibility: this.visibility()
-            }}
-          >
-            <Show when={this.visibility() === 'visible'}>
-              <For each={Object.entries(this.list)}>
-                {([key, profile]) => (
-                  <div>{`${key}: ${profile[0]()}`}</div>
-                )}
-              </For>
-            </Show>
-          </div>
-        </div>
+  const _toggle = (e: KeyboardEvent) => {
+    if (toggleKeyInput().equal(e)) {
+      setVisibility(
+        visibility() === 'hidden' ? 'visible' : 'hidden'
       );
-    }, option.parentElement);
-  }
-
-  public destroy(): void {
-    if (!this.destroyed) {
-      this._destroyed = true;
-      this._dispose();
-      (this._dispose as unknown) = undefined;
-      (this._toggle as unknown) = undefined;
-
-      this.event.removeAllListeners();
-      (this.event as unknown) = undefined;
-      for (const key in this.list) {
-        delete this.list[key];
-      }
-      (this.list as unknown) = undefined;
-      (this.toggleKI as unknown) = undefined;
-      (this.visibility as unknown) = undefined;
-      (this.setVisibility as unknown) = undefined;
+      event().emit('toggle', visibility());
     }
-  }
+  };
 
-  public attach(): void {
-    this.detach();
+  const [mount, clean] = createLifecycle(() => {
+    onMount(() => {
+      window.addEventListener('keydown', _toggle);
+    });
 
-    window.addEventListener('keydown', this._toggle);
-  }
+    onCleanup(() => {
+      window.removeEventListener('keydown', _toggle);
 
-  public detach(): void {
-    window.removeEventListener('keydown', this._toggle);
-  }
-}
+      event().removeAllListeners();
 
-interface _ProfilerEvents {
-  toggle: [on: boolean];
-}
+      for (const [_, setProfile] of Object.values(list())) {
+        setProfile('');
+      }
+
+      setVisibility('hidden');
+    });
+
+    return (
+      // [TODO] Why do we need NoPointerEvents outer class?
+      <div class={CSSClass.NoPointerEvents}>
+        <div
+          class={
+            `${CSSClass.RegularText} ` +
+            `${CSSClass.FullScreen} ` +
+            (true
+              ? CSSClass.LightProfiler
+              : CSSClass.DarkProfiler)
+          }
+          style={{
+            'font-size': '0.8rem',
+            padding: '0.5rem',
+            visibility: visibility()
+          }}
+        >
+          <Show when={visibility() === 'visible'}>
+            <For each={[...list().entries()]}>
+              {([key, [profile]]) => (
+                <div>{`${key}: ${profile()}`}</div>
+              )}
+            </For>
+          </Show>
+        </div>
+      </div>
+    );
+  });
+
+  return {
+    mount,
+    clean,
+
+    event,
+    list,
+    toggleKeyInput,
+    visibility,
+
+    setList,
+    setToggleKeyInput,
+    setVisibility
+  };
+};
+
+type _ProfilerEvents = {
+  toggle: [visibility: DocumentVisibilityState];
+};

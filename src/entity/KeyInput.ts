@@ -19,14 +19,10 @@ export type KeyInputReadOption = {
 };
 
 /**
- * KeyInput a.k.a. KI
- *
  * It's comparable with types including
  * KeyboardEvent, MouseEvent and etc.
  */
-export class KeyInput
-  implements KeyInputCreateOption, KeyInputReadOption
-{
+export class KeyInput {
   public code?: KeyInputCodes;
   public altKey: boolean;
   public ctrlKey: boolean;

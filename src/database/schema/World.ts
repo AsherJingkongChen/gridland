@@ -1,4 +1,5 @@
 import { db } from '..';
+import { Vec2 } from '../../entity';
 
 export type WorldCreateOption = {
   name: string;
@@ -6,22 +7,24 @@ export type WorldCreateOption = {
 
 export type WorldReadOption =
   | {
-      id?: number;
-      name: string;
-    }
-  | {
       id: number;
       name?: string;
+    }
+  | {
+      id?: number;
+      name: string;
     };
 
 export class World {
-  public static readonly Indexes = '++&id,' + 'name';
+  public static readonly Indexes = '++&id, name';
 
+  public center: Vec2;
   public readonly createdate: Date;
   public readonly id!: number;
   public name: string;
 
-  constructor(option: WorldCreateOption) {
+  private constructor(option: WorldCreateOption) {
+    this.center = new Vec2();
     this.createdate = new Date();
     this.name = option.name;
   }

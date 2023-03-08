@@ -2,10 +2,7 @@ import Dexie, { Table } from 'dexie';
 import { Chunk, World } from './schema';
 
 export class DexieDbV1 extends Dexie {
-  public get chunks(): Table<
-    Chunk,
-    [number, number, number]
-  > {
+  public get chunks(): Table<Chunk, number> {
     return this.table(Chunk.name);
   }
 

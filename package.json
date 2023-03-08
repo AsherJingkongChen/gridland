@@ -32,11 +32,12 @@
   "lint-staged": {
     "./src/**/*.{ts,tsx,js,jsx}": [
       "prettier --write",
-      "eslint"
+      ""
     ]
   },
   "dependencies": {
     "dexie": "^3.2.3",
+    "eventemitter3": "^5.0.0",
     "pixi.js": "^7.1.1",
     "solid-js": "^1.6.11"
   },
